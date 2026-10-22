@@ -38,3 +38,5 @@ Runtime identity, independent reviewer, retention, and host isolation remain unr
 ## Isolated runner
 
 A draft-branch-only GitHub Actions workflow now defines a disposable, network-disabled Docker test runner. See `docs/isolated-runner.md`. Workflow installation and a successful hosted execution must be verified separately; local tests do not establish runner isolation.
+
+Observed: [hosted run 39853191498](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39853191498) passed all 28 tests and both boundary checks, with cleanup confirmed. The runner blocker is resolved for that scope; full acceptance remains BLOCKED on the separately documented requirements.

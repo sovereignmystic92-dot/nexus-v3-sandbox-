@@ -19,3 +19,9 @@ Local syntax and boundary tests can run in this environment. Docker is unavailab
 Full acceptance remains separately BLOCKED: independent reviewer/log-retention evidence and the unimplemented external/concurrency cases are not created by installing a runner. The local suite's passing count is not an isolation verdict. See the current workflow run and its exact head SHA rather than treating this setup document as execution evidence.
 
 Official basis: [GitHub hosted-runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners), [Docker network none](https://docs.docker.com/engine/network/drivers/none/).
+
+## Observed hosted result
+
+[Workflow run 39853191498](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39853191498) completed successfully against commit 68c51fa22d36ff5fed7a46c09b731dbd5d35972b. Job logs were retrieved after completion. Both host inspection and container-internal preflight checks passed; 28 distinct tests passed; source manifests matched; container removal and source-staging removal were confirmed. The exact parsed synthetic report is preserved in hosted-run-39853191498.json and its source hashes were checked against the authoring copy.
+
+This resolves the immediate unavailable isolated-runner blocker for the measured scope. The generic standalone local-report control list is not rewritten retroactively; the hosted wrapper adds measured boundary evidence for this specific run. Independent human review, repository log retention, forced host-kill cleanup, reciprocal external endpoints, disk-full/power-loss and concurrent-worker fencing are not established. Full acceptance remains BLOCKED; no main merge or production deployment occurred.

@@ -20,3 +20,5 @@ Open: runtime host and operator, separate reviewer or explicit reviewer limitati
 Review record: reviewer, date, package revision, observed evidence, unresolved controls, decision, exact authorized scope and expiry. This template is not approval or a readiness verdict.
 
 Follow-through 2026-10-22: 24 distinct local tests pass, including structured authority handling and attempt envelopes. A user/network namespace attempt failed with Operation not permitted; no host-isolation control is upgraded by local test success. Full acceptance remains BLOCKED. See authority-and-acceptance.md.
+
+Hosted follow-through: run 39853191498 at commit 68c51fa22d36ff5fed7a46c09b731dbd5d35972b passed host/container boundary checks and all 28 tests, with cleanup confirmed. This provides scoped runtime evidence for nonroot identity, explicit mounts/environment, network-none and ordinary cleanup. It does not establish independent review, log retention, host-kill teardown or broader acceptance. See isolated-runner.md and hosted-run-39853191498.json.
