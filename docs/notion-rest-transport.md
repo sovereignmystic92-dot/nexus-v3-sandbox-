@@ -30,3 +30,10 @@ Remaining work: secure gateway binding, separately verified test-only credential
 - [Working with page content](https://developers.notion.com/guides/data-apis/working-with-page-content): page-parent creation, title and children payload, and `2026-03-11` examples.
 
 References checked on 2026-10-22. Bounds in this implementation are intentionally restrictive application limits, not an assertion of every service limit.
+
+
+## Hosted evidence observed
+
+[Run 39859737137](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39859737137) passed at source commit `fff453d157e3b2de81986091791a6c4a30bff196`. Retrieved completed job logs confirm 63 distinct tests passed, including the 14 REST request-mapping tests, 17 prior adapter/parser tests and four mission cases. The four separately counted coordinator crash/disk-full cases also passed. Boundary checks, source matching and ordinary container/staging removal passed. GitHub reported 90-day retention, within policy. The exact synthetic report is in `hosted-run-39859737137.json`.
+
+This was an offline test of request mapping and reconciliation with an injected fake gateway. It did not access the Notion API. Full integration acceptance remains BLOCKED. An evidence-only follow-up commit changes no tested runtime source. PRs 2 and 3 remain unmerged.

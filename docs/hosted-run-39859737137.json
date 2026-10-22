@@ -1,0 +1,816 @@
+{
+  "container_removed": true,
+  "container_result": {
+    "container_preflight": {
+      "capabilities_dropped": true,
+      "external_connect_denied": true,
+      "loopback_only": true,
+      "no_credential_env_names": true,
+      "no_default_ipv4_route": true,
+      "no_docker_socket": true,
+      "no_new_privileges": true,
+      "no_repository_git_directory": true,
+      "nonroot_uid": true,
+      "seccomp_enabled": true,
+      "source_write_denied": true
+    },
+    "fault_checks": {
+      "cases": [
+        {
+          "artifacts": 3,
+          "attempts": 6,
+          "case_id": "SIGKILL-after-archive",
+          "events": 6,
+          "final_state": "VERIFIED",
+          "integrity_check": "ok",
+          "observed_signal": "SIGKILL",
+          "recovered_checkpoint": "ARCHIVED",
+          "status": "PASSED"
+        },
+        {
+          "artifacts": 3,
+          "attempts": 6,
+          "case_id": "SIGKILL-during-output",
+          "events": 6,
+          "final_state": "VERIFIED",
+          "integrity_check": "ok",
+          "observed_signal": "SIGKILL",
+          "recovered_checkpoint": "ARCHIVED",
+          "status": "PASSED"
+        },
+        {
+          "artifacts": 3,
+          "attempts": 6,
+          "case_id": "SIGKILL-after-output",
+          "events": 6,
+          "final_state": "VERIFIED",
+          "integrity_check": "ok",
+          "observed_signal": "SIGKILL",
+          "recovered_checkpoint": "OUTPUT_CREATED",
+          "status": "PASSED"
+        },
+        {
+          "case_id": "REAL-TMPFS-ENOSPC",
+          "checkpoint_preserved": true,
+          "filler_bytes_written": 4141056,
+          "final_state_after_freeing_space": "VERIFIED",
+          "integrity_check": "ok",
+          "limitation": "Full tmpfs before archive write; not device loss or power interruption",
+          "observed_errno": "ENOSPC",
+          "sqlite_errorcode": 13,
+          "sqlite_errorname": "SQLITE_FULL",
+          "status": "PASSED",
+          "volume_capacity_bytes": 4194304
+        }
+      ],
+      "ended_at_utc": "2026-10-22T21:45:10.032428+00:00",
+      "started_at_utc": "2026-10-22T21:45:09.396907+00:00",
+      "status": "PASSED"
+    },
+    "local_report": {
+      "cases": [
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_absent_or_denied_current_authority_fails_closed"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_authority_order_does_not_change_governing_revision"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_blocked_attempt_reports_not_attempted_and_preserves_provenance"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_changed_authority_holds_checkpoint_then_bound_policy_can_resume"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_conflicting_current_authority_blocks_without_artifacts"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_failed_event_write_rolls_back_attempt_and_verification"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_failed_readback_preserves_failed_attempt_after_repair"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_full_envelope_fields_and_independent_readback_hashes"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_malformed_or_duplicate_authority_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_s06_historical_source_and_hypothesis_do_not_govern"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_artifact_and_checkpoint_rollback_when_event_write_fails"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_conflicting_existing_artifact_is_preserved"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_fixture_claiming_real_data_denied"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_missing_or_misrouted_artifact_never_verifies"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_readback_corruption_never_verifies"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_resume_after_archive_and_output_reopen"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s01_separate_readback_and_events"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s02_repeat_and_reopen_preserve_artifact_ids"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s03_changed_binding_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s04_incomplete_source_blocked"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s05_production_destination_denied_before_transaction_write"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_s07_source_instructions_remain_literal_data"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_stale_version_rejected_without_extra_event"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_coordinator.CoordinatorTests.test_unknown_source_and_wrong_hash_denied"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m02_interrupted_mission_resumes_without_duplicate_work"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m04_current_authority_conflict_holds_whole_mission"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_absent_result_after_uncertain_create_never_recreates"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_acknowledged_id_survives_read_outage_and_restart"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_changed_binding_rejected_before_remote_observation"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_create_requires_exact_independent_read_then_retry_reuses_id"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_duplicate_matches_hold_and_preserve_both_pages"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_failure_history_is_retained_after_successful_reconciliation"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_interruption_after_create_leaves_durable_intent_for_recovery"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_missing_sandbox_marker_blocks_creation"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_outside_parent_and_nonsynthetic_key_rejected_without_remote_call"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_partial_lookup_blocks_creation"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_response_loss_reconciles_after_restart_without_second_create"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_adapter.NotionAdapterTests.test_tampered_payload_or_location_never_verifies_or_overwrites"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_observations.ObservationTests.test_both_observed_inline_code_marker_encodings_are_accepted"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_observations.ObservationTests.test_complete_direct_child_record_is_readable"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_observations.ObservationTests.test_missing_child_or_duplicate_fetch_is_incomplete"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_observations.ObservationTests.test_unknown_or_truncated_blocks_fail_closed"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_observations.ObservationTests.test_unrecognized_adapter_or_title_mismatch_is_incomplete"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_full_engine_create_readback_repeat_uses_one_post"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_json_escape_expansion_is_bounded_before_post"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_literal_page_mentions_in_prose_do_not_hide_records"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_looping_cursor_and_pagination_exhaustion_fail_closed"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_lost_post_response_reconciles_without_second_post"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_missing_has_more_and_duplicate_block_ids_are_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_multiple_records_or_nonboolean_synthetic_are_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_multiple_root_pages_are_fully_requested"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_nested_or_unsupported_content_never_counts_as_complete"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_outside_create_target_rejected_before_any_request"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_payload_is_split_and_reassembled_without_loss"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_rate_limit_error_holds_without_post_or_retry"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_request_budget_stops_unbounded_transport_use"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_notion_rest.RESTTransportTests.test_wrong_parent_rejected_before_reading_page_body"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_runner_boundary.RunnerBoundaryTests.test_bounded_configuration_including_expected_tmpfs_is_accepted"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_runner_boundary.RunnerBoundaryTests.test_docker_socket_or_extra_host_mount_is_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_runner_boundary.RunnerBoundaryTests.test_host_network_privilege_capability_or_pid_mode_is_rejected"
+        },
+        {
+          "status": "PASSED",
+          "test_id": "test_runner_boundary.RunnerBoundaryTests.test_writable_source_mount_or_root_identity_is_rejected"
+        }
+      ],
+      "deferred_scope": [
+        "F04 reciprocal external endpoints",
+        "F05 disk-full/power-loss",
+        "C01 concurrent workers",
+        "C02/C9 worker lease fencing"
+      ],
+      "distinct_tests": 63,
+      "ended_at_utc": "2026-10-22T21:45:09.394662+00:00",
+      "full_acceptance_status": "BLOCKED",
+      "limitations": [
+        "no automatic isolation probe or external integration in this runner",
+        "runtime/authority labels are operator assertions; no independent human audit",
+        "test failures do not prove a database write succeeded"
+      ],
+      "local_test_status": "PASSED",
+      "mission_cases": [
+        {
+          "case_id": "M01",
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable"
+        },
+        {
+          "case_id": "M02",
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m02_interrupted_mission_resumes_without_duplicate_work"
+        },
+        {
+          "case_id": "M03",
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission"
+        },
+        {
+          "case_id": "M04",
+          "status": "PASSED",
+          "test_id": "test_missions.MissionTests.test_m04_current_authority_conflict_holds_whole_mission"
+        }
+      ],
+      "mission_scope": "single transaction per mission; payload preservation only; no semantic synthesis or external registration",
+      "mission_status": "PASSED",
+      "sample_attempts": [
+        {
+          "artifact_ids": [],
+          "attempt_id": "synthetic:attempt:cae9c8f6-2dbd-4397-b4fd-2784aa58be1b",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.390414+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:cae9c8f6-2dbd-4397-b4fd-2784aa58be1b"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "NEW",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "validate source",
+          "observed_result": "synthetic fixture binding recorded; OPEN; current authority permits synthetic output",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.390093+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [],
+          "attempt_id": "synthetic:attempt:131d3b20-c291-4b34-a05e-84dbe5f2fcb6",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.390892+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:131d3b20-c291-4b34-a05e-84dbe5f2fcb6"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "VALIDATED",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "resume from VALIDATED",
+          "observed_result": "local checkpoint committed",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.390606+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive"
+          ],
+          "attempt_id": "synthetic:attempt:1ba7484d-98b4-42a8-8156-cab1058a24d3",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.391388+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:1ba7484d-98b4-42a8-8156-cab1058a24d3"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "ARCHIVED",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "resume from ARCHIVED",
+          "observed_result": "local checkpoint committed",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.391062+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output"
+          ],
+          "attempt_id": "synthetic:attempt:54f5c57c-d0d3-4144-b012-a77ca64db802",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.391939+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:54f5c57c-d0d3-4144-b012-a77ca64db802"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "OUTPUT_CREATED",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "resume from OUTPUT_CREATED",
+          "observed_result": "local checkpoint committed",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.391561+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
+          ],
+          "attempt_id": "synthetic:attempt:5687804e-3fd8-4929-94ee-fbfd6d0e9c0c",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.392430+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:5687804e-3fd8-4929-94ee-fbfd6d0e9c0c"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "REGISTERED",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "resume from REGISTERED",
+          "observed_result": "local checkpoint committed",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.392110+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
+          ],
+          "attempt_id": "synthetic:attempt:7b581601-061a-46de-8a73-14603e310a0b",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+          "case_id": "S01",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.393074+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:7b581601-061a-46de-8a73-14603e310a0b"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "VERIFIED",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "none",
+          "observed_result": "fresh SQLite reader exact ID/destination/payload/hash match",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "readback_hashes": {
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "readback_observed_at_utc": "2026-10-22T21:45:09.392776+00:00",
+          "reader_identity": "synthetic:reader:bff79b9d-17c6-4b42-9f8e-7132889da542",
+          "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.392612+00:00",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+        },
+        {
+          "artifact_ids": [],
+          "attempt_id": "synthetic:attempt:a2b4d337-2574-4189-beb5-20a669faa816",
+          "authority_provenance": [
+            {
+              "document_id": "synthetic:authority:conflict",
+              "revision": "1",
+              "role": "current",
+              "rule": "deny_synthetic_output"
+            },
+            {
+              "document_id": "synthetic:authority:local-sandbox-policy",
+              "revision": "1",
+              "role": "current",
+              "rule": "allow_synthetic_output"
+            }
+          ],
+          "authority_revision": "673f8394f3a5af26e11d5f3112219074f506382e191a3ea885d2444736cc56e1",
+          "bound_authority_revision": "673f8394f3a5af26e11d5f3112219074f506382e191a3ea885d2444736cc56e1",
+          "case_id": "AUTH-CONFLICT",
+          "code_revision": "sha256:1305bd46e7df318e4c64c4b4c87e96bb211b5a0155d33dfb0fbf752a50835f1a",
+          "ended_at_utc": "2026-10-22T21:45:09.394181+00:00",
+          "evidence_refs": [
+            "synthetic:attempt:a2b4d337-2574-4189-beb5-20a669faa816"
+          ],
+          "expected_hashes": {
+            "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+            "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+          },
+          "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+          "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+          "last_confirmed_state": "NEW",
+          "limitations": [
+            "local SQLite protocol only; not production readiness",
+            "operator-asserted synthetic data, runtime identity and authority roles",
+            "host isolation and independent human review unverified",
+            "immediate readback only; no leases or cryptographic event protection"
+          ],
+          "next_action": "resolve authority; submit under a new key",
+          "observed_result": "synthetic fixture binding recorded; BLOCKED; conflicting current authority",
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "BLOCKED",
+          "readback_hashes": {},
+          "readback_observed_at_utc": null,
+          "reader_identity": null,
+          "run_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:run",
+          "runtime_identity": "synthetic:runtime:validation-runner",
+          "schema_version": 1,
+          "started_at_utc": "2026-10-22T21:45:09.393885+00:00",
+          "transaction_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484"
+        }
+      ],
+      "schema_version": 1,
+      "scope": "synthetic local unit/integration evidence only",
+      "source_sha256": {
+        "src/nexus_sandbox/__init__.py": "f936daed6f0ffd89f5cb4edb10858cd9aa42fb092a75d9c93977b8c3b6c6bfb0",
+        "src/nexus_sandbox/authority.json": "de6bddbd851854e88676a681b04b925012c187c5b58da170ecfdf18ba5a21d93",
+        "src/nexus_sandbox/authority.py": "1503ce83b1d7efeef53cc23654fe074ed600583a0f9e9925081d3ec04a58d81a",
+        "src/nexus_sandbox/contracts.py": "a1ee2a99203282010bf9a1645db6a1afb1a3fec759ab1e90cf697915c4b5e5cc",
+        "src/nexus_sandbox/coordinator.py": "46ae1d750980e22e94b0b869f30dd5a35595a950177bebc083a14dd32080a863",
+        "src/nexus_sandbox/notion_adapter.py": "355b3bee36e7387e9dd1ba0de964444e6f934d6121f3c194c064281fd4aff9de",
+        "src/nexus_sandbox/notion_rest.py": "e427b3ba0b797031e17396d6a608e06991ad1b286a90da5c6f71cbf019b35de5",
+        "src/nexus_sandbox/schema.sql": "dbb4449470b544ff3d7b3365aaa7c2fe4f48601db7396437b0174ac16d5c4d26",
+        "tests/fixtures/complete-source.json": "49ebda733d41e7100f562dacc88bdf34dfedcb9a4166e146267447682a4f5176",
+        "tests/unit/test_authority_evidence.py": "e64f8eb6e21ca533ba71d4cddd774454b80d0e058e6b2772d4695124d3bf449d",
+        "tests/unit/test_coordinator.py": "3a7dd1ba4463512ab7c7295fde5a07a85755c436fec1b2844d0ab1981bf0b907",
+        "tests/unit/test_missions.py": "530c556ccdd05610ceb8a6357efbb40d251d8d90b84b36af294cead4e88d299c",
+        "tests/unit/test_notion_adapter.py": "79d9c3867c4664d63798aff544f4c631e5069e293ec279ff3abead80bc9ff09f",
+        "tests/unit/test_notion_observations.py": "20cd41f58eef74f1f34d36868614e2edda3c4c976e8b81297cadf1ae24c96102",
+        "tests/unit/test_notion_rest.py": "5fbd557c023fdd12aee8e3f2d04d13353f18bc5f7f6af42bf3607cd52174041c",
+        "tests/unit/test_runner_boundary.py": "72be176ab48c88a55dfec8b06ea9b5449154b9761ff94b67140725c36148d622",
+        "tools/container_probe.py": "e773bfdeb760aa23ff49cdf1e2da785dfcc335030044f6d3b102e83564fdb806",
+        "tools/fault_checks.py": "419a1579382e99223d6ee609ca0a187f1a05aec45c06a6796d64680046d7c64c",
+        "tools/fault_worker.py": "175894dce8f40bb4bad2e11bb7987ff35c2c021a03edf2d514771f3b2c0e87f3",
+        "tools/notion_observations.py": "46f711ea7ebb6084076c3dc3004d4cd9941e3720aeb0e7cb4156568d1ee34448",
+        "tools/run_isolated.py": "2b8fa45820f7fd34f212532dafe1f256c8f594d145e72320833af981b7939c99",
+        "tools/validate.py": "5e77e01dc9f1612f4d77efb1b712b07bf4ab2d5f85b46cc55693708086a03db4"
+      },
+      "started_at_utc": "2026-10-22T21:45:09.112314+00:00",
+      "tests_run": 63,
+      "unresolved_controls": [
+        "C1 disposable host/filesystem isolation",
+        "C2 effective grants",
+        "C3 production credential/mount exclusion",
+        "C4 host egress/trigger denial",
+        "C8 host stop/teardown and retention verification"
+      ]
+    },
+    "tests_attempted": true
+  },
+  "ended_at_utc": "2026-10-22T21:45:10.141012+00:00",
+  "exit_code": 0,
+  "full_acceptance_status": "BLOCKED",
+  "github_log_retention_days": "90",
+  "github_run_attempt": "1",
+  "github_run_id": "39859737137",
+  "host_container_preflight": {
+    "bounded_resources": true,
+    "capabilities_dropped": true,
+    "network_none": true,
+    "no_devices": true,
+    "no_extra_capabilities": true,
+    "no_new_privileges": true,
+    "only_readonly_source_mount": true,
+    "private_namespaces": true,
+    "root_filesystem_readonly": true,
+    "temporary_storage_only": true,
+    "unprivileged": true,
+    "unprivileged_user": true
+  },
+  "image_id": "sha256:a33c10a97f11005523814c6eee013986119fe41f3122f444518117536675c8e1",
+  "image_repository_digests": [
+    "python@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+  ],
+  "isolated_run_status": "PASSED",
+  "limitations": [
+    "shared container kernel; trusted GitHub-hosted VM/engine",
+    "no independent human reviewer; retention is a GitHub runtime assertion",
+    "no external adapters, concurrency, lease fencing or production acceptance"
+  ],
+  "provider_identity_assertion": "github-hosted",
+  "retention_policy_max_days": 90,
+  "retention_policy_status": "RUNTIME_SETTING_CONFIRMED",
+  "schema_version": 1,
+  "source_commit": "fff453d157e3b2de81986091791a6c4a30bff196",
+  "source_sha256": {
+    "src/nexus_sandbox/__init__.py": "f936daed6f0ffd89f5cb4edb10858cd9aa42fb092a75d9c93977b8c3b6c6bfb0",
+    "src/nexus_sandbox/authority.json": "de6bddbd851854e88676a681b04b925012c187c5b58da170ecfdf18ba5a21d93",
+    "src/nexus_sandbox/authority.py": "1503ce83b1d7efeef53cc23654fe074ed600583a0f9e9925081d3ec04a58d81a",
+    "src/nexus_sandbox/contracts.py": "a1ee2a99203282010bf9a1645db6a1afb1a3fec759ab1e90cf697915c4b5e5cc",
+    "src/nexus_sandbox/coordinator.py": "46ae1d750980e22e94b0b869f30dd5a35595a950177bebc083a14dd32080a863",
+    "src/nexus_sandbox/notion_adapter.py": "355b3bee36e7387e9dd1ba0de964444e6f934d6121f3c194c064281fd4aff9de",
+    "src/nexus_sandbox/notion_rest.py": "e427b3ba0b797031e17396d6a608e06991ad1b286a90da5c6f71cbf019b35de5",
+    "src/nexus_sandbox/schema.sql": "dbb4449470b544ff3d7b3365aaa7c2fe4f48601db7396437b0174ac16d5c4d26",
+    "tests/fixtures/complete-source.json": "49ebda733d41e7100f562dacc88bdf34dfedcb9a4166e146267447682a4f5176",
+    "tests/unit/test_authority_evidence.py": "e64f8eb6e21ca533ba71d4cddd774454b80d0e058e6b2772d4695124d3bf449d",
+    "tests/unit/test_coordinator.py": "3a7dd1ba4463512ab7c7295fde5a07a85755c436fec1b2844d0ab1981bf0b907",
+    "tests/unit/test_missions.py": "530c556ccdd05610ceb8a6357efbb40d251d8d90b84b36af294cead4e88d299c",
+    "tests/unit/test_notion_adapter.py": "79d9c3867c4664d63798aff544f4c631e5069e293ec279ff3abead80bc9ff09f",
+    "tests/unit/test_notion_observations.py": "20cd41f58eef74f1f34d36868614e2edda3c4c976e8b81297cadf1ae24c96102",
+    "tests/unit/test_notion_rest.py": "5fbd557c023fdd12aee8e3f2d04d13353f18bc5f7f6af42bf3607cd52174041c",
+    "tests/unit/test_runner_boundary.py": "72be176ab48c88a55dfec8b06ea9b5449154b9761ff94b67140725c36148d622",
+    "tools/container_probe.py": "e773bfdeb760aa23ff49cdf1e2da785dfcc335030044f6d3b102e83564fdb806",
+    "tools/fault_checks.py": "419a1579382e99223d6ee609ca0a187f1a05aec45c06a6796d64680046d7c64c",
+    "tools/fault_worker.py": "175894dce8f40bb4bad2e11bb7987ff35c2c021a03edf2d514771f3b2c0e87f3",
+    "tools/notion_observations.py": "46f711ea7ebb6084076c3dc3004d4cd9941e3720aeb0e7cb4156568d1ee34448",
+    "tools/run_isolated.py": "2b8fa45820f7fd34f212532dafe1f256c8f594d145e72320833af981b7939c99",
+    "tools/validate.py": "5e77e01dc9f1612f4d77efb1b712b07bf4ab2d5f85b46cc55693708086a03db4"
+  },
+  "source_staging_removed": true,
+  "started_at_utc": "2026-10-22T21:45:04.368800+00:00",
+  "evidence_origin": {
+    "workflow_run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39859737137",
+    "job_id": 120107036309,
+    "observed_via": "Retrieved completed GitHub job logs",
+    "scope": "63 offline unit/integration tests plus four separate coordinator fault checks; no Notion API execution"
+  }
+}
