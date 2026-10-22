@@ -1,6 +1,6 @@
 # Acceptance cases — NOT RUN
 
-These are proposed cases, not executable tests or observed results. Code existence, static inspection, test pass and operational availability must remain separate evidence states.
+These remain the full acceptance proposals. Local tests now exercise subsets listed in `implementation-validation.md`; they do not constitute a full acceptance run. Code existence, static inspection, test pass and operational availability remain separate evidence states.
 
 | ID | Scenario | Required result | Phase |
 | --- | --- | --- | --- |
@@ -19,4 +19,4 @@ These are proposed cases, not executable tests or observed results. Code existen
 | C01 | Two workers retry same request | At most one logical output; conditional update protects ownership | Concurrency |
 | C02 | Old worker writes after lease replacement | Reject stale worker using demonstrated fencing | Concurrency |
 
-Sequential execution, failure injection and concurrency remain distinct scopes. No tests were run to prepare this draft. A passing SQLite harness would demonstrate only local harness behavior, not Notion persistence, Cortex synchronization, runtime isolation or production readiness.
+Sequential execution, failure injection and concurrency remain distinct scopes. The initial draft had no execution; the subsequent local implementation passed 14 tests. That demonstrates only local harness behavior, not Notion persistence, Cortex synchronization, runtime isolation or production readiness.

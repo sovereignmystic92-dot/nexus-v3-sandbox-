@@ -1,1 +1,1 @@
-"""Nonexecuting interface draft for the synthetic foundation sandbox."""
+"""Local synthetic foundation sandbox; no production integration."""

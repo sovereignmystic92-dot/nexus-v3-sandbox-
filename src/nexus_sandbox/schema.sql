@@ -1,4 +1,4 @@
--- Proposed schema; not applied or runtime-tested.
+-- Local synthetic harness schema. No cross-service atomicity or worker leases.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE transactions (
@@ -8,6 +8,7 @@ CREATE TABLE transactions (
     source_revision TEXT NOT NULL,
     destination_id TEXT NOT NULL CHECK (destination_id = 'synthetic:output'),
     payload_sha256 TEXT NOT NULL CHECK (length(payload_sha256) = 64),
+    source_complete INTEGER NOT NULL CHECK (source_complete IN (0,1)),
     state TEXT NOT NULL CHECK (state IN
         ('NEW','VALIDATED','ARCHIVED','OUTPUT_CREATED','REGISTERED','VERIFIED')),
     disposition TEXT NOT NULL CHECK (disposition IN ('OPEN','BLOCKED','INCOMPLETE','VERIFIED')),
@@ -26,6 +27,12 @@ CREATE TABLE events (
     evidence_ref TEXT NOT NULL
 );
 
--- State transitions, immutable key bindings, synthetic source validation,
--- checkpoint/event atomicity and independent readback remain controller duties.
--- This schema is not evidence that those duties have been implemented.
+CREATE TABLE artifacts (
+    artifact_id TEXT PRIMARY KEY,
+    transaction_id TEXT NOT NULL REFERENCES transactions(transaction_id),
+    kind TEXT NOT NULL CHECK (kind IN ('archive','output','registry')),
+    destination_id TEXT NOT NULL CHECK (destination_id IN ('synthetic:archive','synthetic:output')),
+    payload TEXT NOT NULL,
+    payload_sha256 TEXT NOT NULL CHECK (length(payload_sha256) = 64),
+    UNIQUE(transaction_id, kind)
+);

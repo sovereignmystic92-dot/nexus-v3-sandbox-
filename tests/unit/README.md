@@ -1,3 +1,3 @@
-# Unit tests pending
+# Local coordinator tests
 
-No executable unit tests are included at the interface-draft stage. Implement tests against S01–S07 after a concrete coordinator exists. Failure and concurrency scenarios require their own execution scope. Empty test collections must never be reported as a passing acceptance suite.
+Run `PYTHONPATH=src python3 -m unittest discover -s tests/unit -v` from the repository root. Fourteen executable tests exercise local SQLite behavior using temporary synthetic data. The coverage map and limitations are in `docs/implementation-validation.md`. S06 authority resolution, reciprocal external endpoints, full disk/power failures, concurrency and worker fencing are not established. Empty collections must never be reported as a passing acceptance suite.

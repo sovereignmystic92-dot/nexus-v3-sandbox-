@@ -1,14 +1,14 @@
 # Proposed architecture
 
-Scope: one worker, synthetic records, SQLite, no integrations. No runtime exists in this draft.
+Scope: one worker, explicit synthetic fixture catalog, SQLite, no integrations. A local coordinator now exists; no hosted runtime is provisioned.
 
 | Component | Contract | Draft status |
 | --- | --- | --- |
 | Authority resolver | Separate current, historical, source and hypothesis material; hold on unresolved governing conflicts | Specified only |
-| Transaction manager | Bind stable idempotency key to source revision, destination and payload hash; reject changed payload under reused key | Specified only |
-| Evidence validator | Require complete source and attributable claims before progression | Specified only |
-| Routing controller | Permit only explicit synthetic destination IDs | Specified only |
-| Persistence verifier | Reopen storage separately; compare exact persisted IDs, destination and content hash before VERIFIED | Specified only |
+| Transaction manager | Bind stable idempotency key to source revision, destination and payload hash; reject changed payload under reused key | Implemented locally; complete flag also bound |
+| Evidence validator | Require complete source and attributable claims before progression | Fixture completeness/hash enforced; claim attribution not implemented |
+| Routing controller | Permit only explicit synthetic destination IDs | Implemented locally; no external adapter |
+| Persistence verifier | Reopen storage separately; compare exact persisted IDs, destination and content hash before VERIFIED | Implemented locally; snapshot observation only |
 
 ## Proposed transaction progression
 
@@ -18,4 +18,4 @@ BLOCKED and INCOMPLETE are non-success dispositions with a preserved last-confir
 
 Use a SQLite transaction to update checkpoint, version and corresponding event atomically. Retrying the same idempotency key returns existing state; changing its immutable binding is an error. Recovery must inspect actual artifacts before creating replacements. This design does not claim cross-service atomicity.
 
-Concurrent workers and stale-worker fencing are out of initial execution scope. The version column is a proposed prerequisite, not proof that fencing is implemented. Event rows are append-only by controller contract; the draft schema alone does not prevent a privileged SQLite writer from altering history.
+Concurrent workers and stale-worker fencing are out of initial execution scope. Version checks reject stale checkpoints, but no worker lease/fencing mechanism exists. Event rows are append-only by controller contract; the schema does not prevent a privileged SQLite writer from altering history. Source payloads are copied literally and never evaluated as code or interpreted as authority. Synthetic markers are caller assertions, not an automatic detector of real data.

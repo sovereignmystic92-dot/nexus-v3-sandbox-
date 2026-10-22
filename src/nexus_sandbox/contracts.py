@@ -1,4 +1,4 @@
-"""Review-only contracts. No storage, network, imports of fixtures, or entry point."""
+"""Coordinator interface for the local synthetic harness."""
 
 from dataclasses import dataclass
 from typing import Literal, Protocol
