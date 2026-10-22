@@ -11,3 +11,5 @@ Store events with a monotonically increasing sequence, transaction ID, prior/new
 An independent persistence check uses a fresh reader/connection, not the write response or an in-memory copy. This is separate observation, not an independent human audit. Record exactly which aspect was checked and the observation time; immediate readback does not establish long-term durability.
 
 No fabricated run records are included. Proposed scenarios remain NOT_TESTED until attributable execution evidence exists.
+
+Implementation follow-through: the local coordinator emits these fields for committed transitions in the attempts table, atomically with checkpoint/event/artifact changes. Events reference attempt IDs. Package-source hashes identify code; runtime identity remains an operator-supplied synthetic label. Repeated/terminal reads reuse existing checkpoints. Storage failures roll back and raise; durable exception logging to the failed database is not claimed. Seven observed synthetic examples are exported in validation-results.json. Full acceptance remains BLOCKED.

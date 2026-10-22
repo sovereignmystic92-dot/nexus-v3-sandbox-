@@ -1,4 +1,6 @@
-# Local implementation and validation — 2026-10-22
+# Initial local implementation and validation — 2026-10-22
+
+Historical 14-test milestone. Superseded for current status by authority-and-acceptance.md: authority metadata and attempt envelopes are implemented, 24 distinct local tests pass, and full acceptance remains BLOCKED. The results below preserve the earlier milestone.
 
 Implemented `SQLiteCoordinator` against the existing submit/resume interface. Each resume commits at most one transition. Artifact writes, checkpoint version changes and events share one SQLite transaction. A failed write raises an error and rolls back; it does not manufacture an INCOMPLETE checkpoint that was never persisted.
 

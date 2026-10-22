@@ -20,3 +20,5 @@ These remain the full acceptance proposals. Local tests now exercise subsets lis
 | C02 | Old worker writes after lease replacement | Reject stale worker using demonstrated fencing | Concurrency |
 
 Sequential execution, failure injection and concurrency remain distinct scopes. The initial draft had no execution; the subsequent local implementation passed 14 tests. That demonstrates only local harness behavior, not Notion persistence, Cortex synchronization, runtime isolation or production readiness.
+
+Current follow-through: 24 distinct local tests now cover local components of S01–S07, including S06 structured authority provenance/conflict behavior. Committed transitions emit complete field-level attempt envelopes. Full acceptance remains BLOCKED on host controls; the old 14-test count above is historical. See authority-and-acceptance.md and validation-results.json for current scope.

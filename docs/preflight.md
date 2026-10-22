@@ -18,3 +18,5 @@ Current authorization: continue local coordinator implementation and synthetic l
 Open: runtime host and operator, separate reviewer or explicit reviewer limitation, retention/teardown deadline, enforced credential/filesystem/network isolation. Free-first preference does not establish provider eligibility or authorize spending.
 
 Review record: reviewer, date, package revision, observed evidence, unresolved controls, decision, exact authorized scope and expiry. This template is not approval or a readiness verdict.
+
+Follow-through 2026-10-22: 24 distinct local tests pass, including structured authority handling and attempt envelopes. A user/network namespace attempt failed with Operation not permitted; no host-isolation control is upgraded by local test success. Full acceptance remains BLOCKED. See authority-and-acceptance.md.

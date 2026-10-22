@@ -2,13 +2,13 @@
 
 Target: `sovereignmystic92-dot/nexus-v3-sandbox-` (public).
 
-Status: local Python/SQLite coordinator implemented and exercised by 14 synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
+Status: local Python/SQLite coordinator implemented and exercised by 24 distinct synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
 
 The owner selected public visibility after the original private-repository blueprint. Only synthetic examples and generic design material belong here. Notion remains authoritative for Nexus; this repository cannot promote Nexus 3.0 or reactivate production operations.
 
 ## Included
 
-- Architecture and component contracts.
+- Architecture, component contracts, and structured synthetic authority resolution.
 - Sequential acceptance cases, with failure and concurrency cases separated.
 - Evidence and preflight templates with unverified controls explicitly retained.
 - SQLite coordinator, checkpoint/event transactions, synthetic artifacts, and fresh-connection readback.
@@ -24,7 +24,7 @@ Python 3 standard library only. From the repository root:
 PYTHONPATH=src python3 -m unittest discover -s tests/unit -v
 ```
 
-Tests create disposable temporary SQLite files and remove them on completion. They do not call connectors. This command does not establish host isolation or grant approval for external integrations. See `docs/implementation-validation.md` for evidence and remaining gaps.
+Tests create disposable temporary SQLite files and remove them on completion. They do not call connectors. This command does not establish host isolation or grant approval for external integrations. See `docs/authority-and-acceptance.md` and `docs/validation-results.json` for current evidence and remaining gaps. Full acceptance is BLOCKED pending host isolation.
 
 ## Review sequence
 

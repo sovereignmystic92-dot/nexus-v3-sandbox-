@@ -9,6 +9,7 @@ CREATE TABLE transactions (
     destination_id TEXT NOT NULL CHECK (destination_id = 'synthetic:output'),
     payload_sha256 TEXT NOT NULL CHECK (length(payload_sha256) = 64),
     source_complete INTEGER NOT NULL CHECK (source_complete IN (0,1)),
+    authority_revision TEXT NOT NULL,
     state TEXT NOT NULL CHECK (state IN
         ('NEW','VALIDATED','ARCHIVED','OUTPUT_CREATED','REGISTERED','VERIFIED')),
     disposition TEXT NOT NULL CHECK (disposition IN ('OPEN','BLOCKED','INCOMPLETE','VERIFIED')),
@@ -35,4 +36,10 @@ CREATE TABLE artifacts (
     payload TEXT NOT NULL,
     payload_sha256 TEXT NOT NULL CHECK (length(payload_sha256) = 64),
     UNIQUE(transaction_id, kind)
+);
+
+CREATE TABLE attempts (
+    attempt_id TEXT PRIMARY KEY,
+    transaction_id TEXT NOT NULL REFERENCES transactions(transaction_id),
+    envelope_json TEXT NOT NULL
 );
