@@ -12,7 +12,7 @@ import tempfile
 from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
-IMAGE = "python:3.12-slim"
+IMAGE = "python@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
 
 
 def command(args, **kwargs):
@@ -25,7 +25,7 @@ def validate_container(info, stage):
     mounts = info["Mounts"]
     binds = [mount for mount in mounts if mount["Type"] == "bind"]
     other_mounts_safe = all(mount["Type"] == "bind" or
-                            (mount["Type"] == "tmpfs" and mount["Destination"] == "/tmp")
+                            (mount["Type"] == "tmpfs" and mount["Destination"] in ("/tmp", "/fault-storage"))
                             for mount in mounts)
     return {
         "network_none": host["NetworkMode"] == "none",
@@ -38,7 +38,7 @@ def validate_container(info, stage):
         "only_readonly_source_mount": len(binds) == 1 and other_mounts_safe
             and binds[0]["Source"] == str(stage) and binds[0]["Destination"] == "/sandbox"
             and binds[0]["RW"] is False,
-        "temporary_storage_only": set(host.get("Tmpfs", {})) == {"/tmp"},
+        "temporary_storage_only": set(host.get("Tmpfs", {})) == {"/tmp", "/fault-storage"},
         "bounded_resources": host["PidsLimit"] == 128 and host["Memory"] == 512 * 1024 * 1024
             and host["NanoCpus"] == 1000000000,
         "private_namespaces": host.get("PidMode", "") != "host" and host.get("IpcMode", "") != "host",
@@ -73,12 +73,14 @@ def main():
     report = {"schema_version": 1, "started_at_utc": datetime.now(timezone.utc).isoformat(),
               "isolated_run_status": "BLOCKED", "full_acceptance_status": "BLOCKED",
               "limitations": ["shared container kernel; trusted GitHub-hosted VM/engine",
-                              "no independent human reviewer or verified repository log-retention deadline",
+                              "no independent human reviewer; retention is a GitHub runtime assertion",
                               "no external adapters, concurrency, lease fencing or production acceptance"],
               "source_commit": os.environ.get("SOURCE_SHA"),
               "github_run_id": os.environ.get("GITHUB_RUN_ID"),
               "github_run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
               "provider_identity_assertion": os.environ.get("RUNNER_ENVIRONMENT", "unverified"),
+              "github_log_retention_days": os.environ.get("GITHUB_RETENTION_DAYS"),
+              "retention_policy_max_days": 90,
               "container_removed": False, "source_staging_removed": False}
     container = None
     temporary = None
@@ -90,6 +92,10 @@ def main():
             raise RuntimeError("Exact source commit required")
         if command(["git", "-C", str(ROOT), "rev-parse", "HEAD"]) != source_sha:
             raise RuntimeError("Checkout does not match requested source commit")
+        retention = report["github_log_retention_days"]
+        if retention is None or not retention.isdigit() or not 1 <= int(retention) <= 90:
+            raise RuntimeError("GitHub log-retention evidence absent or exceeds 90-day policy")
+        report["retention_policy_status"] = "RUNTIME_SETTING_CONFIRMED"
         command(["docker", "pull", IMAGE], timeout=120)
         image = json.loads(command(["docker", "image", "inspect", IMAGE]))[0]
         image_id = image["Id"]
@@ -105,6 +111,7 @@ def main():
                  "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true", "--user", "65534:65534",
                  "--pids-limit", "128", "--memory", "512m", "--cpus", "1",
                  "--tmpfs", "/tmp:rw,noexec,nosuid,size=128m,mode=1777",
+                 "--tmpfs", "/fault-storage:rw,noexec,nosuid,size=4m,mode=1777",
                  "--mount", "type=bind,src=" + str(stage) + ",dst=/sandbox,readonly",
                  "--workdir", "/sandbox", "--env", "PYTHONDONTWRITEBYTECODE=1",
                  "--env", "PYTHONPATH=/sandbox/src", image_id, "python3", "-B", "/sandbox/tools/container_probe.py"])
@@ -113,14 +120,17 @@ def main():
         report["host_container_preflight"] = checks
         if not all(checks.values()):
             raise RuntimeError("Container configuration failed closed before execution")
-        output = command(["docker", "start", "--attach", container], timeout=180)
-        report["container_result"] = json.loads(output)
+        execution = subprocess.run(["docker", "start", "--attach", container],
+                                   capture_output=True, text=True, timeout=180)
+        report["container_result"] = json.loads(execution.stdout)
         state = json.loads(command(["docker", "inspect", container]))[0]["State"]
         report["exit_code"] = state["ExitCode"]
         result = report["container_result"]
         if (state["ExitCode"] != 0 or not result.get("tests_attempted")
                 or not result.get("container_preflight") or not all(result["container_preflight"].values())
                 or result["local_report"]["local_test_status"] != "PASSED"
+                or result.get("fault_checks", {}).get("status") != "PASSED"
+                or len(result["fault_checks"].get("cases", [])) != 4
                 or result["local_report"]["source_sha256"] != report["source_sha256"]):
             raise RuntimeError("Isolated tests or source-manifest comparison did not pass")
         report["isolated_run_status"] = "PASSED"

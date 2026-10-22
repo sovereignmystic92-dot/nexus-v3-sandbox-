@@ -120,7 +120,7 @@
     "C02/C9 worker lease fencing"
   ],
   "distinct_tests": 28,
-  "ended_at_utc": "2026-10-22T20:55:41.785194+00:00",
+  "ended_at_utc": "2026-10-22T21:02:38.536912+00:00",
   "full_acceptance_status": "BLOCKED",
   "limitations": [
     "no automatic isolation probe or external integration in this runner",
@@ -131,7 +131,7 @@
   "sample_attempts": [
     {
       "artifact_ids": [],
-      "attempt_id": "synthetic:attempt:ba8f1308-03c0-4437-88c5-997256761a6f",
+      "attempt_id": "synthetic:attempt:c00fcc28-36a2-464c-9da0-11c83e0cce11",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -144,9 +144,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.765562+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.524589+00:00",
       "evidence_refs": [
-        "synthetic:attempt:ba8f1308-03c0-4437-88c5-997256761a6f"
+        "synthetic:attempt:c00fcc28-36a2-464c-9da0-11c83e0cce11"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -172,12 +172,12 @@
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.765141+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.524235+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
       "artifact_ids": [],
-      "attempt_id": "synthetic:attempt:aa6ef33a-cad8-438b-a0b9-044b52312515",
+      "attempt_id": "synthetic:attempt:c6ef7f08-34ad-40fa-8f17-89dbfa4445c1",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -190,9 +190,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.769167+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.526070+00:00",
       "evidence_refs": [
-        "synthetic:attempt:aa6ef33a-cad8-438b-a0b9-044b52312515"
+        "synthetic:attempt:c6ef7f08-34ad-40fa-8f17-89dbfa4445c1"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -218,14 +218,14 @@
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.768870+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.525837+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
       "artifact_ids": [
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive"
       ],
-      "attempt_id": "synthetic:attempt:ae06dd35-be2e-42f7-bd94-976b690802b7",
+      "attempt_id": "synthetic:attempt:c0310bd3-a4c9-4f06-a7e4-198419bafb4c",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -238,9 +238,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.770937+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.527527+00:00",
       "evidence_refs": [
-        "synthetic:attempt:ae06dd35-be2e-42f7-bd94-976b690802b7"
+        "synthetic:attempt:c0310bd3-a4c9-4f06-a7e4-198419bafb4c"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -266,7 +266,7 @@
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.770643+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.527152+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
@@ -274,7 +274,7 @@
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output"
       ],
-      "attempt_id": "synthetic:attempt:0f6c6cc5-c7fe-405c-9f14-a55dfea992a5",
+      "attempt_id": "synthetic:attempt:53e3fef6-ec0d-4dff-b9e4-78d074b58c26",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -287,9 +287,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.772752+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.529012+00:00",
       "evidence_refs": [
-        "synthetic:attempt:0f6c6cc5-c7fe-405c-9f14-a55dfea992a5"
+        "synthetic:attempt:53e3fef6-ec0d-4dff-b9e4-78d074b58c26"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -315,7 +315,7 @@
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.772444+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.528754+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
@@ -324,7 +324,7 @@
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
       ],
-      "attempt_id": "synthetic:attempt:fe1121fa-3b3c-4399-a65a-02a4fe60e775",
+      "attempt_id": "synthetic:attempt:76b9fbeb-0e89-405d-979f-cbd55ab98902",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -337,9 +337,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.778700+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.530435+00:00",
       "evidence_refs": [
-        "synthetic:attempt:fe1121fa-3b3c-4399-a65a-02a4fe60e775"
+        "synthetic:attempt:76b9fbeb-0e89-405d-979f-cbd55ab98902"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -365,7 +365,7 @@
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.778399+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.530164+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
@@ -374,7 +374,7 @@
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
       ],
-      "attempt_id": "synthetic:attempt:b761478d-87a3-4482-86a6-11fa38efc9e0",
+      "attempt_id": "synthetic:attempt:dd5f1cb3-f0ba-4c69-8dd4-0a4e933a0901",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:local-sandbox-policy",
@@ -387,9 +387,9 @@
       "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
       "case_id": "S01",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.781159+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.532299+00:00",
       "evidence_refs": [
-        "synthetic:attempt:b761478d-87a3-4482-86a6-11fa38efc9e0"
+        "synthetic:attempt:dd5f1cb3-f0ba-4c69-8dd4-0a4e933a0901"
       ],
       "expected_hashes": {
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -414,17 +414,17 @@
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
         "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
       },
-      "readback_observed_at_utc": "2026-10-22T20:55:41.780901+00:00",
-      "reader_identity": "synthetic:reader:6007da46-c457-4380-8998-c5ce3891731a",
+      "readback_observed_at_utc": "2026-10-22T21:02:38.532025+00:00",
+      "reader_identity": "synthetic:reader:1275899d-77eb-422e-b8f5-ad643f669504",
       "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.780756+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.531892+00:00",
       "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
     },
     {
       "artifact_ids": [],
-      "attempt_id": "synthetic:attempt:a81be419-132f-436c-8438-57b9982ee0c9",
+      "attempt_id": "synthetic:attempt:6c45d8d0-14d0-4791-bfa4-6f2a153a81bd",
       "authority_provenance": [
         {
           "document_id": "synthetic:authority:conflict",
@@ -443,9 +443,9 @@
       "bound_authority_revision": "673f8394f3a5af26e11d5f3112219074f506382e191a3ea885d2444736cc56e1",
       "case_id": "AUTH-CONFLICT",
       "code_revision": "sha256:6fc010fde9847fd6c15b06c1cef69a5141cd879c00828d12c3bda35eacff04d0",
-      "ended_at_utc": "2026-10-22T20:55:41.783145+00:00",
+      "ended_at_utc": "2026-10-22T21:02:38.535069+00:00",
       "evidence_refs": [
-        "synthetic:attempt:a81be419-132f-436c-8438-57b9982ee0c9"
+        "synthetic:attempt:6c45d8d0-14d0-4791-bfa4-6f2a153a81bd"
       ],
       "expected_hashes": {
         "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
@@ -471,7 +471,7 @@
       "run_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:run",
       "runtime_identity": "synthetic:runtime:validation-runner",
       "schema_version": 1,
-      "started_at_utc": "2026-10-22T20:55:41.782929+00:00",
+      "started_at_utc": "2026-10-22T21:02:38.534549+00:00",
       "transaction_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484"
     }
   ],
@@ -487,12 +487,14 @@
     "tests/fixtures/complete-source.json": "49ebda733d41e7100f562dacc88bdf34dfedcb9a4166e146267447682a4f5176",
     "tests/unit/test_authority_evidence.py": "e64f8eb6e21ca533ba71d4cddd774454b80d0e058e6b2772d4695124d3bf449d",
     "tests/unit/test_coordinator.py": "3a7dd1ba4463512ab7c7295fde5a07a85755c436fec1b2844d0ab1981bf0b907",
-    "tests/unit/test_runner_boundary.py": "81deb1dbbf02088d3583b0275963984a8207f19364c0e2787afcc7194a174286",
-    "tools/container_probe.py": "80e8ca658e6e231115304816c61711b22880069eeec1c8a74a6bb21be79cc87d",
-    "tools/run_isolated.py": "1bbcd4518a78f9dea7e971116f8bf80833657f760f6274923c090e541c6c0efe",
+    "tests/unit/test_runner_boundary.py": "72be176ab48c88a55dfec8b06ea9b5449154b9761ff94b67140725c36148d622",
+    "tools/container_probe.py": "e773bfdeb760aa23ff49cdf1e2da785dfcc335030044f6d3b102e83564fdb806",
+    "tools/fault_checks.py": "419a1579382e99223d6ee609ca0a187f1a05aec45c06a6796d64680046d7c64c",
+    "tools/fault_worker.py": "175894dce8f40bb4bad2e11bb7987ff35c2c021a03edf2d514771f3b2c0e87f3",
+    "tools/run_isolated.py": "2b8fa45820f7fd34f212532dafe1f256c8f594d145e72320833af981b7939c99",
     "tools/validate.py": "fb1c14a68fbf86b86edbfcbb594f3760428d3f289aeb54df9a92e63a14db7e6d"
   },
-  "started_at_utc": "2026-10-22T20:55:41.360427+00:00",
+  "started_at_utc": "2026-10-22T21:02:38.168694+00:00",
   "tests_run": 28,
   "unresolved_controls": [
     "C1 disposable host/filesystem isolation",

@@ -15,7 +15,8 @@ class RunnerBoundaryTests(unittest.TestCase):
         self.info = {
             "HostConfig": {"NetworkMode": "none", "ReadonlyRootfs": True, "Privileged": False,
                            "CapDrop": ["ALL"], "CapAdd": None, "SecurityOpt": ["no-new-privileges:true"],
-                           "Tmpfs": {"/tmp": "rw,noexec,nosuid,size=128m,mode=1777"},
+                           "Tmpfs": {"/tmp": "rw,noexec,nosuid,size=128m,mode=1777",
+                                     "/fault-storage": "rw,noexec,nosuid,size=4m,mode=1777"},
                            "PidsLimit": 128, "Memory": 512 * 1024 * 1024, "NanoCpus": 1000000000},
             "Config": {"User": "65534:65534"},
             "Mounts": [{"Type": "bind", "Source": str(self.stage), "Destination": "/sandbox", "RW": False}],

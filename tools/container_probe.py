@@ -52,8 +52,11 @@ def main():
     with redirect_stdout(stream):
         outcome = validate.main()
     report = json.loads(stream.getvalue())
-    print(json.dumps({"container_preflight": checks, "tests_attempted": True, "local_report": report}))
-    return outcome
+    import fault_checks
+    faults = fault_checks.run() if outcome == 0 else {"status": "NOT_ATTEMPTED", "cases": []}
+    print(json.dumps({"container_preflight": checks, "tests_attempted": True, "local_report": report,
+                      "fault_checks": faults}))
+    return 0 if outcome == 0 and faults["status"] == "PASSED" else 1
 
 
 if __name__ == "__main__":
