@@ -35,4 +35,12 @@ GitHub documents `GITHUB_RETENTION_DAYS` as the workflow log/artifact lifetime a
 
 ## Verdict boundary
 
-Local validation: 28 distinct unit/integration tests pass. Hosted execution of the newly added fault checks and retention guard remains to be observed. Prior hosted success applies to the prior source commit only. Full acceptance remains separately BLOCKED; independent review, power-loss/device tests, external reciprocal endpoints and multiworker fencing are not implied by these changes. Main and production remain outside this draft branch.
+Local validation: 28 distinct unit/integration tests pass. Hosted run 39854172895 subsequently passed the same 28 tests, the four real fault cases and the retention guard, as recorded below. These results apply to source commit f67f643cfb7f752586c14ae50cf4882ed2a775dc. Full acceptance remains separately BLOCKED; independent review, power-loss/device tests, external reciprocal endpoints and multiworker fencing are not implied by these changes. Main and production remain outside this draft branch.
+
+## Observed hosted result and merge decision
+
+[Run 39854172895](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39854172895), source commit f67f643cfb7f752586c14ae50cf4882ed2a775dc, completed successfully. Its completed job logs were retrieved and parsed. All 28 distinct unit/integration tests and all four separately counted real fault cases passed. The 4,194,304-byte fault tmpfs reached ENOSPC after 4,141,056 filler bytes; SQLite returned code 13 SQLITE_FULL. The complete pre-failure durable snapshot was preserved, integrity_check returned ok, and recovery reached VERIFIED after freeing space. Each SIGKILL case recovered without duplicate artifacts/events/attempts. Host/container preflight, exact source-manifest match, container removal and staging removal all passed. The digest-pinned image pulled and executed successfully.
+
+GitHub reported GITHUB_RETENTION_DAYS=90, within the explicit 1–90 day policy. This is observed runtime configuration, not elapsed-time deletion proof. The exact observed report is preserved in hosted-run-39854172895.json; its source hashes were checked against the current authoring copy.
+
+The scoped single-worker synthetic baseline is ready for owner review and a merge decision. Author review and these tests support that limited milestone; they do not constitute an independent human audit. Broad full acceptance remains BLOCKED because power/device loss, forced host-kill teardown, external reciprocal endpoints and multiworker lease/fencing are not demonstrated or implemented. Those broader claims must remain excluded from any merge approval. Main remains unchanged until an explicit merge authorization.
