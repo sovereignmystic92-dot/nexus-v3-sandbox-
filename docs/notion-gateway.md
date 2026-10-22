@@ -35,3 +35,10 @@ This verifies code paths with synthetic credentials and fake HTTPS responses onl
 - [Secure API credentials](https://developers.notion.com/guides/get-started/handling-api-keys)
 
 Checked on 2026-10-22. The gateway is code prepared for review; it is not an active service.
+
+
+## Hosted result observed
+
+[Run 39860541073](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39860541073) passed at source commit `24563691b33eff348ded092e63e1c6ee82155d1f`. Retrieved completed job logs confirm all 76 distinct tests passed, including 13 gateway tests. The four separately counted coordinator crash/disk-full cases passed. Source matching, host/container boundaries and ordinary container/staging cleanup passed. GitHub reported 90-day retention, within policy. The exact synthetic report is saved in `hosted-run-39860541073.json`.
+
+No live Notion API connection was enabled. The exact remaining user-controlled prerequisites are creation of a dedicated test-root internal connection and selection/configuration of encrypted secret storage in a separate online execution environment. The current session has no secure credential-entry or token-export tool for this gateway. Do not paste the token into chat. No automatic use of another account's tokens or the existing offline workflow is permitted. The evidence-only follow-up commit changes no tested runtime source.
