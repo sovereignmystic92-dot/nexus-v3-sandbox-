@@ -15,6 +15,23 @@ API_VERSION = "2026-03-11"
 MARKER = "Sandbox marker: synthetic:notion:sandbox:v1"
 
 
+def create_body(binding):
+    if (not re.fullmatch(r"synthetic:request:[A-Za-z0-9_-]+", binding.key)
+            or not isinstance(binding.title, str) or not 1 <= len(binding.title) <= 200
+            or not isinstance(binding.payload, str) or len(binding.payload.encode()) > 65536):
+        raise ValueError("Create outside bounded synthetic contract")
+    record = {"adapter_schema": 1, "key": binding.key, "title": binding.title,
+              "payload": binding.payload, "payload_sha256": binding.payload_sha256, "synthetic": True}
+    encoded = json.dumps(record, ensure_ascii=False, sort_keys=True)
+    rich = [{"type": "text", "text": {"content": encoded[i:i + 1500]}}
+            for i in range(0, len(encoded), 1500)]
+    if len(rich) > 100:
+        raise ValueError("Escaped JSON exceeds bounded rich-text array size")
+    return {"parent": {"page_id": binding.parent_id},
+            "properties": {"title": {"title": [{"type": "text", "text": {"content": binding.title}}]}},
+            "children": [{"object": "block", "type": "code", "code": {"language": "json", "rich_text": rich}}]}
+
+
 class IncompleteObservation(ValueError):
     pass
 
@@ -182,22 +199,11 @@ class NotionRESTTransport:
         return page
 
     def create_child(self, binding: Binding):
-        if (binding.parent_id != self.parent or not re.fullmatch(r"synthetic:request:[A-Za-z0-9_-]+", binding.key)
-                or not isinstance(binding.title, str) or not 1 <= len(binding.title) <= 200
-                or not isinstance(binding.payload, str) or len(binding.payload.encode()) > 65536):
+        if binding.parent_id != self.parent:
             raise ValueError("Create outside bounded synthetic contract")
+        body = create_body(binding)
         if self.sandbox_marker(self.parent) != "synthetic:notion:sandbox:v1":
             raise ValueError("Sandbox marker not confirmed immediately before create")
-        record = {"adapter_schema": 1, "key": binding.key, "title": binding.title,
-                  "payload": binding.payload, "payload_sha256": binding.payload_sha256, "synthetic": True}
-        encoded = json.dumps(record, ensure_ascii=False, sort_keys=True)
-        rich = [{"type": "text", "text": {"content": encoded[i:i + 1500]}}
-                for i in range(0, len(encoded), 1500)]
-        if len(rich) > 100:
-            raise ValueError("Escaped JSON exceeds bounded rich-text array size")
-        body = {"parent": {"page_id": self.parent},
-                "properties": {"title": {"title": [{"type": "text", "text": {"content": binding.title}}]}},
-                "children": [{"object": "block", "type": "code", "code": {"language": "json", "rich_text": rich}}]}
         result = self._call("POST", "/pages", body=body)
         # No automatic retry, even for 429/5xx/timeout. The engine reconciles.
         if result.get("object") != "page":
