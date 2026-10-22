@@ -1,0 +1,36 @@
+{
+  "scope": "offline adapter evaluated recorded live tool reads; writes performed separately by connected Notion tool",
+  "cases": [
+    {
+      "observation": "initial",
+      "status": "VERIFIED",
+      "create_calls": 0
+    },
+    {
+      "observation": "mismatch",
+      "status": "MISMATCH",
+      "create_calls": 0
+    },
+    {
+      "observation": "restored",
+      "status": "VERIFIED",
+      "create_calls": 0
+    },
+    {
+      "observation": "restored",
+      "status": "VERIFIED",
+      "create_calls": 0
+    }
+  ],
+  "history_statuses": [
+    "BLOCKED",
+    "VERIFIED",
+    "VERIFIED",
+    "MISMATCH",
+    "VERIFIED",
+    "VERIFIED"
+  ],
+  "lost_response_live_injection": "NOT_TESTED",
+  "automatic_transport": "NOT_INSTALLED",
+  "private_page_identifiers": "omitted from public summary"
+}
