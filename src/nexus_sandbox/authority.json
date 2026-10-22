@@ -1,0 +1,8 @@
+[
+  {
+    "document_id": "synthetic:authority:local-sandbox-policy",
+    "revision": "1",
+    "role": "current",
+    "rule": "allow_synthetic_output"
+  }
+]

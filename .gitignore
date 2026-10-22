@@ -218,3 +218,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Append to existing repository .gitignore; do not replace it.
+.env
+.env.*
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+secrets/
+runtime/
+evidence/raw/
+__pycache__/
+*.pyc
+
+# Ignore rules are not a security boundary or a history cleanup mechanism.

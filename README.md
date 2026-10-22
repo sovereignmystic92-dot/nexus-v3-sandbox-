@@ -1,2 +1,46 @@
-# nexus-v3-sandbox-
-    Isolated testing for the Nexus foundation audit. Synthetic data only.
+# Nexus foundation audit sandbox — review draft
+
+Target: `sovereignmystic92-dot/nexus-v3-sandbox-` (public).
+
+Status: local Python/SQLite coordinator implemented and exercised by 28 distinct synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
+
+The owner selected public visibility after the original private-repository blueprint. Only synthetic examples and generic design material belong here. Notion remains authoritative for Nexus; this repository cannot promote Nexus 3.0 or reactivate production operations.
+
+## Included
+
+- Architecture, component contracts, and structured synthetic authority resolution.
+- Sequential acceptance cases, with failure and concurrency cases separated.
+- Evidence and preflight templates with unverified controls explicitly retained.
+- SQLite coordinator, checkpoint/event transactions, synthetic artifacts, and fresh-connection readback.
+- Deterministic synthetic fixture.
+
+No workflow YAML, service credentials, production page contents, external adapters or dependency installers are included. The absence of workflows does not prove that repository-wide Actions settings are disabled.
+
+## Local harness
+
+Python 3 standard library only. From the repository root:
+
+```sh
+PYTHONPATH=src python3 -m unittest discover -s tests/unit -v
+```
+
+Tests create disposable temporary SQLite files and remove them on completion. They do not call connectors. This command does not establish host isolation or grant approval for external integrations. See `docs/authority-and-acceptance.md` and `docs/validation-results.json` for current evidence and remaining gaps. Full acceptance is BLOCKED pending host isolation.
+
+## Review sequence
+
+1. Review the changes in the draft pull request.
+2. Merge only after review; the branch preserves existing ignore rules and appends sandbox exclusions.
+3. Review the implemented local coordinator and its recorded test limits.
+4. Establish runtime isolation and execution scope before full acceptance cases.
+
+Runtime identity, independent reviewer, retention, and host isolation remain unresolved. Google Cloud is a later hosting preference, not a provisioned resource or spend authorization.
+
+## Isolated runner
+
+A draft-branch-only GitHub Actions workflow now defines a disposable, network-disabled Docker test runner. See `docs/isolated-runner.md`. Workflow installation and a successful hosted execution must be verified separately; local tests do not establish runner isolation.
+
+Observed: [hosted run 39853191498](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39853191498) passed all 28 tests and both boundary checks, with cleanup confirmed. The runner blocker is resolved for that scope; full acceptance remains BLOCKED on the separately documented requirements.
+
+## Fault and retention follow-through
+
+The runner now pins the Python image digest, repeats three real process-kill recovery checks, and exhausts a dedicated 4 MiB temporary filesystem for an actual ENOSPC/SQLITE_FULL recovery check. It records and guards GitHub log retention at at most 90 days. See docs/review-and-fault-checks.md. These new hosted results must be observed separately from the previous successful run.
