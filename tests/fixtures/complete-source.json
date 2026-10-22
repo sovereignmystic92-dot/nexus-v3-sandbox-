@@ -1,0 +1,11 @@
+{
+  "fixture_version": 1,
+  "synthetic": true,
+  "source_id": "synthetic:source:001",
+  "source_revision": "1",
+  "transaction_id": "synthetic:transaction:001",
+  "idempotency_key": "synthetic:request:001",
+  "destination_id": "synthetic:output",
+  "source_complete": true,
+  "payload": "Fictional sensor A reports 12 synthetic units."
+}
