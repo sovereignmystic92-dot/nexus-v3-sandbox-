@@ -27,3 +27,10 @@ The public summary excludes private Notion IDs, titles and fetched page bodies. 
 ## Remaining gates
 
 No automatic Notion adapter is running. A future credentialed transport needs separately scoped credentials, bounded egress, complete API pagination, exact payload normalization, service error handling, uncertain-create reconciliation and an execution approval. It must not receive broad production credentials through the existing offline runner. Coordinator-to-external state mapping and durable checkpoint recovery across both systems remain unimplemented. Full integration acceptance, live lost-response behavior, concurrency, external reciprocal endpoints, long-term durability and independent human review remain pending.
+
+
+## Observed hosted result
+
+[Run 39858791522](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39858791522) passed at source commit `ece455fa8540eebbe85b32112ee9278dbbf1c736`. Retrieved completed job logs confirm 49 distinct unit/integration tests, including the 17 adapter/observation tests and four existing mission cases, passed. The four separately counted coordinator SIGKILL/disk-full checks also passed. All boundary checks, source matching and ordinary container/staging removal passed. GitHub reported 90-day retention, within policy. The exact synthetic report is in `hosted-run-39858791522.json`.
+
+This supports the offline adapter contract and recorded-observation bridge only. The hosted container did not connect to Notion. The actual synthetic create/edit/restore was performed separately with connected tools, and its private reads were evaluated locally. Full integration acceptance remains BLOCKED. The evidence-only follow-up commit changes no tested runtime source. PR #2 and this dependent PR remain unmerged pending owner decisions.
