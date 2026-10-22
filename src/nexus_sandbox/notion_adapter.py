@@ -110,7 +110,7 @@ class NotionAdapter:
             return self._save(binding, "UNKNOWN", page_id, "Read unavailable; reconcile known ID before any create")
         expected = Page(page_id, binding.parent_id, binding.key, binding.title,
                         binding.payload, binding.payload_sha256, True)
-        if page != expected:
+        if (page != expected or type(page.synthetic) is not bool or type(page.complete) is not bool):
             return self._save(binding, "MISMATCH", page_id, "Fetched identity, parent, key, title, content or completeness mismatch; preserve page")
         return self._save(binding, "VERIFIED", page_id, "Transport read matched exact binding; freshness depends on transport")
 

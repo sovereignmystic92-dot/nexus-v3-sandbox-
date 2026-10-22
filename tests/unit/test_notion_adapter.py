@@ -132,7 +132,8 @@ class NotionAdapterTests(unittest.TestCase):
         self.adapter.ensure(self.binding)
         original = self.transport.pages[0]
         for changes in ({"payload": "tampered"}, {"payload_sha256": "0" * 64},
-                        {"parent_id": PAGE}, {"complete": False}, {"synthetic": False}, {"page_id": ROOT}):
+                        {"parent_id": PAGE}, {"complete": False}, {"synthetic": False},
+                        {"complete": 1}, {"synthetic": 1}, {"page_id": ROOT}):
             self.transport.pages = [replace(original, **changes)]
             receipt = self.reopen().ensure(self.binding)
             self.assertNotEqual(receipt.status, "VERIFIED")
