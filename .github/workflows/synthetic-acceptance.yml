@@ -2,7 +2,7 @@ name: Isolated synthetic acceptance
 
 on:
   push:
-    branches: [foundation-audit-draft]
+    branches: [foundation-audit-draft, mission-scenarios]
     paths:
       - '.github/workflows/synthetic-acceptance.yml'
       - 'src/**'
