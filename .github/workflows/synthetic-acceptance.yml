@@ -1,0 +1,47 @@
+name: Isolated synthetic acceptance
+
+on:
+  push:
+    branches: [foundation-audit-draft]
+    paths:
+      - '.github/workflows/synthetic-acceptance.yml'
+      - 'src/**'
+      - 'tests/**'
+      - 'tools/**'
+
+# Public source fetch needs no token. No secrets or write scopes are passed.
+permissions: {}
+
+concurrency:
+  group: nexus-synthetic-acceptance
+  cancel-in-progress: true
+
+jobs:
+  synthetic:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+      GIT_TERMINAL_PROMPT: '0'
+      GIT_CONFIG_NOSYSTEM: '1'
+      GIT_CONFIG_GLOBAL: /dev/null
+    steps:
+      - name: Fetch exact public source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir checkout
+          cd checkout
+          git init --quiet
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Check container boundary and run synthetic suite
+        working-directory: checkout
+        shell: bash
+        run: python3 tools/run_isolated.py
+
+# No schedule, production deployment, external adapters, uploaded artifacts,
+# paid runner label, repository merge, or secret-dependent action is included.

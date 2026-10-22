@@ -2,7 +2,7 @@
 
 Target: `sovereignmystic92-dot/nexus-v3-sandbox-` (public).
 
-Status: local Python/SQLite coordinator implemented and exercised by 24 distinct synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
+Status: local Python/SQLite coordinator implemented and exercised by 28 distinct synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
 
 The owner selected public visibility after the original private-repository blueprint. Only synthetic examples and generic design material belong here. Notion remains authoritative for Nexus; this repository cannot promote Nexus 3.0 or reactivate production operations.
 
@@ -34,3 +34,7 @@ Tests create disposable temporary SQLite files and remove them on completion. Th
 4. Establish runtime isolation and execution scope before full acceptance cases.
 
 Runtime identity, independent reviewer, retention, and host isolation remain unresolved. Google Cloud is a later hosting preference, not a provisioned resource or spend authorization.
+
+## Isolated runner
+
+A draft-branch-only GitHub Actions workflow now defines a disposable, network-disabled Docker test runner. See `docs/isolated-runner.md`. Workflow installation and a successful hosted execution must be verified separately; local tests do not establish runner isolation.

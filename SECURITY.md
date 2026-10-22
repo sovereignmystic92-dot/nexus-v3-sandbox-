@@ -7,3 +7,5 @@ The future runtime must have a disposable filesystem, test-only routing, no prod
 No connector adapters or automatic workflows are proposed in this package. Repository protection, collaborator permissions and Actions settings require separate verification; they are not established by these files.
 
 If sensitive material is found, stop publication, notify the repository owner privately, revoke any affected credential and review exposure. Do not post secrets in public issues. A private reporting channel has not been configured.
+
+Authorized runner follow-through: .github/workflows/synthetic-acceptance.yml defines a standard hosted VM and restricted Docker container, scoped to draft-branch source changes. Source/image acquisition uses the orchestration host network before tests; the container has network=none and receives no host credentials or Docker socket. This updates the earlier no-workflow proposal. See docs/isolated-runner.md for trust assumptions, evidence checks and remaining limitations.
