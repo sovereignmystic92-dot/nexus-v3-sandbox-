@@ -25,7 +25,7 @@ python3 tools/validate.py --output local-validation.json
 
 Tests use temporary synthetic databases and offline transports. This command does not call Cortex or Notion or establish host isolation.
 
-The GitHub workflow uses credential-free public source acquisition and a digest-pinned, network-disabled test container. The proposed workflow covers main and selected development-branch pushes plus PR merge candidates targeting main/mission-scenarios. Source and actual PR candidate runs passed; main remains unchanged, so its first push run is still pending an approved merge. See [CI coverage](docs/ci-coverage.md).
+The GitHub workflow uses credential-free public source acquisition and a digest-pinned, network-disabled test container. The proposed workflow covers main and selected development-branch pushes plus PR merge candidates targeting main/mission-scenarios. PR #2 is merged and its actual main-push run passed 32 tests plus four bounded faults. PR #4 now targets main and requires a fresh merge-candidate result. See [CI coverage](docs/ci-coverage.md).
 
 ## Review evidence
 
@@ -38,4 +38,4 @@ The GitHub workflow uses credential-free public source acquisition and a digest-
 
 C05 records historical version-1 observations; C06 advanced only its synthetic registry to version 2. The old probes must not be blindly replayed as current acceptance commands. Live callbacks remain host-mediated and opt-in; this repository installs no unattended integration or credentials.
 
-Recommended merge order: PR #2, then PR #4 after base/CI review and a separate owner merge decision. Keep PR #3 paused. The review branch does not change main.
+PR #2 is merged into main at `08464ae2a7f169bf37a569ecf9e6766da9e3d50f`; [main run 39888300351](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39888300351) passed. PR #4 remains a draft targeting main, pending its own candidate verification and separate owner merge decision. Keep PR #3 paused. See [merge follow-through evidence](docs/pr2-merge-followthrough.json).

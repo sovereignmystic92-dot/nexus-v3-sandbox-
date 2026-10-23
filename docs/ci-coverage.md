@@ -27,7 +27,7 @@ The revised workflow is applied identically to both PR branches. Publishing this
 
 ## Limits and merge handling
 
-- Main remains unchanged. Its push event is configured in the proposed workflow, but no actual main push is claimed. After an approved PR #2 merge, observe the resulting main run before advancing the merge sequence.
+- C09 follow-through: PR #2 was subsequently owner-approved and merged at `08464ae2a7f169bf37a569ecf9e6766da9e3d50f`. Actual [main push run 39888300351](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39888300351) passed 32 tests, four bounded faults, boundaries/manifests and cleanup. Main-push behavior is now observed; [exact evidence](pr2-merge-followthrough.json) is retained.
 - PR #2 then PR #4 remains the order. After PR #2 merges, retarget/re-read PR #4's base and require a fresh PR merge-candidate run. Current success against mission-scenarios is not future success against a changed main.
 - This change creates CI checks; it does not install branch protection, require checks administratively, mark drafts ready or authorize a merge.
 - Permissions remain empty, acquisition remains public and credential-free, and tests remain in the digest-pinned, nonroot, resource-limited network-none container. There is no deployment, schedule or live connector invocation.
@@ -35,3 +35,7 @@ The revised workflow is applied identically to both PR branches. Publishing this
 - Full foundation acceptance remains BLOCKED. Notion integration remains paused.
 
 Local validation covered YAML/event scopes, empty permissions, Bash syntax and embedded Python compilation. Hosted execution supplied the substantive behavior checks; no implementation-mirroring unit tests were added.
+
+## C09 retarget follow-through
+
+PR #4 now targets main after PR #2's merge. Before synchronizing ancestry, all 35 existing main files were checked against the Cortex branch: 33 were exact blob matches and the only intended differences were README.md and REVIEW.md; no main file was missing. The sync retains the Cortex source while adding the actual main commit as a parent. A new PR synchronize event must verify the resulting candidate's current-main and head parents. Final candidate details are retained in the PR description and Cortex C09 evidence, without changing historical run assignments above. PR #4 remains draft/unmerged; Notion stays paused.
