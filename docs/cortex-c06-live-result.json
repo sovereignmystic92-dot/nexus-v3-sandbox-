@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "case_id": "C06",
+  "scope": "Live synthetic Cortex update through unchanged Python adapter and host callback",
+  "status": "PASSED",
+  "full_acceptance_status": "BLOCKED",
+  "adapter_source_commit": "9aeb79bc3d972c5dc2f11a8e08dda8e1743904d9",
+  "source_sha256": {
+    "src/nexus_sandbox/cortex_adapter.py": "936b2d3d33cb595c3a4d690fe9b7df5f143c3e8fb98112947588b40852116454",
+    "src/nexus_sandbox/cortex_tools.py": "ae8b0749a8981b6a80bf06f29083b6e34744d944ebea0d14a8cbd7789929269d",
+    "docs/cortex-c06-probe.py": "7b941487adebab5c6ee8f4e1fc6227e5910ac71076051b82a88d37d159b6ffa7"
+  },
+  "calls": {
+    "gets": 13,
+    "updates": 1,
+    "creates": 0,
+    "deletes": 0
+  },
+  "target": {
+    "name": "Nexus Sandbox C05 — Synthetic Registry — 2026-10-22",
+    "id_alias": "synthetic:observed:C05:registry",
+    "same_id": true,
+    "before_version": 1,
+    "after_version": 2
+  },
+  "outcomes": [
+    {
+      "label": "live_update",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "VERIFIED",
+      "checkpoint": "VERIFIED",
+      "module_id": "synthetic:observed:C05:registry",
+      "module_version": 2,
+      "reason": "Exact independent readback matched immutable binding"
+    },
+    {
+      "label": "exact_repeat",
+      "operation_outcome": "NOT_ATTEMPTED",
+      "protocol_verdict": "VERIFIED",
+      "checkpoint": "VERIFIED",
+      "module_id": "synthetic:observed:C05:registry",
+      "module_version": 2,
+      "reason": "Exact independent readback matched immutable binding"
+    },
+    {
+      "label": "stale_target_guard",
+      "operation_outcome": "NOT_ATTEMPTED",
+      "protocol_verdict": "BLOCKED",
+      "checkpoint": "TARGET_CONFLICT",
+      "module_id": "synthetic:observed:C05:registry",
+      "module_version": 2,
+      "reason": "Target differs from expected absent or exact update baseline"
+    }
+  ],
+  "metadata_preserved": [
+    "owner",
+    "parent",
+    "inherit_permissions",
+    "default_assignee",
+    "created_at",
+    "archived",
+    "dependencies"
+  ],
+  "independent_flash": {
+    "modules": 4,
+    "edges": 3,
+    "exact_content": "MATCHED",
+    "unchanged_source_archive_output": true
+  },
+  "journal": {
+    "integrity": "ok",
+    "receipts": 2,
+    "events": 4
+  },
+  "limits": [
+    "Stale target blocked by client preflight; no atomic expected-version/CAS or concurrent-writer guarantee.",
+    "One acknowledged update; no uncertain update reply, power-loss or long-term durability exercise.",
+    "Post-C06 registry is v2; earlier C05 v1 results remain historical and its probe is not expected to pass unchanged now.",
+    "No production activation, canonical promotion, merge or Notion integration changes."
+  ],
+  "next_step": "Review remaining audit acceptance gates and the stacked PR merge order before promotion."
+}

@@ -38,4 +38,14 @@ The first Python process made 25 reads and three creates. A stale source version
 
 A second Python process reopened the same SQLite journal and made 27 reads with zero writes. All three IDs and version 1 matched the first process. An independent registry Flash matched four module contents and three dependency edges. SQLite integrity was `ok`, with four receipts and seventeen events. The [public result](cortex-c05-live-result.json) uses aliases for actual account module IDs; exact bindings and IDs are retained in the scoped Cortex C05 evidence issue.
 
-Live creation, reconciliation and process restart are now observed for this adapter. Live updates, stale target conflict preservation, concurrent writers, long-term durability and full production acceptance remain unverified. The next bounded validation is a live update with its exact target baseline and independent metadata readback. Notion integration remains paused.
+Live creation, reconciliation and process restart are now observed for this adapter. At the C05 checkpoint, live updates and stale target conflict preservation were still unverified; C06 below subsequently tests both. Concurrent writers, long-term durability and full production acceptance remain unverified. Notion integration remains paused.
+
+## C06 live update and stale-target validation
+
+[The explicit C06 probe](cortex-c06-probe.py) exercised the same adapter and bridge against the C05 synthetic registry with an exact version-1 baseline. One update advanced the module to version 2 while preserving its ID. Independent reads verified exact content, dependencies, owner, parent, permission inheritance, default assignee, creation timestamp and archived status. Repeating the same request performed no write. A separate request retaining the old version-1 baseline was blocked at `TARGET_CONFLICT`; a subsequent read confirmed the version-2 state was preserved.
+
+The probe made 13 reads and exactly one update. An independent Flash matched all four module contents and three dependency edges against the saved C05 bindings, with only the intended registry content changed. The journal passed its integrity check with two receipts and four events. See [the public result](cortex-c06-live-result.json); exact bindings are retained in the scoped Cortex C06 evidence issue. No live adapter implementation changed.
+
+The registry is now version 2. C05 records describe its earlier version-1 observations; rerunning the old C05 probe against the updated fixture is expected to hold rather than overwrite it. The C06 probe also refuses a fresh update unless the target is version 1; retain its journal and reconcile uncertain state rather than resetting it.
+
+This proves one bounded live update and preservation after a stale sequential request. It does not provide atomic compare-and-swap, protection from concurrent writers, uncertain-update recovery, power-loss or long-term durability proof. Review remaining audit acceptance gates and the stacked PR merge order before promotion. Full foundation acceptance remains `BLOCKED`; Notion integration remains paused.
