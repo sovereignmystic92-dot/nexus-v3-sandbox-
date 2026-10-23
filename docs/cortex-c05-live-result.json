@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "case_id": "C05",
+  "scope": "Live synthetic Cortex invocation through the Python adapter and host-authenticated JSON-line callback",
+  "source_commit": "9aeb79bc3d972c5dc2f11a8e08dda8e1743904d9",
+  "adapter_sha256": "936b2d3d33cb595c3a4d690fe9b7df5f143c3e8fb98112947588b40852116454",
+  "bridge_sha256": "ae8b0749a8981b6a80bf06f29083b6e34744d944ebea0d14a8cbd7789929269d",
+  "probe_sha256": "36aa512d3df616e3f7b0a593a9678b928ffb843a8c3916cc2ed7b56d2a363a2c",
+  "status": "PASSED",
+  "full_acceptance_status": "BLOCKED",
+  "first_process": {
+    "calls": 28,
+    "reads": 25,
+    "creates": 3,
+    "updates": 0,
+    "outcomes": [
+      {
+        "label": "stale_source_guard",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "BLOCKED",
+        "checkpoint": "SOURCE_CHANGED",
+        "module_id": null,
+        "module_version": null,
+        "reason": "Source identity/version/content/dependencies differ or source missing"
+      },
+      {
+        "label": "stage_0_first",
+        "operation_outcome": "SUCCEEDED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:archive",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_0_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:archive",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_1_first",
+        "operation_outcome": "UNKNOWN",
+        "protocol_verdict": "UNKNOWN",
+        "checkpoint": "RECONCILE_ONLY",
+        "module_id": null,
+        "module_version": null,
+        "reason": "Write outcome uncertain; read by bound name before any further action"
+      },
+      {
+        "label": "stage_1_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:output",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_2_first",
+        "operation_outcome": "SUCCEEDED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_2_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      }
+    ]
+  },
+  "restarted_process": {
+    "calls": 27,
+    "reads": 27,
+    "creates": 0,
+    "updates": 0,
+    "outcomes": [
+      {
+        "label": "stale_source_guard",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "BLOCKED",
+        "checkpoint": "SOURCE_CHANGED",
+        "module_id": null,
+        "module_version": null,
+        "reason": "Source identity/version/content/dependencies differ or source missing"
+      },
+      {
+        "label": "stage_0_first",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:archive",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_0_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:archive",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_1_first",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:output",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_1_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:output",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_2_first",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stage_2_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      }
+    ]
+  },
+  "independent_flash": {
+    "status": "MATCHED",
+    "modules": 4,
+    "edges": 3
+  },
+  "journal": {
+    "integrity_check": "ok",
+    "receipts": 4,
+    "events": 17
+  },
+  "identity_check": "Exact live IDs and version 1 matched across both Python processes. Public IDs are aliases; original observations and bindings are retained in the scoped Cortex evidence issue.",
+  "limitations": [
+    "Acknowledgment discarded locally after successful create reply; not a real network interruption.",
+    "One worker, three synthetic creates, no live update exercise and no atomic CAS/concurrency claim.",
+    "Immediate readback and one process restart; not long-term durability, disk-loss or power-loss proof.",
+    "Host holds credentials; the local Python process receives only authorized tool responses. It is not an unattended service.",
+    "Notion integration remains paused; no production activation or canonical promotion."
+  ],
+  "next_validation": "Bounded live update with pinned target baseline and independent metadata readback, then stale-baseline conflict preservation."
+}

@@ -1,46 +1,41 @@
-# Nexus foundation audit sandbox — review draft
+# Nexus foundation audit sandbox
 
-Target: `sovereignmystic92-dot/nexus-v3-sandbox-` (public).
+Public, synthetic-only repository: `sovereignmystic92-dot/nexus-v3-sandbox-`.
 
-Status: local Python/SQLite coordinator implemented and exercised by 28 distinct synthetic unit/integration tests. Not deployed; full acceptance and production readiness are not established.
+This Cortex review branch contains a single-worker Python/SQLite coordinator, four synthetic mission scenarios and a Cortex persistence adapter. **Full foundation acceptance remains BLOCKED.** Notion remains authoritative; Notion integration is paused. No production deployment or Nexus promotion follows from these results.
 
-The owner selected public visibility after the original private-repository blueprint. Only synthetic examples and generic design material belong here. Notion remains authoritative for Nexus; this repository cannot promote Nexus 3.0 or reactivate production operations.
+Start with [the current acceptance review and merge order](docs/current-acceptance-review.md). Historical documents retain earlier test counts and unverified states; that current review consolidates the later evidence and its limits.
 
-## Included
+| Scope | Observed status |
+| --- | --- |
+| Synthetic coordinator and missions | 32 tests on PR #2, including four mission cases |
+| Cortex adapter branch | 52 tests total, including 20 adapter/bridge cases; hosted run passed |
+| Bounded coordinator faults | Three SIGKILL checks and one dedicated 4 MiB ENOSPC check passed, counted separately |
+| Live Cortex adapter | Three fixture creates, duplicate-free reconciliation/restart, one v1→v2 update and stale-target blocking verified |
+| Notion adapter | Separate paused draft PR #3; not included in this branch |
+| Production, multiworker fencing and independent audit | Not established |
 
-- Architecture, component contracts, and structured synthetic authority resolution.
-- Sequential acceptance cases, with failure and concurrency cases separated.
-- Evidence and preflight templates with unverified controls explicitly retained.
-- SQLite coordinator, checkpoint/event transactions, synthetic artifacts, and fresh-connection readback.
-- Deterministic synthetic fixture.
+## Reproduce offline tests
 
-No workflow YAML, service credentials, production page contents, external adapters or dependency installers are included. The absence of workflows does not prove that repository-wide Actions settings are disabled.
-
-## Local harness
-
-Python 3 standard library only. From the repository root:
+Python standard library only:
 
 ```sh
-PYTHONPATH=src python3 -m unittest discover -s tests/unit -v
+python3 tools/validate.py --output local-validation.json
 ```
 
-Tests create disposable temporary SQLite files and remove them on completion. They do not call connectors. This command does not establish host isolation or grant approval for external integrations. See `docs/authority-and-acceptance.md` and `docs/validation-results.json` for current evidence and remaining gaps. Full acceptance is BLOCKED pending host isolation.
+Tests use temporary synthetic databases and offline transports. This command does not call Cortex or Notion or establish host isolation.
 
-## Review sequence
+The GitHub workflow uses credential-free public source acquisition and a digest-pinned, network-disabled test container. The proposed workflow covers main and selected development-branch pushes plus PR merge candidates targeting main/mission-scenarios. PR #2 is merged and its actual main-push run passed 32 tests plus four bounded faults. PR #4 now targets main and requires a fresh merge-candidate result. See [CI coverage](docs/ci-coverage.md).
 
-1. Review the changes in the draft pull request.
-2. Merge only after review; the branch preserves existing ignore rules and appends sandbox exclusions.
-3. Review the implemented local coordinator and its recorded test limits.
-4. Establish runtime isolation and execution scope before full acceptance cases.
+## Review evidence
 
-Runtime identity, independent reviewer, retention, and host isolation remain unresolved. Google Cloud is a later hosting preference, not a provisioned resource or spend authorization.
+- [Mission scenarios and evidence](docs/mission-acceptance.md)
+- [Cortex adapter contract and live observations](docs/cortex-adapter.md)
+- [Hosted 52-test report](docs/hosted-run-39881697563.json)
+- [C05 live creation/recovery result](docs/cortex-c05-live-result.json)
+- [C06 live update/conflict result](docs/cortex-c06-live-result.json)
+- [Runner, fault and retention limits](docs/review-and-fault-checks.md)
 
-## Isolated runner
+C05 records historical version-1 observations; C06 advanced only its synthetic registry to version 2. The old probes must not be blindly replayed as current acceptance commands. Live callbacks remain host-mediated and opt-in; this repository installs no unattended integration or credentials.
 
-A draft-branch-only GitHub Actions workflow now defines a disposable, network-disabled Docker test runner. See `docs/isolated-runner.md`. Workflow installation and a successful hosted execution must be verified separately; local tests do not establish runner isolation.
-
-Observed: [hosted run 39853191498](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39853191498) passed all 28 tests and both boundary checks, with cleanup confirmed. The runner blocker is resolved for that scope; full acceptance remains BLOCKED on the separately documented requirements.
-
-## Fault and retention follow-through
-
-The runner now pins the Python image digest, repeats three real process-kill recovery checks, and exhausts a dedicated 4 MiB temporary filesystem for an actual ENOSPC/SQLITE_FULL recovery check. It records and guards GitHub log retention at at most 90 days. See docs/review-and-fault-checks.md. These new hosted results must be observed separately from the previous successful run.
+PR #2 is merged into main at `08464ae2a7f169bf37a569ecf9e6766da9e3d50f`; [main run 39888300351](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39888300351) passed. PR #4 remains a draft targeting main, pending its own candidate verification and separate owner merge decision. Keep PR #3 paused. See [merge follow-through evidence](docs/pr2-merge-followthrough.json).
