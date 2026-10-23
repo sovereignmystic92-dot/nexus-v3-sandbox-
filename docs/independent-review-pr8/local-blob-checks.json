@@ -1,0 +1,158 @@
+[
+  {
+    "path": ".github/workflows/synthetic-acceptance.yml",
+    "expected": "65e3da585100b8ff7f502e710e8e8ad5ed769ea0",
+    "actual": "65e3da585100b8ff7f502e710e8e8ad5ed769ea0",
+    "matched": true
+  },
+  {
+    "path": ".gitignore",
+    "expected": "a5e6732cd73937c6799f7dc82cb74d64e67637c9",
+    "actual": "a5e6732cd73937c6799f7dc82cb74d64e67637c9",
+    "matched": true
+  },
+  {
+    "path": "README.md",
+    "expected": "0000db2e696bf3d2bc4344882688df0cb1bf5530",
+    "actual": "0000db2e696bf3d2bc4344882688df0cb1bf5530",
+    "matched": true
+  },
+  {
+    "path": "REVIEW.md",
+    "expected": "9bce417b99a975a842ae035d3930246e54f411c0",
+    "actual": "9bce417b99a975a842ae035d3930246e54f411c0",
+    "matched": true
+  },
+  {
+    "path": "SECURITY.md",
+    "expected": "ab5193e274035e31bfbc72919488e079804f77cc",
+    "actual": "ab5193e274035e31bfbc72919488e079804f77cc",
+    "matched": true
+  },
+  {
+    "path": "docs/cortex-adapter.md",
+    "expected": "87779f02e0236c6f8281a6488d181b4fbcde6dfc",
+    "actual": "87779f02e0236c6f8281a6488d181b4fbcde6dfc",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/__init__.py",
+    "expected": "2f1b0cf7da38023c5a3d045b1c90f3f37db2310a",
+    "actual": "2f1b0cf7da38023c5a3d045b1c90f3f37db2310a",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/authority.json",
+    "expected": "3d6d1408643a59a28bcafd523cca3fa3bb029b1f",
+    "actual": "3d6d1408643a59a28bcafd523cca3fa3bb029b1f",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/authority.py",
+    "expected": "17ee12ee0e9bb680404f962db0e35b4979a5fcd2",
+    "actual": "17ee12ee0e9bb680404f962db0e35b4979a5fcd2",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/contracts.py",
+    "expected": "5b715f3932db6ca89deecb61b52ca2c081756f2f",
+    "actual": "5b715f3932db6ca89deecb61b52ca2c081756f2f",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/coordinator.py",
+    "expected": "2585023b4529bdfbfb3922fabb1aec6d9229426c",
+    "actual": "2585023b4529bdfbfb3922fabb1aec6d9229426c",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/cortex_adapter.py",
+    "expected": "5d78dc35c25eec7e8c706b4d3620e9aa28b58191",
+    "actual": "5d78dc35c25eec7e8c706b4d3620e9aa28b58191",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/cortex_tools.py",
+    "expected": "4d3000535815624ac7c623e0ad503813ceb17904",
+    "actual": "4d3000535815624ac7c623e0ad503813ceb17904",
+    "matched": true
+  },
+  {
+    "path": "src/nexus_sandbox/schema.sql",
+    "expected": "b1b4d9f7238a65edb9f7bc687272d57ebafc69a3",
+    "actual": "b1b4d9f7238a65edb9f7bc687272d57ebafc69a3",
+    "matched": true
+  },
+  {
+    "path": "tests/fixtures/complete-source.json",
+    "expected": "c078090ccbbb64919068f9d094910a02ea475be8",
+    "actual": "c078090ccbbb64919068f9d094910a02ea475be8",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/README.md",
+    "expected": "def7b3da0381040ee99737ac7e9d62fcb7a940a9",
+    "actual": "def7b3da0381040ee99737ac7e9d62fcb7a940a9",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/test_authority_evidence.py",
+    "expected": "076c206640afb2b379d350be4ae9a46b8a2caa9f",
+    "actual": "076c206640afb2b379d350be4ae9a46b8a2caa9f",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/test_coordinator.py",
+    "expected": "febff5c3ca1aeb3049725889d365c2500e5d532b",
+    "actual": "febff5c3ca1aeb3049725889d365c2500e5d532b",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/test_cortex_adapter.py",
+    "expected": "dc720503c718a61332b7a9453995759c41c0a64e",
+    "actual": "dc720503c718a61332b7a9453995759c41c0a64e",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/test_missions.py",
+    "expected": "2b0e6cd0fd5e529bf443e405b952268935795e0c",
+    "actual": "2b0e6cd0fd5e529bf443e405b952268935795e0c",
+    "matched": true
+  },
+  {
+    "path": "tests/unit/test_runner_boundary.py",
+    "expected": "0bda1d9592da8a0f721c5c25db7613e2f82f0bf3",
+    "actual": "0bda1d9592da8a0f721c5c25db7613e2f82f0bf3",
+    "matched": true
+  },
+  {
+    "path": "tools/container_probe.py",
+    "expected": "c3a455afabd9916429c5021b33061c3289733cfa",
+    "actual": "c3a455afabd9916429c5021b33061c3289733cfa",
+    "matched": true
+  },
+  {
+    "path": "tools/fault_checks.py",
+    "expected": "d93253cdf79e5eca0c55a98a621e96a0e2f83dd5",
+    "actual": "d93253cdf79e5eca0c55a98a621e96a0e2f83dd5",
+    "matched": true
+  },
+  {
+    "path": "tools/fault_worker.py",
+    "expected": "0fe8fc273a409cd336102629d4f6dbccb035263d",
+    "actual": "0fe8fc273a409cd336102629d4f6dbccb035263d",
+    "matched": true
+  },
+  {
+    "path": "tools/run_isolated.py",
+    "expected": "3a69b1fb704f0bae34e0c24d96d363bcba84fe0e",
+    "actual": "3a69b1fb704f0bae34e0c24d96d363bcba84fe0e",
+    "matched": true
+  },
+  {
+    "path": "tools/validate.py",
+    "expected": "7b17a45615618386050123e96c47be9ec42a9353",
+    "actual": "7b17a45615618386050123e96c47be9ec42a9353",
+    "matched": true
+  }
+]

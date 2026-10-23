@@ -1,0 +1,88 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cwd": "/workspace/scratch/2fcd5a9b3883/independent-review-4b396f6",
+  "revision": "4b396f64b1b1174a9f3da0366a82a530453067e9",
+  "runs": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/validate.py",
+        "--output",
+        "reviewer-validation.json"
+      ],
+      "environment_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-0.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/unit",
+        "-v"
+      ],
+      "environment_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-1.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport",
+        "test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original",
+        "test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport",
+        "test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement",
+        "test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read",
+        "test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles",
+        "test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport"
+      ],
+      "environment_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-2.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "reviewer_probes.py"
+      ],
+      "environment_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-3.txt"
+    }
+  ],
+  "baseline_contrast": {
+    "baseline_adapter_revision": "ae22d1ccc1f1dc731fbca250a06475f6830d1025",
+    "other_source_and_tests_revision": "4b396f64b1b1174a9f3da0366a82a530453067e9",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport",
+      "test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original",
+      "test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport",
+      "test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement",
+      "test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read",
+      "test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles",
+      "test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport"
+    ],
+    "returncode": 1,
+    "output": "reviewer-baseline-output.txt",
+    "temporary_directory_deleted_on_exit": true
+  }
+}

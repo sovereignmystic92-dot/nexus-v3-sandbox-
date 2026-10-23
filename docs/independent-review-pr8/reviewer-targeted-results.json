@@ -1,0 +1,68 @@
+{
+  "frozen": {
+    "raw_output": "reviewer-run-2.txt",
+    "cases": [
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport.test_history_loss_blocks_replacement_before_transport",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original.test_history_loss_requires_trusted_restore_even_for_original",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport.test_latest_receipt_event_divergence_blocks_before_transport",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement.test_lost_first_verification_cannot_reanchor_to_later_replacement",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read.test_complete_legacy_history_backfills_anchor_before_read",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles.test_anchor_failure_rolls_back_verification_then_reconciles",
+        "status": "PASSED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport.test_orphaned_anchor_and_events_block_before_transport",
+        "status": "PASSED"
+      }
+    ]
+  },
+  "baseline": {
+    "raw_output": "reviewer-baseline-output.txt",
+    "cases": [
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport.test_history_loss_blocks_replacement_before_transport",
+        "status": "FAILED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original.test_history_loss_requires_trusted_restore_even_for_original",
+        "status": "FAILED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport.test_latest_receipt_event_divergence_blocks_before_transport",
+        "status": "FAILED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement.test_lost_first_verification_cannot_reanchor_to_later_replacement",
+        "status": "FAILED"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read.test_complete_legacy_history_backfills_anchor_before_read",
+        "status": "ERROR"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles.test_anchor_failure_rolls_back_verification_then_reconciles",
+        "status": "ERROR"
+      },
+      {
+        "test_id": "test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport.test_orphaned_anchor_and_events_block_before_transport",
+        "status": "FAILED"
+      }
+    ]
+  }
+}

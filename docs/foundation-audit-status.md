@@ -22,7 +22,7 @@ Notion remains authoritative. [PR #3](https://github.com/sovereignmystic92-dot/n
 | C4 egress and triggers | Network-none and denial probes; configured main/PR CI | Live host egress and complete repository settings/hooks inventory not established |
 | C5 fixture routing | Exact synthetic allowlists/markers and immutable bindings | Account selection and truthful fixture classification remain host/operator assumptions |
 | C6 durability | Atomic transactions, bounded coordinator kill/ENOSPC recovery, historical live restart recovery, identity-history checks | Total database loss/replacement, coherent rewriting, pre-migration history loss, power/device loss and long-term durability |
-| C7 independent readback | Fresh exact storage/tool comparisons; historical Flash | Storage readback is not independent human review; latest safeguard lacks separate independent implementation review |
+| C7 independent readback | Fresh exact storage/tool comparisons; historical Flash | Storage readback is not independent human review; latest safeguard has separate AI review; human review remains open |
 | C8 teardown/retention | Ordinary cleanup passed; runner reported 90-day logs | Forced host-stop cleanup and future deletion unproven; committed evidence persists |
 | C9 ownership/fencing | Documented single-worker restriction and sequential conflict checks | No enforced remote CAS, worker lease or stale-worker fencing; multiworker execution excluded |
 
@@ -30,9 +30,9 @@ Eight controls have some bounded implementation or evidence; that is **not an au
 
 ## Review provenance
 
-The [independent AI report](independent-review/independent-review-report.md) covers frozen revision `618681fdc6d1767358cca993e857f68fd2202879`, reproduced 56 tests and identified the history-loss boundary later addressed in part by PR #8. It is not a review of the new identity-anchor implementation and is not human audit.
+The [independent AI report](independent-review/independent-review-report.md) covers frozen revision `618681fdc6d1767358cca993e857f68fd2202879`, reproduced 56 tests and identified the history-loss boundary later addressed in part by PR #8. It is not a review of the new identity-anchor implementation and is not human audit. A subsequent [independent AI review of PR #8](independent-review-pr8/independent-review-report.md) reviewed frozen implementation `4b396f64b1b1174a9f3da0366a82a530453067e9`, independently reproduced 63 tests and seven targeted regressions, and added twelve probes. Its recommendation accepts only the documented retained-record identity safeguard under trusted-journal/single-worker assumptions. Three probes demonstrate limitations, so their passing assertions are not safety claims. Prior-adapter contrast reproduced five assertion failures and two missing-table errors. Raw evidence, reproduction scripts and reviewer hashes are retained alongside that report.
 
-PR #8 has author review and six additional offline probes recorded in its description; these are separate from the 63 hosted tests. They do not increase the hosted test count or satisfy independent review. No submitted GitHub review was returned during the focused PR #8 review.
+PR #8 has author review and six additional offline probes recorded in its description; these are separate from the 63 hosted tests. They do not increase the hosted test count. The subsequent separate AI review is distinct from those author probes and does not satisfy human review. No submitted GitHub review was returned during the focused PR #8 review.
 
 A reviewer of the current baseline should inspect `src/nexus_sandbox/cortex_adapter.py`, `cortex_tools.py`, `tests/unit/test_cortex_adapter.py`, the workflow and runner, the PR #8 diff, and its exact candidate/main run provenance. Reproduce with `python3 tools/validate.py --output review-validation.json`; this command alone does not run the isolated faults or call live services. Record reviewed SHA, commands, observed outcomes, findings, exclusions and reviewer identity. Pay particular attention to transaction rollback, legacy migration trust, pre-VERIFIED identity changes, missing-record stops and recovery without duplicate writes.
 
@@ -43,3 +43,8 @@ Keep execution single-worker until an enforceable remote ownership design is ava
 Before implementing multiworker support, define the remote mutation boundary and require conditional writes tied to a monotonic ownership token, or a single write gateway with enforceable exclusive authority. The currently exposed Cortex update tool has no expected-version/CAS parameter. Sequential preflight/readback cannot substitute for an atomic remote condition.
 
 Acceptance cases for a future design must include simultaneous acquisition (one winner), expiration and takeover, delayed stale-worker write after takeover (rejected at the actual mutation boundary), gateway/service restart with preserved ownership, and uncertain write reconciliation without duplicate mutation. Offline model results alone cannot establish those remote guarantees. Until the required backend capability and authority boundary are demonstrated, C9 remains open; no concurrency claim or deployment follows from this plan.
+
+
+## Open low-severity review finding
+
+The PR #8 reviewer found that the dictionary/schema walk stops at the earliest VERIFIED event. A syntactically valid nonobject event later in history can escape that check when a final event still matches the latest receipt. The original identity remains pinned and no extra write occurred in the reproduction; this is nonblocking for the declared narrow guarantee. Do not claim every retained event is schema-validated. A focused follow-up can validate all decoded event types before selecting the earliest verification, with a regression for a nonobject tail. This publication does not change runtime behavior. Human review and full foundation acceptance remain open.
