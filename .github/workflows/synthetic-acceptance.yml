@@ -2,18 +2,16 @@ name: Isolated synthetic acceptance
 
 on:
   push:
-    branches: [foundation-audit-draft, mission-scenarios]
-    paths:
-      - '.github/workflows/synthetic-acceptance.yml'
-      - 'src/**'
-      - 'tests/**'
-      - 'tools/**'
+    branches: [main, foundation-audit-draft, mission-scenarios, cortex-adapter]
+  pull_request:
+    branches: [main, mission-scenarios]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # Public source fetch needs no token. No secrets or write scopes are passed.
 permissions: {}
 
 concurrency:
-  group: nexus-synthetic-acceptance
+  group: nexus-synthetic-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,6 +21,10 @@ jobs:
     timeout-minutes: 10
     env:
       SOURCE_SHA: ${{ github.sha }}
+      SOURCE_EVENT: ${{ github.event_name }}
+      SOURCE_REF: ${{ github.ref }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       GIT_TERMINAL_PROMPT: '0'
       GIT_CONFIG_NOSYSTEM: '1'
       GIT_CONFIG_GLOBAL: /dev/null
@@ -38,6 +40,26 @@ jobs:
           git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
           git checkout --detach --quiet FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          event = os.environ["SOURCE_EVENT"]
+          ref = os.environ["SOURCE_REF"]
+          sha = os.environ["SOURCE_SHA"]
+          base = os.environ.get("PR_BASE_SHA", "")
+          head = os.environ.get("PR_HEAD_SHA", "")
+          raw = subprocess.check_output(["git", "cat-file", "-p", "HEAD"], text=True)
+          parents = [line.split(" ", 1)[1] for line in raw.split("\n\n", 1)[0].splitlines() if line.startswith("parent ")]
+          if event == "pull_request":
+              if not re.fullmatch(r"refs/pull/[0-9]+/merge", ref):
+                  raise SystemExit("Expected a pull-request merge ref")
+              if not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (base, head)) or parents != [base, head]:
+                  raise SystemExit("Merge candidate parents differ from event base/head")
+          elif event != "push" or not ref.startswith("refs/heads/"):
+              raise SystemExit("Unexpected source event/ref")
+          print(json.dumps({"ci_source": {"event": event, "ref": ref, "sha": sha,
+              "base_sha": base, "head_sha": head, "parents": parents,
+              "merge_candidate_checked": event == "pull_request"}}, sort_keys=True))
+          PY
       - name: Check container boundary and run synthetic suite
         working-directory: checkout
         shell: bash
