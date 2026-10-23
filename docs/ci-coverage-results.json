@@ -1575,5 +1575,12 @@
     "No main push or merge performed; main trigger becomes installed only after owner-approved merge.",
     "CI configuration does not configure required checks or branch protection.",
     "No independent human audit, production activation or Notion integration changes."
-  ]
+  ],
+  "followup": {
+    "failed_run": 39887474809,
+    "failed_job": 120198911613,
+    "phase": "Source provenance; test step skipped",
+    "cause": "Historical event base SHA differed from actual current base parent",
+    "disposition": "Compare candidate with observed current base branch and event head; preserve historical event SHA separately. Final new-revision results are retained in Cortex C08 evidence and PR descriptions."
+  }
 }
