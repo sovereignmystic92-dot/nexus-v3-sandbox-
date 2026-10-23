@@ -134,11 +134,29 @@ class CortexAdapter:
             raise ValueError("Malformed or misidentified transport result")
         return module
 
+    @staticmethod
+    def _first_verified_id(db, key):
+        # The latest receipt describes the latest observation, including a
+        # conflicting replacement. It must never redefine the verified identity.
+        # Existing journals already retain the earliest verification in events,
+        # so this also protects journals written before identity was pinned here.
+        for (encoded,) in db.execute(
+                "SELECT receipt FROM cortex_events WHERE key=? ORDER BY sequence", (key,)):
+            receipt = json.loads(encoded)
+            if receipt.get("protocol_verdict") == "VERIFIED":
+                identity = receipt.get("module_id")
+                if not isinstance(identity, str) or not identity:
+                    raise ValueError("Verified journal event lacks module identity")
+                return identity
+        return None
+
     def ensure(self, request: Write):
         self._validate(request)
         binding = json.dumps(asdict(request), sort_keys=True)
         with closing(self._db()) as db:
             row = db.execute("SELECT binding,intent_sent,receipt FROM cortex_receipts WHERE key=?", (request.key,)).fetchone()
+            known_id = (request.before.id if request.before is not None
+                        else self._first_verified_id(db, request.key))
         if row and row[0] != binding:
             raise BindingConflict("Key is bound to another request")
         prior = json.loads(row[2]) if row else {}
@@ -153,7 +171,6 @@ class CortexAdapter:
             return save("NOT_ATTEMPTED", "UNKNOWN", "READ_BLOCKED", reason="Read unavailable or malformed; no write")
         if source != request.source:
             return save("NOT_ATTEMPTED", "BLOCKED", "SOURCE_CHANGED", reason="Source identity/version/content/dependencies differ or source missing")
-        known_id = prior.get("module_id")
         wrote = False
         if not self._desired(request, target, known_id):
             if row and row[1]:
