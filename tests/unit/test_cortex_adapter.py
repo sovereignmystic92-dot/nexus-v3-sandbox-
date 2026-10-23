@@ -261,6 +261,80 @@ class CortexAdapterTests(unittest.TestCase):
         self.assertEqual(self.transport.writes, 2)
 
 
+    def assert_journal_hold(self):
+        reads = len(self.transport.read_calls)
+        with self.assertRaisesRegex(ValueError, "Journal integrity"):
+            self.adapter().ensure(self.request)
+        self.assertEqual(len(self.transport.read_calls), reads)
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_history_loss_blocks_replacement_before_transport(self):
+        self.adapter().ensure(self.request)
+        self.transport.modules[TARGET] = replace(self.transport.modules[TARGET], id="synthetic:replacement")
+        with sqlite3.connect(self.journal) as db:
+            db.execute("DELETE FROM cortex_events")
+        self.assert_journal_hold()
+
+    def test_history_loss_requires_trusted_restore_even_for_original(self):
+        self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            events = db.execute("SELECT * FROM cortex_events").fetchall()
+            db.execute("DELETE FROM cortex_events")
+        self.assert_journal_hold()
+        with sqlite3.connect(self.journal) as db:
+            db.executemany("INSERT INTO cortex_events VALUES(?,?,?,?)", events)
+        self.assertEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_latest_receipt_event_divergence_blocks_before_transport(self):
+        self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("DELETE FROM cortex_events WHERE sequence=(SELECT max(sequence) FROM cortex_events)")
+        self.assert_journal_hold()
+
+    def test_lost_first_verification_cannot_reanchor_to_later_replacement(self):
+        first = self.adapter().ensure(self.request)
+        encoded = json.dumps(dict(asdict(first), module_id="synthetic:replacement"), sort_keys=True)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("DELETE FROM cortex_events WHERE receipt LIKE '%VERIFIED%'")
+            db.execute("INSERT INTO cortex_events(key,receipt,observed_at_utc) VALUES(?,?,?)", (self.key, encoded, "synthetic:legacy"))
+            db.execute("UPDATE cortex_receipts SET receipt=? WHERE key=?", (encoded, self.key))
+        self.transport.modules[TARGET] = replace(self.transport.modules[TARGET], id="synthetic:replacement")
+        self.assert_journal_hold()
+
+    def test_complete_legacy_history_backfills_anchor_before_read(self):
+        first = self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("DROP TABLE IF EXISTS cortex_identity_anchors")
+        self.transport.read_fail = True
+        self.assertEqual(self.adapter().ensure(self.request).checkpoint, "READ_BLOCKED")
+        with sqlite3.connect(self.journal) as db:
+            self.assertEqual(db.execute("SELECT module_id FROM cortex_identity_anchors WHERE key=?", (self.key,)).fetchone(), (first.module_id,))
+            db.execute("DELETE FROM cortex_events")
+        self.assert_journal_hold()
+
+    def test_anchor_failure_rolls_back_verification_then_reconciles(self):
+        self.adapter()
+        with sqlite3.connect(self.journal) as db:
+            db.execute("CREATE TRIGGER deny_anchor BEFORE INSERT ON cortex_identity_anchors BEGIN SELECT RAISE(ABORT,'synthetic'); END")
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            receipt = json.loads(db.execute("SELECT receipt FROM cortex_receipts").fetchone()[0])
+            self.assertEqual(receipt["checkpoint"], "WRITE_INTENT")
+            self.assertEqual(db.execute("SELECT count(*) FROM cortex_events").fetchone()[0], 1)
+            self.assertEqual(db.execute("SELECT count(*) FROM cortex_identity_anchors").fetchone()[0], 0)
+            db.execute("DROP TRIGGER deny_anchor")
+        self.assertEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_orphaned_anchor_and_events_block_before_transport(self):
+        self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("DELETE FROM cortex_receipts")
+        self.assert_journal_hold()
+
+
 class CortexToolBridgeTests(unittest.TestCase):
     def result(self):
         return {"id": "synthetic:module:1", "name": TARGET, "version": 1,

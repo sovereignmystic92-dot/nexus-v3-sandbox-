@@ -20,6 +20,10 @@ class BindingConflict(ValueError):
     pass
 
 
+class JournalIntegrityError(ValueError):
+    """Stop for trusted journal recovery; never reset identity automatically."""
+
+
 @dataclass(frozen=True)
 class Module:
     id: str
@@ -76,6 +80,8 @@ class CortexAdapter:
                 CREATE TABLE IF NOT EXISTS cortex_receipts (
                     key TEXT PRIMARY KEY, binding TEXT NOT NULL,
                     intent_sent INTEGER NOT NULL, receipt TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS cortex_identity_anchors (
+                    key TEXT PRIMARY KEY, module_id TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS cortex_events (
                     sequence INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL,
                     receipt TEXT NOT NULL, observed_at_utc TEXT NOT NULL);
@@ -110,6 +116,14 @@ class CortexAdapter:
             old = db.execute("SELECT binding,intent_sent FROM cortex_receipts WHERE key=?", (request.key,)).fetchone()
             if old and old[0] != binding:
                 raise BindingConflict("Key is bound to another request")
+            if outcome.protocol_verdict == "VERIFIED":
+                anchor = db.execute("SELECT module_id FROM cortex_identity_anchors WHERE key=?", (request.key,)).fetchone()
+                if not isinstance(outcome.module_id, str) or not outcome.module_id:
+                    raise JournalIntegrityError("Journal integrity: verification lacks identity")
+                if anchor and anchor[0] != outcome.module_id:
+                    raise JournalIntegrityError("Journal integrity: verified identity conflicts with anchor")
+                if not anchor:
+                    db.execute("INSERT INTO cortex_identity_anchors VALUES(?,?)", (request.key, outcome.module_id))
             sent = bool(sent or old and old[1])
             db.execute("INSERT INTO cortex_receipts VALUES(?,?,?,?) ON CONFLICT(key) DO UPDATE SET intent_sent=excluded.intent_sent,receipt=excluded.receipt",
                        (request.key, binding, int(sent), receipt))
@@ -135,30 +149,46 @@ class CortexAdapter:
         return module
 
     @staticmethod
-    def _first_verified_id(db, key):
-        # The latest receipt describes the latest observation, including a
-        # conflicting replacement. It must never redefine the verified identity.
-        # Existing journals already retain the earliest verification in events,
-        # so this also protects journals written before identity was pinned here.
-        for (encoded,) in db.execute(
-                "SELECT receipt FROM cortex_events WHERE key=? ORDER BY sequence", (key,)):
-            receipt = json.loads(encoded)
-            if receipt.get("protocol_verdict") == "VERIFIED":
-                identity = receipt.get("module_id")
+    def _journal_identity(db, key, row):
+        # This detects inconsistent retained records, not coherent tampering or
+        # replacement/loss of the entire database. Legacy migration trusts history.
+        events = [json.loads(encoded) for (encoded,) in db.execute(
+            "SELECT receipt FROM cortex_events WHERE key=? ORDER BY sequence", (key,))]
+        anchor = db.execute("SELECT module_id FROM cortex_identity_anchors WHERE key=?", (key,)).fetchone()
+        if row is None:
+            if events or anchor:
+                raise JournalIntegrityError("Journal integrity: orphaned history or identity anchor")
+            return None
+        if not events or events[-1] != json.loads(row[2]):
+            raise JournalIntegrityError("Journal integrity: missing history or latest receipt mismatch")
+        identity = None
+        for event in events:
+            if not isinstance(event, dict):
+                raise JournalIntegrityError("Journal integrity: malformed event")
+            if event.get("protocol_verdict") == "VERIFIED":
+                identity = event.get("module_id")
                 if not isinstance(identity, str) or not identity:
-                    raise ValueError("Verified journal event lacks module identity")
-                return identity
-        return None
+                    raise JournalIntegrityError("Journal integrity: verified event lacks identity")
+                break
+        if anchor:
+            if not isinstance(anchor[0], str) or not anchor[0] or anchor[0] != identity:
+                raise JournalIntegrityError("Journal integrity: identity history missing or conflicts with anchor")
+        elif identity is not None:
+            # Backfill complete trusted legacy history before any transport call.
+            db.execute("INSERT INTO cortex_identity_anchors VALUES(?,?)", (key, identity))
+        return identity
 
     def ensure(self, request: Write):
         self._validate(request)
         binding = json.dumps(asdict(request), sort_keys=True)
-        with closing(self._db()) as db:
+        with closing(self._db()) as db, db:
             row = db.execute("SELECT binding,intent_sent,receipt FROM cortex_receipts WHERE key=?", (request.key,)).fetchone()
-            known_id = (request.before.id if request.before is not None
-                        else self._first_verified_id(db, request.key))
-        if row and row[0] != binding:
-            raise BindingConflict("Key is bound to another request")
+            if row and row[0] != binding:
+                raise BindingConflict("Key is bound to another request")
+            identity = self._journal_identity(db, request.key, row)
+            if request.before is not None and identity is not None and identity != request.before.id:
+                raise JournalIntegrityError("Journal integrity: anchor conflicts with update baseline")
+            known_id = request.before.id if request.before is not None else identity
         prior = json.loads(row[2]) if row else {}
         def save(operation, verdict, checkpoint, module=None, reason="", sent=False):
             return self._save(request, Outcome(operation, verdict, checkpoint,
