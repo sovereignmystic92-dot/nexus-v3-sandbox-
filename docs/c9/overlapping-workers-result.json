@@ -1,0 +1,310 @@
+{
+  "scope": "Author-run deterministic offline thread interleavings with an in-memory transport",
+  "frozen_implementation": "ac954ff9759771d48020ba4700797841b7968d3d",
+  "source_sha256": "2386914f731fb44c6a12ace1a88f4b244918ecb16772acfdd33e572088aafd0b",
+  "probe_sha256": "c3d0e9ddfd27e067ab051f3ecdea2a1aabb2abb5d90388725d2acc6dee23e91d",
+  "cases": [
+    {
+      "case": "different-requests-separate-journals",
+      "assertions": "PASSED",
+      "demonstrates_unfenced_write": true,
+      "meaning": "A passed v1 preflight, then overwrote B v2; readback detected v3 only after the stale write",
+      "outcomes": {
+        "B": {
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "checkpoint": "VERIFIED",
+          "module_id": "synthetic:target",
+          "module_version": 2,
+          "reason": "Exact independent readback matched immutable binding"
+        },
+        "A": {
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "FAILED",
+          "checkpoint": "READBACK_MISMATCH",
+          "module_id": "synthetic:target",
+          "module_version": 3,
+          "reason": "Exact target identity/version/content/dependency readback mismatch; preserve remote state"
+        }
+      },
+      "final_target": {
+        "id": "synthetic:target",
+        "name": "Nexus Sandbox C9 Offline Target",
+        "version": 3,
+        "content": "TEST FIXTURE \u2014 SYNTHETIC \u2014 NOT CANONICAL.\nsynthetic:request:c9-worker-A\nPayload A",
+        "dependencies": [
+          "Nexus Sandbox C9 Offline Source"
+        ]
+      },
+      "writes": 2,
+      "trace": [
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "update",
+          "from_version": 1,
+          "to_version": 2
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 2
+        },
+        {
+          "worker": "A",
+          "action": "update",
+          "from_version": 2,
+          "to_version": 3
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 3
+        }
+      ],
+      "journals": [
+        {
+          "journal": "A.sqlite",
+          "integrity": "ok",
+          "receipt_count": 1
+        },
+        {
+          "journal": "B.sqlite",
+          "integrity": "ok",
+          "receipt_count": 1
+        }
+      ]
+    },
+    {
+      "case": "different-requests-shared-journals",
+      "assertions": "PASSED",
+      "demonstrates_unfenced_write": true,
+      "meaning": "A passed v1 preflight, then overwrote B v2; readback detected v3 only after the stale write",
+      "outcomes": {
+        "B": {
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "checkpoint": "VERIFIED",
+          "module_id": "synthetic:target",
+          "module_version": 2,
+          "reason": "Exact independent readback matched immutable binding"
+        },
+        "A": {
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "FAILED",
+          "checkpoint": "READBACK_MISMATCH",
+          "module_id": "synthetic:target",
+          "module_version": 3,
+          "reason": "Exact target identity/version/content/dependency readback mismatch; preserve remote state"
+        }
+      },
+      "final_target": {
+        "id": "synthetic:target",
+        "name": "Nexus Sandbox C9 Offline Target",
+        "version": 3,
+        "content": "TEST FIXTURE \u2014 SYNTHETIC \u2014 NOT CANONICAL.\nsynthetic:request:c9-worker-A\nPayload A",
+        "dependencies": [
+          "Nexus Sandbox C9 Offline Source"
+        ]
+      },
+      "writes": 2,
+      "trace": [
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "update",
+          "from_version": 1,
+          "to_version": 2
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 2
+        },
+        {
+          "worker": "A",
+          "action": "update",
+          "from_version": 2,
+          "to_version": 3
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 3
+        }
+      ],
+      "journals": [
+        {
+          "journal": "A.sqlite",
+          "integrity": "ok",
+          "receipt_count": 2
+        }
+      ]
+    },
+    {
+      "case": "same-request-shared-journal",
+      "assertions": "PASSED",
+      "demonstrates_unfenced_write": false,
+      "meaning": "Same-key shared-journal durable intent prevented a second write in this interleaving",
+      "outcomes": {
+        "B": {
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "UNKNOWN",
+          "checkpoint": "RECONCILE_ONLY",
+          "module_id": "synthetic:target",
+          "module_version": 1,
+          "reason": "Prior write intent; desired state not observed; never blind retry"
+        },
+        "A": {
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "checkpoint": "VERIFIED",
+          "module_id": "synthetic:target",
+          "module_version": 2,
+          "reason": "Exact independent readback matched immutable binding"
+        }
+      },
+      "final_target": {
+        "id": "synthetic:target",
+        "name": "Nexus Sandbox C9 Offline Target",
+        "version": 2,
+        "content": "TEST FIXTURE \u2014 SYNTHETIC \u2014 NOT CANONICAL.\nsynthetic:request:c9-worker-A\nPayload A",
+        "dependencies": [
+          "Nexus Sandbox C9 Offline Source"
+        ]
+      },
+      "writes": 1,
+      "trace": [
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "B",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "update",
+          "from_version": 1,
+          "to_version": 2
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Source",
+          "version": 1
+        },
+        {
+          "worker": "A",
+          "action": "read",
+          "name": "Nexus Sandbox C9 Offline Target",
+          "version": 2
+        }
+      ],
+      "journals": [
+        {
+          "journal": "A.sqlite",
+          "integrity": "ok",
+          "receipt_count": 1
+        }
+      ]
+    }
+  ],
+  "c9_acceptance": "BLOCKED",
+  "limits": [
+    "No live calls, real server race, process/host lease or fencing implementation",
+    "Passing counterexample assertions demonstrate a missing guarantee, not concurrency safety",
+    "The same-key control is one schedule, not a proof for all overlapping invocations"
+  ]
+}
