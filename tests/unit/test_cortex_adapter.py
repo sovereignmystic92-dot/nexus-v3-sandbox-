@@ -208,6 +208,59 @@ class CortexAdapterTests(unittest.TestCase):
         self.assertEqual(self.transport.writes, 1)
 
 
+    def test_verified_create_identity_never_changes_across_replacement_retries(self):
+        first = self.adapter().ensure(self.request)
+        original = self.transport.modules[TARGET]
+        replacement = replace(original, id="synthetic:replacement")
+        self.transport.modules[TARGET] = replacement
+        for _ in range(3):
+            result = self.adapter().ensure(self.request)
+            self.assertNotEqual(result.protocol_verdict, "VERIFIED")
+            self.assertEqual(self.transport.modules[TARGET], replacement)
+        self.assertEqual(self.transport.writes, 1)
+        self.transport.modules[TARGET] = original
+        restored = self.adapter().ensure(self.request)
+        self.assertEqual((restored.protocol_verdict, restored.module_id), ("VERIFIED", first.module_id))
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity(self):
+        first = self.adapter().ensure(self.request)
+        self.transport.modules[TARGET] = replace(self.transport.modules[TARGET], id="synthetic:replacement")
+        # Reproduce the durable state the old bug could leave after two retries.
+        legacy = asdict(first)
+        legacy["module_id"] = "synthetic:replacement"
+        receipt = json.dumps(legacy, sort_keys=True)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("UPDATE cortex_receipts SET receipt=? WHERE key=?", (receipt, self.request.key))
+            db.execute("INSERT INTO cortex_events(key,receipt,observed_at_utc) VALUES(?,?,?)",
+                       (self.request.key, receipt, "synthetic:legacy-observation"))
+        for _ in range(2):
+            self.assertNotEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_unverified_preflight_conflict_does_not_pin_foreign_identity(self):
+        self.transport.modules[TARGET] = Module("synthetic:foreign", TARGET, 1, MARKER + " foreign", ())
+        self.assertEqual(self.adapter().ensure(self.request).checkpoint, "TARGET_CONFLICT")
+        self.transport.modules.pop(TARGET)
+        result = self.adapter().ensure(self.request)
+        self.assertEqual(result.protocol_verdict, "VERIFIED")
+        self.assertNotEqual(result.module_id, "synthetic:foreign")
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_update_baseline_identity_survives_an_unverified_foreign_conflict(self):
+        self.adapter().ensure(self.request)
+        baseline = self.transport.modules[TARGET]
+        key = "synthetic:request:cortex-restored-update"
+        request = replace(self.request, key=key, content=MARKER + "\n" + key, before=baseline)
+        self.transport.modules[TARGET] = replace(baseline, id="synthetic:foreign")
+        self.assertEqual(self.adapter().ensure(request).checkpoint, "TARGET_CONFLICT")
+        self.transport.modules[TARGET] = baseline
+        result = self.adapter().ensure(request)
+        self.assertEqual((result.protocol_verdict, result.module_id, result.module_version),
+                         ("VERIFIED", baseline.id, baseline.version + 1))
+        self.assertEqual(self.transport.writes, 2)
+
+
 class CortexToolBridgeTests(unittest.TestCase):
     def result(self):
         return {"id": "synthetic:module:1", "name": TARGET, "version": 1,
