@@ -59,11 +59,26 @@ def main():
     distinct = len({c["test_id"] for c in result.cases})
     passed = (result.wasSuccessful() and not result.skipped and result.testsRun > 0
               and distinct == result.testsRun and len(result.cases) == result.testsRun)
+    mission_ids = {
+        "M01": "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable",
+        "M02": "test_missions.MissionTests.test_m02_interrupted_mission_resumes_without_duplicate_work",
+        "M03": "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission",
+        "M04": "test_missions.MissionTests.test_m04_current_authority_conflict_holds_whole_mission",
+    }
+    statuses = {case["test_id"]: case["status"] for case in result.cases}
+    mission_cases = [{"case_id": case, "test_id": test,
+                      "status": statuses.get(test, "NOT_RUN")}
+                     for case, test in mission_ids.items()]
+    missions_passed = all(case["status"] == "PASSED" for case in mission_cases)
+    passed = passed and missions_passed
     report = {
         "schema_version": 1, "started_at_utc": started,
         "scope": "synthetic local unit/integration evidence only",
         "local_test_status": "PASSED" if passed else "FAILED",
         "tests_run": result.testsRun, "distinct_tests": distinct, "cases": result.cases,
+        "mission_cases": mission_cases,
+        "mission_status": "PASSED" if missions_passed else "FAILED",
+        "mission_scope": "single transaction per mission; payload preservation only; no semantic synthesis or external registration",
         "source_sha256": manifest,
         "full_acceptance_status": "BLOCKED",
         "unresolved_controls": ["C1 disposable host/filesystem isolation", "C2 effective grants",
