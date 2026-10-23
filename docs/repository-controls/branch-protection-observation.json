@@ -1,0 +1,78 @@
+{
+  "observed_date": "2026-10-23",
+  "repository": "sovereignmystic92-dot/nexus-v3-sandbox-",
+  "main_sha": "72e19fb232e4679e8d35b75f7f27381fedfaff7d",
+  "branch": {
+    "name": "main",
+    "protected": true
+  },
+  "ruleset": {
+    "id": 25721028,
+    "name": "Main",
+    "target": "branch",
+    "source_type": "Repository",
+    "source": "sovereignmystic92-dot/nexus-v3-sandbox-",
+    "enforcement": "active",
+    "conditions": {
+      "ref_name": {
+        "exclude": [],
+        "include": [
+          "~DEFAULT_BRANCH"
+        ]
+      }
+    },
+    "rules": [
+      {
+        "type": "deletion"
+      },
+      {
+        "type": "non_fast_forward"
+      },
+      {
+        "type": "pull_request",
+        "parameters": {
+          "required_approving_review_count": 0,
+          "dismiss_stale_reviews_on_push": false,
+          "required_reviewers": [],
+          "require_code_owner_review": false,
+          "require_last_push_approval": false,
+          "required_review_thread_resolution": false,
+          "require_extra_approval_for_unattributed_changes": false,
+          "allowed_merge_methods": [
+            "merge",
+            "squash",
+            "rebase"
+          ]
+        }
+      },
+      {
+        "type": "required_status_checks",
+        "parameters": {
+          "strict_required_status_checks_policy": true,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": [
+            {
+              "context": "synthetic",
+              "integration_id": 15368
+            }
+          ]
+        }
+      }
+    ],
+    "node_id": "RRS_lACqUmVwb3NpdG9yec5VP1DPzgGIeMQ",
+    "created_at": "2026-10-23T08:26:19.872-04:00",
+    "updated_at": "2026-10-23T08:45:02.528-04:00",
+    "bypass_actors": [],
+    "current_user_can_bypass": "never",
+    "_links": {
+      "self": {
+        "href": "https://api.github.com/repos/sovereignmystic92-dot/nexus-v3-sandbox-/rulesets/25721028"
+      },
+      "html": {
+        "href": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/rules/25721028"
+      }
+    }
+  },
+  "scope": "Readback of owner-configured active ruleset; not an attempted failing-check merge or complete settings audit",
+  "administrative_changes_by_assistant": false
+}

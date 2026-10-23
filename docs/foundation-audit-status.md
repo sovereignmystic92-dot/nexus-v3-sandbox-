@@ -1,5 +1,10 @@
 # Foundation audit status — 2026-10-23
 
+## Latest repository-control checkpoint — 2026-10-23
+
+Through merged PR #13, actual main `72e19fb232e4679e8d35b75f7f27381fedfaff7d` passed 65 tests and four separately counted bounded coordinator faults. The owner subsequently configured an active default-branch ruleset requiring a pull request, the synthetic check and an up-to-date branch, with zero approving reviews, no latest-push approval, no bypass actors, and force-push/deletion blocking. Readback returned main protected=true. See [exact branch-protection evidence and limits](repository-controls/branch-protection.md). This supersedes older merge-pending counts and the unprotected-main observation; dated implementation/live/reviewer sections below retain their original revision scope. Full foundation acceptance remains BLOCKED. C2, C9 and independent human review remain open; single-worker mode continues and Notion stays paused.
+
+
 **Full foundation acceptance: BLOCKED.** This is an author-maintained evidence handoff, not independent human signoff. It supersedes earlier status and merge-pending summaries for the revision below; historical evidence remains attributed to its original revision.
 
 ## Verified baseline
