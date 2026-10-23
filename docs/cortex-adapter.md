@@ -25,3 +25,7 @@ Local suite: 52 distinct tests (32 existing plus 20 adapter/bridge tests). Cases
 These adapter tests use offline transports. Earlier C01–C03 Cortex tool exercises are separate live observations and are not proof that this new Python adapter has run against Cortex. Hosted validation is recorded separately after execution. The existing hosted runner also exercises four bounded coordinator faults; those are not Cortex network-failure tests.
 
 The exposed Cortex update tool has no expected-version/CAS parameter. Preflight and post-write reads cannot prevent another writer from racing between calls. Only one worker may own the journal and fixture names. Concurrent writers, atomic cross-module consistency, production use and automatic retries after uncertain writes remain outside acceptance. Full foundation acceptance remains blocked by the wider audit gates.
+
+## Observed hosted run
+
+[Run 39881697563](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39881697563), source commit `9aeb79bc3d972c5dc2f11a8e08dda8e1743904d9`, passed 52 offline tests, all four mission scenarios and four bounded coordinator fault checks. Host and container boundary probes passed; container removal and source-staging cleanup were reported successful. The adapter-specific cases remained offline. Exact source hashes, case results and limitations are retained in [the hosted report](hosted-run-39881697563.json). Full foundation acceptance remains `BLOCKED`.
