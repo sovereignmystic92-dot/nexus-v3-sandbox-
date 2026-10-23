@@ -1,3 +1,7 @@
+# Current review entry point
+
+Use [the current acceptance review and merge order](docs/current-acceptance-review.md) for the latest scoped verdict, evidence and blockers. The records below are historical; their earlier test counts and pending states are superseded by later observations at specified revisions. This review does not authorize merge, deployment or promotion.
+
 # Foundation sandbox review
 
 This branch contains the Python/SQLite architecture, component interfaces, evidence requirements and acceptance cases from AUD-40. The local coordinator is now implemented; fixtures remain synthetic only.
