@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "case_id": "C11",
+  "status": "PASSED",
+  "scope": "Live synthetic update reply deliberately discarded locally, then reconciliation in a second Python process",
+  "adapter_source_commit": "62265e0d5bf3f371b965eab7f953dc9230501eaf",
+  "source_sha256": {
+    "src/nexus_sandbox/cortex_adapter.py": "936b2d3d33cb595c3a4d690fe9b7df5f143c3e8fb98112947588b40852116454",
+    "src/nexus_sandbox/cortex_tools.py": "ae8b0749a8981b6a80bf06f29083b6e34744d944ebea0d14a8cbd7789929269d",
+    "docs/cortex-c11-probe.py": "74982b633306840b7ce004faa333a91cfcac72a4e490479125bc1926ae9e94d5"
+  },
+  "write_process": {
+    "calls": 5,
+    "gets": 4,
+    "updates": 1,
+    "outcomes": [
+      {
+        "label": "discarded_update_reply",
+        "operation_outcome": "UNKNOWN",
+        "protocol_verdict": "UNKNOWN",
+        "checkpoint": "RECONCILE_ONLY",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 2,
+        "reason": "Write outcome uncertain; read by bound name before any further action"
+      }
+    ]
+  },
+  "recovery_process": {
+    "calls": 11,
+    "gets": 11,
+    "updates": 0,
+    "outcomes": [
+      {
+        "label": "after_process_restart",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 3,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "exact_repeat",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 3,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      {
+        "label": "stale_v2_baseline",
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "BLOCKED",
+        "checkpoint": "TARGET_CONFLICT",
+        "module_id": "synthetic:observed:C05:registry",
+        "module_version": 3,
+        "reason": "Target differs from expected absent or exact update baseline"
+      }
+    ]
+  },
+  "target": {
+    "name": "Nexus Sandbox C05 — Synthetic Registry — 2026-10-22",
+    "id_alias": "synthetic:observed:C05:registry",
+    "same_id": true,
+    "before_version": 2,
+    "after_version": 3
+  },
+  "metadata_preserved": [
+    "owner",
+    "parent",
+    "inherit_permissions",
+    "default_assignee",
+    "created_at",
+    "archived",
+    "dependencies"
+  ],
+  "independent_flash": {
+    "modules": 4,
+    "edges": 3,
+    "content": "MATCHED",
+    "source_archive_output": "UNCHANGED"
+  },
+  "journal": {
+    "integrity": "ok",
+    "receipts": 2,
+    "events": 5
+  },
+  "id_policy": "Public identifiers are aliases; exact original request/IDs and checkpoint evidence are retained in scoped Cortex C11 issue.",
+  "limitations": [
+    "The actual successful tool reply was discarded at the local callback; this is not a real network interruption.",
+    "The first Python process exited normally after saving the uncertain checkpoint; the second was a separate actual process, not an abrupt-kill or power-loss test.",
+    "Single worker; no atomic CAS, concurrent-writer fencing or long-term durability proof.",
+    "C05/C06 records describe earlier v1/v2 observations. Registry is now v3; old probes must not be blindly replayed.",
+    "No Notion resumption, production activation or canonical promotion."
+  ],
+  "full_acceptance_status": "BLOCKED"
+}
