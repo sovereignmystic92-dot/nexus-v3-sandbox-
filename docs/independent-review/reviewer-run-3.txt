@@ -1,0 +1,12 @@
+test_corrupt_event_json_fails_before_transport (__main__.IndependentProbes.test_corrupt_event_json_fails_before_transport) ... ok
+test_history_loss_can_rebind_create_even_when_latest_receipt_retains_A (__main__.IndependentProbes.test_history_loss_can_rebind_create_even_when_latest_receipt_retains_A) ... ok
+test_many_replacements_and_source_outage_cannot_repin_verified_create (__main__.IndependentProbes.test_many_replacements_and_source_outage_cannot_repin_verified_create) ... ok
+test_postwrite_verified_journal_failure_never_returns_verified (__main__.IndependentProbes.test_postwrite_verified_journal_failure_never_returns_verified) ... ok
+test_preverification_observed_identity_is_not_pinned (__main__.IndependentProbes.test_preverification_observed_identity_is_not_pinned) ... ok
+test_update_uncertainty_and_history_loss_still_require_before_id (__main__.IndependentProbes.test_update_uncertainty_and_history_loss_still_require_before_id) ... ok
+test_verified_event_missing_id_fails_before_transport (__main__.IndependentProbes.test_verified_event_missing_id_fails_before_transport) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.101s
+
+OK

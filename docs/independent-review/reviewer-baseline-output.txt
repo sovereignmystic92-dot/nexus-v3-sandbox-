@@ -1,0 +1,55 @@
+test_verified_create_identity_never_changes_across_replacement_retries (test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries) ... FAIL
+test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity (test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity) ... FAIL
+test_unverified_preflight_conflict_does_not_pin_foreign_identity (test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity) ... FAIL
+test_update_baseline_identity_survives_an_unverified_foreign_conflict (test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict) ... FAIL
+
+======================================================================
+FAIL: test_verified_create_identity_never_changes_across_replacement_retries (test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-_21e4pgb/tests/unit/test_cortex_adapter.py", line 218, in test_verified_create_identity_never_changes_across_replacement_retries
+    self.assertNotEqual(result.protocol_verdict, "VERIFIED")
+AssertionError: 'VERIFIED' == 'VERIFIED'
+
+======================================================================
+FAIL: test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity (test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-_21e4pgb/tests/unit/test_cortex_adapter.py", line 238, in test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity
+    self.assertNotEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+AssertionError: 'VERIFIED' == 'VERIFIED'
+
+======================================================================
+FAIL: test_unverified_preflight_conflict_does_not_pin_foreign_identity (test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-_21e4pgb/tests/unit/test_cortex_adapter.py", line 246, in test_unverified_preflight_conflict_does_not_pin_foreign_identity
+    self.assertEqual(result.protocol_verdict, "VERIFIED")
+AssertionError: 'FAILED' != 'VERIFIED'
+- FAILED
++ VERIFIED
+
+
+======================================================================
+FAIL: test_update_baseline_identity_survives_an_unverified_foreign_conflict (test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-_21e4pgb/tests/unit/test_cortex_adapter.py", line 259, in test_update_baseline_identity_survives_an_unverified_foreign_conflict
+    self.assertEqual((result.protocol_verdict, result.module_id, result.module_version),
+AssertionError: Tuples differ: ('FAILED', 'synthetic:module:1', 2) != ('VERIFIED', 'synthetic:module:1', 2)
+
+First differing element 0:
+'FAILED'
+'VERIFIED'
+
+- ('FAILED', 'synthetic:module:1', 2)
+?    - -
+
++ ('VERIFIED', 'synthetic:module:1', 2)
+?   ++++
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.045s
+
+FAILED (failures=4)

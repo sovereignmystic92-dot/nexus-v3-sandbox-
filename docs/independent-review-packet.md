@@ -1,6 +1,6 @@
 # Independent review packet — C15
 
-**Status: PREPARED; independent code review/test reproduction NOT COMPLETED.**
+**Status: INDEPENDENT AI REVIEW COMPLETED for the frozen revision. Independent human audit NOT ESTABLISHED; full foundation acceptance remains BLOCKED.**
 
 ## Exact target
 
@@ -10,7 +10,7 @@
 - Baseline with reproduced defect: `ce7ad5e8bf1f5b968e6cd9334b91716f90ad76ed`.
 - [Merged PR #6](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/pull/6).
 - [Actual main CI 39893032352](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/39893032352): author retrieved its logs reporting 56 tests and four separately counted bounded faults, boundaries/manifests and cleanup.
-- No submitted GitHub review returned for PR #6 when this packet was prepared. Review outside GitHub was not independently established.
+- No submitted GitHub review returned for PR #6 when this packet was prepared. The subsequent independent AI review is recorded below; it is not a GitHub human-review approval.
 
 Review the frozen revision even if main later moves. The independent reviewer must inspect actual code and produce their own findings/results; the statements here are review inputs, not their conclusions.
 
@@ -86,3 +86,13 @@ A2 explicitly represents broader concurrent-worker ownership/fencing, which is e
 - Full foundation acceptance: BLOCKED. Concurrency/fencing, full live permission isolation, reciprocal registration, real network/power/device-loss and long-term durability remain unproven.
 - Notion remains authoritative and paused. No live module mutations, autonomous callback deployment, production activation or canonical promotion are authorized by this packet.
 - Do not assign/request an external reviewer or send notifications without the owner's chosen reviewer/route.
+
+## Completed independent AI review
+
+The owner explicitly selected a separate review agent. `/root/independent_identity_review` fetched frozen files through GitHub into a new directory rather than using the author checkout. All 27 materialized files matched their Git blob SHAs before the final reported runs. Its [report is preserved verbatim](independent-review/independent-review-report.md), with [commands/results](independent-review/reviewer-commands-results.json), [validation JSON](independent-review/reviewer-validation.json), raw logs, [independent probes](independent-review/reviewer_probes.py), and source manifests in the same directory.
+
+The reviewer reproduced 56 suite tests with no errors/skips; the four critical regressions passed the fix and failed the baseline adapter as expected. Seven independent adversarial cases passed their assertions, including assertions that demonstrate limitations rather than safe behavior. Repeated suite/critical runs overlap and are not added to the 56-case total. The independent reviewer did not rerun Docker/hosted faults or live Cortex probes; those remain earlier author-observed evidence.
+
+Scoped recommendation: accept the first persisted VERIFIED create identity / immutable before-ID update identity correction, under complete trusted journal history and one-worker assumptions. No blocking defect was found within that scope. Confirmed residual risks: deleting create event history can allow B to verify; observing A before a persisted VERIFIED event does not pin it. The reviewer requested low-severity contract wording clarification. This PR proposes that documentation clarification without changing implementation; the report/repro artifacts remain unchanged.
+
+To run the published independent probes from a checkout of this documentation branch: `PYTHONPATH=src:tests/unit python3 docs/independent-review/reviewer_probes.py`. The reviewed implementation remains the frozen revision above; any later runtime change requires new review. The earlier automated-material precheck is a historical assessment prepared before the independent agent's actual inspection/reproduction and is retained unchanged. Independent AI review is now evidenced; independent human audit and broader foundation acceptance remain open.
