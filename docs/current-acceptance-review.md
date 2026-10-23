@@ -1,6 +1,6 @@
 # Current acceptance review and merge order — 2026-10-22
 
-This review supersedes older status summaries for the reviewed Cortex branch. Earlier test counts and pending-host statements in historical documents describe earlier revisions. This is an author assessment, not independent human review or approval to merge. Notion remains authoritative; its integration remains paused. Production activation and canonical promotion are outside this review.
+This review supersedes older status summaries for the reviewed Cortex branch. The C08 follow-through below updates the CI finding; the tables retain the original reviewed snapshot. Earlier test counts and pending-host statements in historical documents describe earlier revisions. This is an author assessment, not independent human review or approval to merge. Notion remains authoritative; its integration remains paused. Production activation and canonical promotion are outside this review.
 
 ## Reviewed revisions and evidence
 
@@ -51,4 +51,10 @@ The main-trigger gap is a follow-through blocker to claiming automatic post-merg
 - PR #2 → PR #4 is the recommended order; PR #3 stays on hold.
 - Current Git compatibility is clean, but no owner merge authorization or independent review is inferred.
 - Existing offline and live evidence supports bounded, single-worker synthetic persistence/recovery.
-- Next concrete implementation: prepare destination/PR CI coverage and validate it before seeking a scoped merge decision.
+- C08 subsequently implemented destination/PR CI coverage and verified the recorded source and merge-candidate runs; see the follow-through below.
+
+## C08 CI follow-through
+
+The workflow gap identified above was subsequently addressed on PR #2 and PR #4. Main pushes and PRs targeting main/mission-scenarios are configured, event/ref concurrency is isolated, and PR jobs verify the fetched merge candidate's exact base/head parents. PR #2 passed 32 tests and PR #4 passed 52 tests on their recorded source and actual PR merge candidates, each with four separately counted bounded faults. See [CI coverage and exact run evidence](ci-coverage.md).
+
+Main is unchanged; its first actual push run remains to be observed after an approved merge. Required-check enforcement and independent review were not configured or established. Revalidate PR #4 after the PR #2 workflow backport and again after any later base retarget/merge. The C08 Cortex evidence issue records the final follow-up candidate result after this documentation publication. Full acceptance remains BLOCKED and PR #3 stays paused.
