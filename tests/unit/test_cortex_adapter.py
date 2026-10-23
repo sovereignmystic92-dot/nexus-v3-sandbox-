@@ -7,7 +7,7 @@ import sqlite3
 import tempfile
 import unittest
 
-from nexus_sandbox.cortex_adapter import BindingConflict, CortexAdapter, MARKER, Module, Write
+from nexus_sandbox.cortex_adapter import BindingConflict, JournalIntegrityError, CortexAdapter, MARKER, Module, Write
 from nexus_sandbox.cortex_tools import CortexToolTransport, ToolFailure
 
 SOURCE = "Nexus Sandbox Offline Source"
@@ -333,6 +333,50 @@ class CortexAdapterTests(unittest.TestCase):
         with sqlite3.connect(self.journal) as db:
             db.execute("DELETE FROM cortex_receipts")
         self.assert_journal_hold()
+
+
+    def test_nonobject_tail_events_block_before_transport_and_preserve_journal(self):
+        self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            latest = db.execute("SELECT receipt FROM cortex_receipts WHERE key=?", (self.key,)).fetchone()[0]
+            end = db.execute("SELECT max(sequence) FROM cortex_events").fetchone()[0]
+        for value in ([], None, True, "synthetic:invalid", 0, 1.5):
+            with self.subTest(event=value):
+                with sqlite3.connect(self.journal) as db:
+                    db.execute("UPDATE cortex_receipts SET receipt=? WHERE key=?", (latest, self.key))
+                    db.execute("DELETE FROM cortex_events WHERE sequence>?", (end,))
+                    db.executemany("INSERT INTO cortex_events(key,receipt,observed_at_utc) VALUES(?,?,?)",
+                                   [(self.key, json.dumps(value), "synthetic:bad-tail"),
+                                    (self.key, latest, "synthetic:matching-tail")])
+                    before = db.iterdump()
+                    snapshot = list(before)
+                reads = len(self.transport.read_calls)
+                with self.assertRaises(JournalIntegrityError):
+                    self.adapter().ensure(self.request)
+                self.assertEqual(len(self.transport.read_calls), reads)
+                self.assertEqual(self.transport.writes, 1)
+                with sqlite3.connect(self.journal) as db:
+                    self.assertEqual(list(db.iterdump()), snapshot)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("UPDATE cortex_receipts SET receipt=? WHERE key=?", (latest, self.key))
+            db.execute("DELETE FROM cortex_events WHERE sequence>?", (end,))
+        self.assertEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+        self.assertEqual(self.transport.writes, 1)
+
+    def test_matching_nonobject_latest_receipt_and_event_block_before_transport(self):
+        self.adapter().ensure(self.request)
+        with sqlite3.connect(self.journal) as db:
+            db.execute("UPDATE cortex_receipts SET receipt='[]' WHERE key=?", (self.key,))
+            db.execute("INSERT INTO cortex_events(key,receipt,observed_at_utc) VALUES(?,'[]',?)",
+                       (self.key, "synthetic:bad-latest"))
+            snapshot = list(db.iterdump())
+        reads = len(self.transport.read_calls)
+        with self.assertRaises(JournalIntegrityError):
+            self.adapter().ensure(self.request)
+        self.assertEqual(len(self.transport.read_calls), reads)
+        self.assertEqual(self.transport.writes, 1)
+        with sqlite3.connect(self.journal) as db:
+            self.assertEqual(list(db.iterdump()), snapshot)
 
 
 class CortexToolBridgeTests(unittest.TestCase):
