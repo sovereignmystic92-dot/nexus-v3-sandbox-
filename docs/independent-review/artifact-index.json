@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/independent_identity_review",
+  "review_type": "independent AI code review and local reproduction",
+  "reviewed_revision": "618681fdc6d1767358cca993e857f68fd2202879",
+  "artifact_policy": "Reviewer-authored report/probes/logs preserved byte-for-byte as UTF-8; publication does not claim independent human audit.",
+  "artifacts": [
+    {
+      "path": "docs/independent-review/independent-review-report.md",
+      "sha256": "f86fe681b27c5bce7731d45d769ac0ec049ae6069c2f4a90b8877f03280de582"
+    },
+    {
+      "path": "docs/independent-review/reviewer-commands-results.json",
+      "sha256": "c7e24424d5225fb6774dcb7113c15017cbeed5298a128762d3a67c61c263954d"
+    },
+    {
+      "path": "docs/independent-review/reviewer-run-0.txt",
+      "sha256": "a9e1d788b3af14f45f8901f4c0547766c78c7bf5de1a9514bfeb9541b265eb39"
+    },
+    {
+      "path": "docs/independent-review/reviewer-run-1.txt",
+      "sha256": "88513b0559e95166a60cdb935802ae0444068fb91a885db7a3045c7aa7d093ea"
+    },
+    {
+      "path": "docs/independent-review/reviewer-run-2.txt",
+      "sha256": "e27ea655d6ce6ee3531d1f65f1b1eef568514f5cdf80d4da6dc50b9f4ff68f17"
+    },
+    {
+      "path": "docs/independent-review/reviewer-run-3.txt",
+      "sha256": "5a91c77b1398f1c4ed989cd1e8d942efa10d50c090a869cecb82dae56758f649"
+    },
+    {
+      "path": "docs/independent-review/reviewer-baseline-output.txt",
+      "sha256": "f4995038e973cac80d2e660a3401ec60fc44f00cad846bb4fc685ea90e436104"
+    },
+    {
+      "path": "docs/independent-review/reviewer_probes.py",
+      "sha256": "930d8bb5708baf20a96137acbc6d826c2193edc60ecdc0fa11830c0e22d3c2de"
+    },
+    {
+      "path": "docs/independent-review/fetched-manifest.json",
+      "sha256": "f16869ff911a1f1364889aedb3c400a7beb7154d1a26019be578ccfe72d81daf"
+    },
+    {
+      "path": "docs/independent-review/local-blob-checks.json",
+      "sha256": "fd804787761d5e64ac31ddc679687b0ba447dd5cc738b6734fe451fd3b13b4e0"
+    },
+    {
+      "path": "docs/independent-review/reviewer-validation.json",
+      "sha256": "9cf22c82ff8f0783abe824a0cd246c17e3251a5df02ed0b3507212c0a34202ea"
+    }
+  ]
+}

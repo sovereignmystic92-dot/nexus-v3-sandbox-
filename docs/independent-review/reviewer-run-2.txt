@@ -1,0 +1,9 @@
+test_verified_create_identity_never_changes_across_replacement_retries (test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries) ... ok
+test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity (test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity) ... ok
+test_unverified_preflight_conflict_does_not_pin_foreign_identity (test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity) ... ok
+test_update_baseline_identity_survives_an_unverified_foreign_conflict (test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.052s
+
+OK

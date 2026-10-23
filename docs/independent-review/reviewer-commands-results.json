@@ -1,0 +1,82 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "cwd": "/workspace/scratch/2fcd5a9b3883/independent-review-618681f",
+  "revision": "618681fdc6d1767358cca993e857f68fd2202879",
+  "runs": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "tools/validate.py",
+        "--output",
+        "reviewer-validation.json"
+      ],
+      "env_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-0.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/unit",
+        "-v"
+      ],
+      "env_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-1.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries",
+        "test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity",
+        "test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity",
+        "test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict"
+      ],
+      "env_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-2.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "reviewer_probes.py"
+      ],
+      "env_override": {
+        "PYTHONPATH": "src:tests/unit"
+      },
+      "returncode": 0,
+      "output": "reviewer-run-3.txt"
+    }
+  ],
+  "baseline_contrast": {
+    "baseline_adapter_revision": "ce7ad5e8bf1f5b968e6cd9334b91716f90ad76ed",
+    "other_source_and_tests_revision": "618681fdc6d1767358cca993e857f68fd2202879",
+    "command": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries",
+      "test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity",
+      "test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity",
+      "test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict"
+    ],
+    "returncode": 1,
+    "output": "reviewer-baseline-output.txt",
+    "temporary_directory_deleted_on_exit": true
+  }
+}
