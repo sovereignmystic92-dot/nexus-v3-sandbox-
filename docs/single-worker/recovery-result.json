@@ -1,0 +1,155 @@
+{
+  "frozen_implementation": "20735ddade16c47588486252c95d3ffc2192954d",
+  "scope": "Author-run offline single-worker adapter probes",
+  "source_sha256": "2386914f731fb44c6a12ace1a88f4b244918ecb16772acfdd33e572088aafd0b",
+  "probe_sha256": "190524870e281cf104babc023682639254ba31ac28a83c190e998114df2ea8fe",
+  "cases": [
+    {
+      "error": {
+        "sqlite_errorcode": 13,
+        "sqlite_errorname": "SQLITE_FULL"
+      },
+      "page_ceiling": 7,
+      "after_failure": {
+        "integrity": "ok",
+        "receipts": 0,
+        "events": 0,
+        "anchors": 0,
+        "checkpoints": [],
+        "page_count": 7,
+        "page_size": 4096
+      },
+      "writes_before_recovery": 0,
+      "case": "intent-full",
+      "assertions": "PASSED",
+      "recovery": {
+        "operation_outcome": "SUCCEEDED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:target",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      "total_writes": 1,
+      "after_recovery": {
+        "integrity": "ok",
+        "receipts": 1,
+        "events": 2,
+        "anchors": 1,
+        "checkpoints": [
+          "VERIFIED"
+        ],
+        "page_count": 35,
+        "page_size": 4096
+      }
+    },
+    {
+      "error": {
+        "sqlite_errorcode": 13,
+        "sqlite_errorname": "SQLITE_FULL"
+      },
+      "page_ceiling": 8,
+      "after_failure": {
+        "integrity": "ok",
+        "receipts": 1,
+        "events": 1,
+        "anchors": 0,
+        "checkpoints": [
+          "WRITE_INTENT"
+        ],
+        "page_count": 8,
+        "page_size": 4096
+      },
+      "writes_before_recovery": 1,
+      "case": "verification-full",
+      "assertions": "PASSED",
+      "recovery": {
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:target",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      "total_writes": 1,
+      "after_recovery": {
+        "integrity": "ok",
+        "receipts": 1,
+        "events": 2,
+        "anchors": 1,
+        "checkpoints": [
+          "VERIFIED"
+        ],
+        "page_count": 8,
+        "page_size": 4096
+      }
+    },
+    {
+      "first": {
+        "operation_outcome": "UNKNOWN",
+        "protocol_verdict": "UNKNOWN",
+        "checkpoint": "RECONCILE_ONLY",
+        "module_id": null,
+        "module_version": null,
+        "reason": "Write outcome uncertain; read by bound name before any further action"
+      },
+      "read_outage_holds": [
+        {
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "UNKNOWN",
+          "checkpoint": "READ_BLOCKED",
+          "module_id": null,
+          "module_version": null,
+          "reason": "Read unavailable or malformed; no write"
+        },
+        {
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "UNKNOWN",
+          "checkpoint": "READ_BLOCKED",
+          "module_id": null,
+          "module_version": null,
+          "reason": "Read unavailable or malformed; no write"
+        },
+        {
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "UNKNOWN",
+          "checkpoint": "READ_BLOCKED",
+          "module_id": null,
+          "module_version": null,
+          "reason": "Read unavailable or malformed; no write"
+        }
+      ],
+      "writes_before_recovery": 1,
+      "case": "uncertain-write-read-outage",
+      "assertions": "PASSED",
+      "recovery": {
+        "operation_outcome": "NOT_ATTEMPTED",
+        "protocol_verdict": "VERIFIED",
+        "checkpoint": "VERIFIED",
+        "module_id": "synthetic:target",
+        "module_version": 1,
+        "reason": "Exact independent readback matched immutable binding"
+      },
+      "total_writes": 1,
+      "after_recovery": {
+        "integrity": "ok",
+        "receipts": 1,
+        "events": 6,
+        "anchors": 1,
+        "checkpoints": [
+          "VERIFIED"
+        ],
+        "page_count": 7,
+        "page_size": 4096
+      }
+    }
+  ],
+  "full_acceptance": "BLOCKED",
+  "limits": [
+    "SQLite max_page_count ceiling, not filesystem ENOSPC/device/power loss",
+    "Verification capacity fault uses a test-only event trigger",
+    "In-memory remote and deliberate timeout, not live network failures",
+    "Adapter reopenings in one Python process, not process/host restart",
+    "No multiworker exclusivity, permissions isolation or human review established"
+  ]
+}
