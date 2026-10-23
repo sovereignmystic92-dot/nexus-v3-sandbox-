@@ -2,18 +2,9 @@
 
 Public, synthetic-only repository: `sovereignmystic92-dot/nexus-v3-sandbox-`.
 
-This Cortex review branch contains a single-worker Python/SQLite coordinator, four synthetic mission scenarios and a Cortex persistence adapter. **Full foundation acceptance remains BLOCKED.** Notion remains authoritative; Notion integration is paused. No production deployment or Nexus promotion follows from these results.
+**Full foundation acceptance remains BLOCKED.** Main now includes the coordinator, four mission scenarios, Cortex adapter and identity-history safeguard. Notion remains authoritative; its integration stays paused. No production deployment or canonical promotion follows from these results.
 
-Start with [the current acceptance review and merge order](docs/current-acceptance-review.md). Historical documents retain earlier test counts and unverified states; that current review consolidates the later evidence and its limits.
-
-| Scope | Observed status |
-| --- | --- |
-| Synthetic coordinator and missions | 32 tests on PR #2, including four mission cases |
-| Cortex adapter branch | 52 tests total, including 20 adapter/bridge cases; hosted run passed |
-| Bounded coordinator faults | Three SIGKILL checks and one dedicated 4 MiB ENOSPC check passed, counted separately |
-| Live Cortex adapter | Three fixture creates, duplicate-free reconciliation/restart, v1→v2 update, uncertain v2→v3 update recovery across restart and stale-target blocking verified |
-| Notion adapter | Separate paused draft PR #3; not included in this branch |
-| Production, multiworker fencing and independent audit | Not established |
+Start with [the current foundation audit status](docs/foundation-audit-status.md), verified through merged PR #8. The actual main run passed **63 tests and four separately counted bounded coordinator fault checks**. Historical documents retain earlier counts and observations; the status document separates those from current evidence and lists the remaining gates.
 
 ## Reproduce offline tests
 
@@ -25,7 +16,7 @@ python3 tools/validate.py --output local-validation.json
 
 Tests use temporary synthetic databases and offline transports. This command does not call Cortex or Notion or establish host isolation.
 
-The GitHub workflow uses credential-free public source acquisition and a digest-pinned, network-disabled test container. The proposed workflow covers main and selected development-branch pushes plus PR merge candidates targeting main/mission-scenarios. PR #2 is merged and its actual main-push run passed 32 tests plus four bounded faults. PR #4 is also merged, and its actual main-push run passed 52 tests plus four bounded faults. See [CI coverage](docs/ci-coverage.md).
+The GitHub workflow uses credential-free public source acquisition and a digest-pinned, network-disabled test container. The workflow covers main and selected development-branch pushes plus PR merge candidates targeting main/mission-scenarios. PR #2 is merged and its actual main-push run passed 32 tests plus four bounded faults. PR #4 is also merged, and its actual main-push run passed 52 tests plus four bounded faults. See [CI coverage](docs/ci-coverage.md) for earlier milestones and [current audit status](docs/foundation-audit-status.md) for the later PR #8 baseline.
 
 ## Review evidence
 

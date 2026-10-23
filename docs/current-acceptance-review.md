@@ -1,4 +1,6 @@
-# Current acceptance review and merge order — 2026-10-22
+# Historical acceptance review and merge order — 2026-10-22
+
+For the consolidated state through merged PR #8, including 63-test actual-main validation and remaining acceptance gates, read [the current foundation audit status](foundation-audit-status.md). The dated checkpoints below are historical and retain their original proposed/pending wording.
 
 This review supersedes older status summaries for the reviewed Cortex branch. The C08 follow-through below updates the CI finding; the tables retain the original reviewed snapshot. Earlier test counts and pending-host statements in historical documents describe earlier revisions. This is an author assessment, not independent human review or approval to merge. Notion remains authoritative; its integration remains paused. Production activation and canonical promotion are outside this review.
 
