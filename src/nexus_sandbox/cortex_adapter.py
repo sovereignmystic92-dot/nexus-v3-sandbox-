@@ -154,6 +154,8 @@ class CortexAdapter:
         # replacement/loss of the entire database. Legacy migration trusts history.
         events = [json.loads(encoded) for (encoded,) in db.execute(
             "SELECT receipt FROM cortex_events WHERE key=? ORDER BY sequence", (key,))]
+        if any(not isinstance(event, dict) for event in events):
+            raise JournalIntegrityError("Journal integrity: malformed event")
         anchor = db.execute("SELECT module_id FROM cortex_identity_anchors WHERE key=?", (key,)).fetchone()
         if row is None:
             if events or anchor:
@@ -163,8 +165,6 @@ class CortexAdapter:
             raise JournalIntegrityError("Journal integrity: missing history or latest receipt mismatch")
         identity = None
         for event in events:
-            if not isinstance(event, dict):
-                raise JournalIntegrityError("Journal integrity: malformed event")
             if event.get("protocol_verdict") == "VERIFIED":
                 identity = event.get("module_id")
                 if not isinstance(identity, str) or not identity:

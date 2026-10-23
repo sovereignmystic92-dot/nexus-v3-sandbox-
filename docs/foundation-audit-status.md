@@ -48,3 +48,10 @@ Acceptance cases for a future design must include simultaneous acquisition (one 
 ## Open low-severity review finding
 
 The PR #8 reviewer found that the dictionary/schema walk stops at the earliest VERIFIED event. A syntactically valid nonobject event later in history can escape that check when a final event still matches the latest receipt. The original identity remains pinned and no extra write occurred in the reproduction; this is nonblocking for the declared narrow guarantee. Do not claim every retained event is schema-validated. A focused follow-up can validate all decoded event types before selecting the earliest verification, with a regression for a nonobject tail. This publication does not change runtime behavior. Human review and full foundation acceptance remain open.
+
+
+## Proposed malformed-event follow-up
+
+The follow-up branch moves the object-type check ahead of earliest-VERIFIED selection, covering every decoded event for the requested key, including intermediate and latest tail entries. Nonobject JSON events raise `JournalIntegrityError` before any transport call. Syntax-invalid JSON still stops during decoding. The first VERIFIED ID selection and legacy migration rules are unchanged. Object-type checking is not full receipt-schema validation, authentication or proof of complete history.
+
+Two new regression methods cover six nonobject JSON types with a matching final receipt, plus a matching nonobject latest receipt/event. They assert zero new reads or writes and exact journal preservation on the hold; the first also checks recovery after restoring the trusted prior records. The prior adapter produced seven assertion failures across these two methods. The proposed adapter passes both and the 65-test local suite. See [raw before/after evidence and commands](malformed-history-regression-evidence.json). This is an author-tested proposed fix, not a change to the attributed independent report or a fresh independent review. The finding remains open on main until the follow-up is merged and verified. Human review, C9 and full acceptance remain open; Notion stays paused.
