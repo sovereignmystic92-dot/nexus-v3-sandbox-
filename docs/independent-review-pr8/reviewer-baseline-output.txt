@@ -1,0 +1,84 @@
+test_history_loss_blocks_replacement_before_transport (test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport) ... FAIL
+test_history_loss_requires_trusted_restore_even_for_original (test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original) ... FAIL
+test_latest_receipt_event_divergence_blocks_before_transport (test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport) ... FAIL
+test_lost_first_verification_cannot_reanchor_to_later_replacement (test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement) ... FAIL
+test_complete_legacy_history_backfills_anchor_before_read (test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read) ... ERROR
+test_anchor_failure_rolls_back_verification_then_reconciles (test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles) ... ERROR
+test_orphaned_anchor_and_events_block_before_transport (test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport) ... FAIL
+
+======================================================================
+ERROR: test_complete_legacy_history_backfills_anchor_before_read (test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 312, in test_complete_legacy_history_backfills_anchor_before_read
+    self.assertEqual(db.execute("SELECT module_id FROM cortex_identity_anchors WHERE key=?", (self.key,)).fetchone(), (first.module_id,))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: cortex_identity_anchors
+
+======================================================================
+ERROR: test_anchor_failure_rolls_back_verification_then_reconciles (test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 319, in test_anchor_failure_rolls_back_verification_then_reconciles
+    db.execute("CREATE TRIGGER deny_anchor BEFORE INSERT ON cortex_identity_anchors BEGIN SELECT RAISE(ABORT,'synthetic'); END")
+sqlite3.OperationalError: no such table: main.cortex_identity_anchors
+
+======================================================================
+FAIL: test_history_loss_blocks_replacement_before_transport (test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 276, in test_history_loss_blocks_replacement_before_transport
+    self.assert_journal_hold()
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 266, in assert_journal_hold
+    with self.assertRaisesRegex(ValueError, "Journal integrity"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_history_loss_requires_trusted_restore_even_for_original (test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 283, in test_history_loss_requires_trusted_restore_even_for_original
+    self.assert_journal_hold()
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 266, in assert_journal_hold
+    with self.assertRaisesRegex(ValueError, "Journal integrity"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_latest_receipt_event_divergence_blocks_before_transport (test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 293, in test_latest_receipt_event_divergence_blocks_before_transport
+    self.assert_journal_hold()
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 266, in assert_journal_hold
+    with self.assertRaisesRegex(ValueError, "Journal integrity"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_lost_first_verification_cannot_reanchor_to_later_replacement (test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 303, in test_lost_first_verification_cannot_reanchor_to_later_replacement
+    self.assert_journal_hold()
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 266, in assert_journal_hold
+    with self.assertRaisesRegex(ValueError, "Journal integrity"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_orphaned_anchor_and_events_block_before_transport (test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 335, in test_orphaned_anchor_and_events_block_before_transport
+    self.assert_journal_hold()
+  File "/tmp/nexus-independent-baseline-9fx6l7ij/tests/unit/test_cortex_adapter.py", line 266, in assert_journal_hold
+    with self.assertRaisesRegex(ValueError, "Journal integrity"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.075s
+
+FAILED (failures=5, errors=2)

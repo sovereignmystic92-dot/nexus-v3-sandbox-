@@ -1,0 +1,20 @@
+{
+  "independent-review-report.md": "4710796d832da86092e410511b6bd94f2e4049b2eab7e3ebb840e18f90add890",
+  "reproduce_review.py": "81deef986f5dceb7a5d318dbec8141c6395465c5ceabe49a93a60a43ec390b9e",
+  "reviewer_probes.py": "9d28f4a388025512ac655f9c4b1d26c36e26c1082a2b3e180844be316a9a507d",
+  "reviewer-commands-results.json": "fee2dbd259960520e777e1a21fcc697c68825b317c64bce66142c2a3e6c5f924",
+  "reviewer-validation.json": "8426bd784c3b007f911e913d925b418d5bc48127f86fe81084e84ba579151975",
+  "reviewer-targeted-results.json": "d7a63fc9ea76729cad96f7bfeb97602dbaa8bab3fef7a9ab93f03f5d0309c544",
+  "reviewer-probes-results.json": "e08e5dd23643984e54c00accba348d04ac3c7ed8707a43fa111e0fec23e88603",
+  "reviewer-run-0.txt": "c6aaaff4258de7f4aaa7e0501b04877f10a7236e4626ee3c60286324eb5d7f98",
+  "reviewer-run-1.txt": "364768a9f25f58d842cdd614ece7d80dcbf1abbe1e7c0b0e44e050d3841c73f6",
+  "reviewer-run-2.txt": "be760ed43d98eaf5f33edd99b4998f5da365d8032b689485aa2e7c4d72b191ac",
+  "reviewer-run-3.txt": "282e018f0a1524174096f2a8bfbc1196f90d5b30eed07b523843064d78876daf",
+  "reviewer-baseline-output.txt": "3b96c61f1f6fff86cfc2fbfea83375cb3bccb81c55290d59531816487c54b335",
+  "fetched-manifest.json": "a1dab4ccfff6b5e4164bdb49deb8cb0f68e807c742174dcd604d14bac7fdf4f5",
+  "local-blob-checks.json": "0361d2d8342822fb3b4cb183f3a68718c45a4ce30e2c595a0916bc29e12516ae",
+  "extra-source-metadata.json": "d181bc12b0e51651eef295256f667963ede779dabeeeca9a16e009eb264daf57",
+  "baseline-cortex-adapter.py": "77a4d997d6256dc876c1d416898923bea419f5ffad2e494a62d8addce04d54c4",
+  "pr9-handoff.md": "f45e0f7b30184824fefb204f8e55b588cc8df728e8b00cb642d74c8e56861e43",
+  "current-foundation-audit-status.md": "501e3747f0ee80314eaa5629af39f2a0a2b8fce70bcb7ff97009507a5d39f1d0"
+}

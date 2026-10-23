@@ -1,0 +1,12 @@
+test_history_loss_blocks_replacement_before_transport (test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport) ... ok
+test_history_loss_requires_trusted_restore_even_for_original (test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original) ... ok
+test_latest_receipt_event_divergence_blocks_before_transport (test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport) ... ok
+test_lost_first_verification_cannot_reanchor_to_later_replacement (test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement) ... ok
+test_complete_legacy_history_backfills_anchor_before_read (test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read) ... ok
+test_anchor_failure_rolls_back_verification_then_reconciles (test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles) ... ok
+test_orphaned_anchor_and_events_block_before_transport (test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.089s
+
+OK
