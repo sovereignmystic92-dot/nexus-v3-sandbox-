@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "case_id": "C15",
+  "scope": "Automated sufficiency check of supplied delivery/test descriptions; not independent code inspection or test reproduction",
+  "review_revision": "618681fdc6d1767358cca993e857f68fd2202879",
+  "delivery_input": {
+    "criteria": [
+      {
+        "criterion_id": "F1",
+        "category": "functionality",
+        "statement": "For a previously verified create request, conflicting replacement-ID observations and repeated retries must never rebind the original verified ID."
+      },
+      {
+        "criterion_id": "F2",
+        "category": "functionality",
+        "statement": "For updates, the original exact before-snapshot target ID must remain the identity requirement after an unverified foreign-ID conflict."
+      },
+      {
+        "criterion_id": "F3",
+        "category": "functionality",
+        "statement": "Existing complete journals with a wrong later latest receipt/event must retain the earliest verified identity, without schema reset."
+      },
+      {
+        "criterion_id": "T1",
+        "category": "test",
+        "statement": "The merged revision must have observed hosted regression results and a bounded patched-adapter identity check with explicit limits."
+      },
+      {
+        "criterion_id": "A1",
+        "category": "audit",
+        "statement": "An independent reviewer must inspect the actual code and independently reproduce the critical tests before the independent-code-review gate closes."
+      },
+      {
+        "criterion_id": "A2",
+        "category": "audit",
+        "statement": "Concurrent workers must have atomic ownership and stale-worker fencing before broader concurrent production acceptance."
+      }
+    ],
+    "completion_claim": "PR #6's specific receipt identity-drift defect is remediated and author-validated on merged main 618681fdc6d1767358cca993e857f68fd2202879. Independent human/code review and full foundation acceptance are still outstanding; no concurrent production readiness claimed.",
+    "request_intent": "Assess sufficiency of supplied delivery materials for the bounded fix and identify audit gaps. Do not treat this as actual code inspection, independent test reproduction or approval.",
+    "delivery_report": "Author reproduced old behavior VERIFIED A -> UNKNOWN B -> VERIFIED B without another remote create. Four new offline regression cases failed old code, then all 56 tests passed after the fix. Main CI run 39893032352 at merged 618681fdc6d1767358cca993e857f68fd2202879 completed successfully; retrieved job logs reported 56 tests, four mission cases, four separately counted SIGKILL/tmpfs-ENOSPC coordinator faults, boundaries/manifests and cleanup. C14 used exact merged source with real Cortex gets and locally substituted target IDs: 18 gets/zero live writes, A verified, two B observations blocked, original A restored and repeat verified; final raw source/archive reads matched initial metadata/content/identity/dependencies. It did not actually replace/delete a remote module. These are author-provided observations, not independent reviewer test results. No independent GitHub reviews returned for PR #6.",
+    "diff_summary": "Create verification now reads the earliest VERIFIED event for its immutable key rather than adopting module_id from the latest observation receipt. Update verification pins identity to the exact request.before.id. Four regressions cover repeated replacement, legacy wrong latest verification, removed unverified conflict before create and restored update baseline. New review docs preserve the finding and limits.",
+    "modified_files": [
+      {
+        "path": "src/nexus_sandbox/cortex_adapter.py",
+        "change_summary": "Adds _first_verified_id history lookup; ensure selects original verified create ID or exact update before.id, replacing prior latest-receipt identity."
+      },
+      {
+        "path": "tests/unit/test_cortex_adapter.py",
+        "change_summary": "Four regressions fail old implementation and pass proposed/merged fix."
+      },
+      {
+        "path": "docs/implementation-review.md",
+        "change_summary": "Author finding reproduction, fix, trust/history limits and audit interpretation."
+      },
+      {
+        "path": "docs/current-acceptance-review.md",
+        "change_summary": "Historical finding and pending gate snapshot; later merged PR/C14 evidence records remediation."
+      }
+    ],
+    "commit_info": [
+      "Merged main 618681fdc6d1767358cca993e857f68fd2202879; PR #6 head 35e764254d2aa97dd29e3d3ace321c953d150eec; prior main ce7ad5e8bf1f5b968e6cd9334b91716f90ad76ed."
+    ],
+    "deployment_result": "Merged to synthetic sandbox repository only. No autonomous callback, live module mutation, Notion resumption, production activation or canonical promotion."
+  },
+  "delivery_output": {
+    "status": "success",
+    "evidence_status": "partially_supported",
+    "criterion_results": [
+      {
+        "criterion_id": "F1",
+        "coverage": "supported",
+        "evidence_references": [
+          "modified_files:src/nexus_sandbox/cortex_adapter.py:Adds _first_verified_id history lookup; ensure selects original verified create "
+        ],
+        "reason": "Supplied implementation evidence contains substantive detail that materially matches this criterion."
+      },
+      {
+        "criterion_id": "F2",
+        "coverage": "supported",
+        "evidence_references": [
+          "modified_files:src/nexus_sandbox/cortex_adapter.py:Adds _first_verified_id history lookup; ensure selects original verified create "
+        ],
+        "reason": "Supplied implementation evidence contains substantive detail that materially matches this criterion."
+      },
+      {
+        "criterion_id": "F3",
+        "coverage": "supported",
+        "evidence_references": [
+          "modified_files:src/nexus_sandbox/cortex_adapter.py:Adds _first_verified_id history lookup; ensure selects original verified create "
+        ],
+        "reason": "Supplied implementation evidence contains substantive detail that materially matches this criterion."
+      },
+      {
+        "criterion_id": "T1",
+        "coverage": "partial",
+        "evidence_references": [
+          "delivery_report:4:C14 used exact merged source with real Cortex gets and locally substituted targe",
+          "modified_files:src/nexus_sandbox/cortex_adapter.py:Adds _first_verified_id history lookup; ensure selects original verified create ",
+          "modified_files:tests/unit/test_cortex_adapter.py:Four regressions fail old implementation and pass proposed/merged fix."
+        ],
+        "reason": "Supplied material identifies or relates to the criterion but does not provide enough substantive implementation detail for full support."
+      },
+      {
+        "criterion_id": "A1",
+        "coverage": "partial",
+        "evidence_references": [
+          "delivery_report:2:Four new offline regression cases failed old code, then all 56 tests passed afte",
+          "delivery_report:6:These are author-provided observations, not independent reviewer test results.",
+          "delivery_report:7:No independent GitHub reviews returned for PR #6.",
+          "diff_summary:4:New review docs preserve the finding and limits.",
+          "modified_files:docs/implementation-review.md:Author finding reproduction, fix, trust/history limits and audit interpretation.",
+          "modified_files:docs/current-acceptance-review.md:Historical finding and pending gate snapshot; later merged PR/C14 evidence recor"
+        ],
+        "reason": "Supplied material identifies or relates to the criterion but does not provide enough substantive implementation detail for full support."
+      },
+      {
+        "criterion_id": "A2",
+        "coverage": "unsupported",
+        "evidence_references": [],
+        "reason": "No substantive implementation evidence was supplied for this criterion."
+      }
+    ],
+    "supported_criteria": [
+      "F1",
+      "F2",
+      "F3"
+    ],
+    "partially_supported_criteria": [
+      "T1",
+      "A1"
+    ],
+    "unsupported_criteria": [
+      "A2"
+    ],
+    "evidence_types_present": [
+      "delivery_report",
+      "diff_summary",
+      "deployment_result",
+      "modified_files",
+      "commit_info"
+    ],
+    "missing_evidence": [
+      "Implementation evidence missing for A2."
+    ],
+    "warnings": [
+      "Result evaluates supplied materials only; code was not inspected."
+    ],
+    "errors": []
+  },
+  "test_input": {
+    "criteria": [
+      {
+        "criterion_id": "F1",
+        "category": "functionality",
+        "statement": "For a previously verified create request, conflicting replacement-ID observations and repeated retries must never rebind the original verified ID."
+      },
+      {
+        "criterion_id": "F2",
+        "category": "functionality",
+        "statement": "For updates, the original exact before-snapshot target ID must remain the identity requirement after an unverified foreign-ID conflict."
+      },
+      {
+        "criterion_id": "F3",
+        "category": "functionality",
+        "statement": "Existing complete journals with a wrong later latest receipt/event must retain the earliest verified identity, without schema reset."
+      },
+      {
+        "criterion_id": "T1",
+        "category": "test",
+        "statement": "The merged revision must have observed hosted regression results and a bounded patched-adapter identity check with explicit limits."
+      },
+      {
+        "criterion_id": "A1",
+        "category": "audit",
+        "statement": "An independent reviewer must inspect the actual code and independently reproduce the critical tests before the independent-code-review gate closes."
+      },
+      {
+        "criterion_id": "A2",
+        "category": "audit",
+        "statement": "Concurrent workers must have atomic ownership and stale-worker fencing before broader concurrent production acceptance."
+      }
+    ],
+    "completion_claim": "PR #6's specific receipt identity-drift defect is remediated and author-validated on merged main 618681fdc6d1767358cca993e857f68fd2202879. Independent human/code review and full foundation acceptance are still outstanding; no concurrent production readiness claimed.",
+    "request_intent": "Check coverage of supplied author test evidence. Do not infer independent code review/test reproduction from an author-run suite or local fault injection.",
+    "test_cases": [
+      {
+        "name": "replacement_retries",
+        "scenario": "A create verified at A is observed as B on repeated retries/reopened journal; preserve B without writes, never verify B; restoring A verifies.",
+        "result": "passed",
+        "evidence": "Author-run regression test test_verified_create_identity_never_changes_across_replacement_retries failed old code, passed fixed code. Main CI 39893032352 reports 56 cases passed."
+      },
+      {
+        "name": "legacy_wrong_latest_receipt",
+        "scenario": "A legacy journal contains first VERIFIED A and later incorrect VERIFIED B; recover original identity requirement.",
+        "result": "passed",
+        "evidence": "Author-run test test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity failed old code, passed fixed code; included in merged 56-test suite."
+      },
+      {
+        "name": "removed_preflight_conflict",
+        "scenario": "Unverified conflicting foreign ID is removed; legitimate create should verify its own observed identity.",
+        "result": "passed",
+        "evidence": "Author-run test test_unverified_preflight_conflict_does_not_pin_foreign_identity failed old code, passed fixed code; included in merged 56-test suite."
+      },
+      {
+        "name": "restored_update_baseline",
+        "scenario": "Exact update before snapshot remains identity requirement after temporary foreign-ID conflict.",
+        "result": "passed",
+        "evidence": "Author-run test test_update_baseline_identity_survives_an_unverified_foreign_conflict failed old code, passed fixed code; included in merged 56-test suite."
+      },
+      {
+        "name": "hosted_main_regression",
+        "scenario": "Actual merged main 618681fdc6d1767358cca993e857f68fd2202879 runs 56 tests plus four bounded faults.",
+        "result": "passed",
+        "evidence": "Connected GitHub run 39893032352 completed/success. Author retrieved/parses job logs: 56 distinct tests, four mission cases, three SIGKILL cases and bounded tmpfs SQLITE_FULL recovery, exact manifests, host/container checks and cleanup."
+      },
+      {
+        "name": "C14_live_reads_local_ID_fault",
+        "scenario": "18 actual Cortex reads, zero live writes; locally substitute B observation twice after verified A, restore A and repeat.",
+        "result": "passed",
+        "evidence": "Author-executed patched adapter with exact merged source reported VERIFIED A, BLOCKED B, BLOCKED B, VERIFIED A, VERIFIED A. Original raw source/archive identity/content/dependencies/metadata unchanged afterward. Local SQLite integrity ok with one receipt/five events. It did not remotely replace a module."
+      }
+    ],
+    "test_summary": "All cases are author-provided or retrieved-by-author evidence. No independent reviewer inspected code or independently reproduced tests. Concurrency/CAS/fencing not implemented or tested. CI offline faults are coordinator tests; C14 is real Cortex reads with local-only ID substitution, no live mutation."
+  },
+  "test_output": {
+    "status": "success",
+    "test_evidence_status": "partially_supported",
+    "criterion_results": [
+      {
+        "criterion_id": "F1",
+        "test_coverage": "partial",
+        "test_references": [
+          "test_cases:replacement_retries",
+          "test_cases:legacy_wrong_latest_receipt",
+          "test_cases:removed_preflight_conflict",
+          "test_cases:C14_live_reads_local_ID_fault"
+        ],
+        "reason": "Testing material is related but not clearly passing coverage."
+      },
+      {
+        "criterion_id": "F2",
+        "test_coverage": "covered",
+        "test_references": [
+          "test_cases:restored_update_baseline"
+        ],
+        "reason": "Supplied passed test evidence clearly relates to the criterion."
+      },
+      {
+        "criterion_id": "F3",
+        "test_coverage": "partial",
+        "test_references": [
+          "test_cases:replacement_retries",
+          "test_cases:legacy_wrong_latest_receipt",
+          "test_cases:C14_live_reads_local_ID_fault"
+        ],
+        "reason": "Testing material is related but not clearly passing coverage."
+      },
+      {
+        "criterion_id": "T1",
+        "test_coverage": "partial",
+        "test_references": [
+          "test_cases:replacement_retries",
+          "test_cases:legacy_wrong_latest_receipt",
+          "test_cases:removed_preflight_conflict",
+          "test_cases:restored_update_baseline",
+          "test_cases:hosted_main_regression",
+          "test_cases:C14_live_reads_local_ID_fault"
+        ],
+        "reason": "Testing material is related but not clearly passing coverage."
+      },
+      {
+        "criterion_id": "A1",
+        "test_coverage": "partial",
+        "test_references": [
+          "test_cases:replacement_retries",
+          "test_cases:legacy_wrong_latest_receipt",
+          "test_cases:removed_preflight_conflict",
+          "test_cases:restored_update_baseline",
+          "test_cases:hosted_main_regression"
+        ],
+        "reason": "Testing material is related but not clearly passing coverage."
+      },
+      {
+        "criterion_id": "A2",
+        "test_coverage": "uncovered",
+        "test_references": [],
+        "reason": "No supplied test evidence covers this criterion."
+      }
+    ],
+    "covered_criteria": [
+      "F2"
+    ],
+    "uncovered_criteria": [
+      "A2"
+    ],
+    "failed_tests": [],
+    "skipped_tests": [],
+    "missing_test_scenarios": [
+      "Passing test evidence missing for A2."
+    ],
+    "warnings": [
+      "Result evaluates supplied test materials only; tests were not run."
+    ],
+    "errors": []
+  },
+  "verdict_input": {
+    "criteria_summary": {
+      "total": 6,
+      "supported": 3,
+      "partially_supported": 2,
+      "unsupported": 1
+    },
+    "delivery_evidence_result": {
+      "evidence_status": "partially_supported",
+      "missing_evidence": [
+        "Implementation evidence missing for A2."
+      ],
+      "partially_supported_criteria": [
+        "T1",
+        "A1"
+      ],
+      "supported_criteria": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "unsupported_criteria": [
+        "A2"
+      ]
+    },
+    "test_evidence_result": {
+      "test_evidence_status": "partially_supported",
+      "covered_criteria": [
+        "F2"
+      ],
+      "uncovered_criteria": [
+        "A2"
+      ],
+      "failed_tests": [],
+      "missing_test_scenarios": [
+        "Passing test evidence missing for A2."
+      ],
+      "skipped_tests": []
+    },
+    "request_intent": "Assess supplied delivery-material sufficiency for review. Independent code inspection/test reproduction has not happened; do not approve release or conflate excluded concurrency with the bounded identity-fix scope."
+  },
+  "verdict_output": {
+    "status": "success",
+    "verdict": "not_supported",
+    "evidence_level": "level_2",
+    "summary": "Supplied materials reached level_2 with verdict not_supported.",
+    "supported_criteria": [
+      "F1",
+      "F2",
+      "F3"
+    ],
+    "unsupported_criteria": [
+      "A2"
+    ],
+    "test_gaps": [
+      "Passing test evidence missing for A2."
+    ],
+    "blockers": [
+      "Unsupported required criteria remain."
+    ],
+    "rework_recommendations": [
+      "Provide stronger implementation and test evidence for A2.",
+      "Provide stronger implementation and test evidence for A2."
+    ],
+    "limitations": [
+      "The result evaluates only supplied materials.",
+      "The App does not inspect the complete codebase.",
+      "The App does not run tests.",
+      "The App does not verify evidence authenticity.",
+      "The result does not guarantee software correctness or the absence of bugs."
+    ],
+    "errors": []
+  },
+  "operator_disposition": {
+    "independent_code_review": "OPEN",
+    "independent_human_audit": "NOT_ESTABLISHED",
+    "full_acceptance": "BLOCKED",
+    "a2_scope": "Broader concurrency/fencing gate, excluded from bounded identity-fix scope",
+    "limits": "Tool outputs preserved exactly; supplied evidence has not been independently authenticated by the service."
+  }
+}
