@@ -92,8 +92,16 @@ def main():
             raise RuntimeError("Exact source commit required")
         if command(["git", "-C", str(ROOT), "rev-parse", "HEAD"]) != source_sha:
             raise RuntimeError("Checkout does not match requested source commit")
-        report["checkpoint_ledger_preflight"] = json.loads(command([
-            "python3", str(ROOT / "tools/check_checkpoint_ledger.py")]))
+        ledger_check = subprocess.run(["python3", str(ROOT / "tools/check_checkpoint_ledger.py")],
+                                      capture_output=True, text=True, timeout=90)
+        try:
+            ledger_verdict = json.loads(ledger_check.stdout)
+        except (ValueError, TypeError):
+            raise RuntimeError("Checkpoint ledger preflight did not return a verdict") from None
+        report["checkpoint_ledger_preflight"] = ledger_verdict
+        if (ledger_check.returncode != 0 or
+                ledger_verdict.get("checkpoint_ledger") != "MATCHED_APPEND_ONLY_BASE"):
+            raise RuntimeError("Checkpoint ledger preflight rejected candidate")
         retention = report["github_log_retention_days"]
         if retention is None or not retention.isdigit() or not 1 <= int(retention) <= 90:
             raise RuntimeError("GitHub log-retention evidence absent or exceeds 90-day policy")
