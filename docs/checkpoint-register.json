@@ -318,7 +318,7 @@
       "source_mapping": "C7",
       "definition_state": "ACCEPTED",
       "status": "PASSED",
-      "status_reason": "Exact fresh-reader comparisons across the inventoried current SQLite/recovery/Cortex surfaces and full mismatch rejection matrix satisfy CP07 in the current synthetic single-worker scope. Proposed on PR #25 until adopted.",
+      "status_reason": "Exact fresh-reader comparisons across the inventoried current SQLite/recovery/Cortex surfaces and full mismatch rejection matrix satisfy CP07 in the current synthetic single-worker scope.",
       "pass_requirement": "A fresh reader verifies exact identity, content/hash, version, destination and required dependencies across every intended persistence surface; mismatch cannot produce VERIFIED.",
       "required_evidence": "Attributable fresh-reader comparisons, mismatch/identity mutation tests, complete intended-scope inventory and zero repair during verification.",
       "dependencies": [],
@@ -392,6 +392,18 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:12:41.708Z",
         "disposition": "CP07 tests current readback, not effective grants, physical durability, concurrency or human review. Those separately open controls prohibit activation but are not substituted with this pass."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
+      },
+      "adoption": {
+        "owner_approved": true,
+        "merged_pr": 25,
+        "merge_sha": "6aa62a5cbd980f0f49fe2988d04258a3e5ec9d90",
+        "main_readback": "PASSED and nine derived passes confirmed after merge"
       }
     },
     {
@@ -621,6 +633,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -702,6 +720,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -785,6 +809,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -866,6 +896,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -951,6 +987,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -1030,6 +1072,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -1110,6 +1158,12 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     },
     {
@@ -1117,12 +1171,12 @@
       "title": "Reciprocal connection registration",
       "source_mapping": "F04",
       "definition_state": "ACCEPTED",
-      "status": "BLOCKED",
-      "status_reason": "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement.",
+      "status": "PASSED",
+      "status_reason": "Typed connection and both endpoint references are required; missing reciprocity holds, explicit bounded repair preserves existing identities, fresh-process readback verifies repair, and exact repeat preserves the full snapshot. Proposed on PR #26 until adopted.",
       "pass_requirement": "A missing reciprocal endpoint prevents completion; bounded repair updates the existing connection and both endpoint references then independently verifies them.",
       "required_evidence": "Typed endpoint, missing-reciprocity, repair and repeat tests against the declared persistence surfaces; dependency chains are not reciprocal endpoints.",
       "dependencies": [],
-      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "assessed_revision": "944dee4cde767d96005bb23218729eda119e0f0d",
       "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
       "evidence": [
         {
@@ -1137,13 +1191,47 @@
             "Author evidence mapping, not independent human review.",
             "Proposed mapping not adopted; historical 8/19 identities unresolved."
           ]
+        },
+        {
+          "evidence_id": "cp18-reciprocal-40138044308",
+          "definition_version": "proposal-1",
+          "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+          "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+          "observed_at": "2026-10-24T22:20:14.627Z",
+          "operator": "ChatGPT author assessor",
+          "expected": "A missing reciprocal endpoint prevents completion; bounded repair updates the existing connection and both endpoint references then independently verifies them.",
+          "actual": "174 distinct tests and four bounded faults passed. Eleven new CP18 tests include actual fresh-process rejection before repair and successful exact typed connection/reference readback afterward. Snapshot checks prove readback and repeat perform no repair.",
+          "case_ids": [
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_both_missing_references_repaired_once",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_changed_connection_binding_is_preserved",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_changed_source_blocks_repair_without_changes",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_complete_typed_registration_and_exact_repeat",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_fresh_process_verifies_repaired_committed_reciprocity",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_archive_reference_holds_then_bounded_repair_reuses_connection",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_connection_is_not_recreated",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_output_reference_holds_then_bounded_repair_reuses_connection",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_repair_transaction_failure_rolls_back_references_connection_and_event",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_stale_repair_version_denied_without_changes",
+            "test_reciprocal_registration.ReciprocalRegistrationTests.test_wrong_endpoint_type_cannot_verify_or_be_repaired"
+          ],
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "readback": {
+            "reader": "Separate GitHub file reads at exact source revision; fresh Python process in hosted CP18 test",
+            "artifact_reference": "docs/cp18-hosted-validation.json",
+            "comparison": "MATCHED exact source files, fixture identities and repaired connection/references"
+          },
+          "limitations": [
+            "Current adopted local SQLite scope only; no external reciprocal writes or cross-service guarantee.",
+            "New disposable schema; legacy database migration is not implemented.",
+            "PR #26 adoption pending; no production activation or independent human review."
+          ]
         }
       ],
-      "blockers": [
-        "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement."
-      ],
-      "accepted_by": null,
-      "accepted_at": null,
+      "blockers": [],
+      "accepted_by": "ChatGPT author assessor under owner-authorized milestone work; owner adoption of PR #26 pending, not independent human review",
+      "accepted_at": "2026-10-24T22:20:14.627Z",
       "history": [
         {
           "previous_status": "NOT_TESTED",
@@ -1152,12 +1240,20 @@
           "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
           "reason": "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement.",
           "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        },
+        {
+          "previous_status": "BLOCKED",
+          "new_status": "PASSED",
+          "assessor": "ChatGPT author assessor; owner adoption pending on PR #26",
+          "observed_at": "2026-10-24T22:20:14.627Z",
+          "evidence_reference": "docs/cp18-reciprocal-assessment.md",
+          "reason": "Typed connection and both endpoint references are required; missing reciprocity holds, explicit bounded repair preserves existing identities, fresh-process readback verifies repair, and exact repeat preserves the full snapshot. Proposed on PR #26 until adopted."
         }
       ],
       "dependency_assessment": {
         "assessed_by": "ChatGPT author assessor",
-        "assessed_at": "2026-10-24T22:03:59Z",
-        "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "disposition": "The adopted local SQLite requirement is satisfied without activating external adapters. Wider host/grants/fencing/human-review controls remain open and prohibit production activation."
       }
     },
     {
@@ -1245,13 +1341,19 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "No unresolved cross-checkpoint prerequisite for this local behavioral requirement. Host controls and human review remain separately open and prohibit broader activation."
+      },
+      "current_applicability": {
+        "source_sha": "944dee4cde767d96005bb23218729eda119e0f0d",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308",
+        "assessed_at": "2026-10-24T22:20:14.627Z",
+        "assessment": "Existing behavioral cases reran on revised coordinator schema. New fresh-process typed-reference readback covers expanded local records. External Cortex implementation and fixtures unchanged; their prior live readback remains applicable. Historical source/evidence retained."
       }
     }
   ],
   "assessment_summary": {
     "definition_acceptance": "ACCEPTED",
     "historical_reconciliation": "Historical aggregate preserved but superseded for scoring; original identities remain UNRESOLVED",
-    "accepted_pass_count": 9,
+    "accepted_pass_count": 10,
     "total_count": 19,
     "passed_checkpoint_ids": [
       "CP07",
@@ -1262,11 +1364,12 @@
       "CP15",
       "CP16",
       "CP17",
-      "CP19"
+      "CP19",
+      "CP18"
     ],
     "partially_verified_count": 6,
-    "blocked_count": 4,
-    "status_adjudication": "Proposed 9/19 on PR #25; authoritative main remains 8/19 until adoption/merge.",
+    "blocked_count": 3,
+    "status_adjudication": "Proposed 10/19 on PR #26; authoritative main remains 9/19 until adoption and merge.",
     "warning": "Synthetic mixed-scope acceptance only; full foundation acceptance remains BLOCKED."
   },
   "definition_acceptance": {

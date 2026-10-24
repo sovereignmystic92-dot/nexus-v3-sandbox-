@@ -18,7 +18,11 @@ Cases: complete registration/repeat; either or both missing references; wrong en
 
 Initial standard validation exposed a test-child import-path issue. The child now receives an explicit source path. Corrected standard validation passed; no runtime check was weakened.
 
-Hosted candidate evidence and final adjudication pending.
+Hosted candidate run [40138044308](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40138044308) passed 174 distinct tests and four separately counted bounded faults. Gemini offline check also passed. The merge candidate 2491064de27909c4aa68867aea23675037e918f1 has exactly the observed main and reviewed head parents. Full report: cp18-hosted-validation.json.
+
+## Proposed adjudication
+
+CP18 PASSED within its unchanged adopted local SQLite scope. All conjunctive requirements are covered: missing reciprocity prevents completion; explicit repair updates the existing connection and ensures both references; a fresh process rejects missing state and verifies repaired state; repeat and fault rollback preserve the full durable snapshot. This proposes 10/19 on PR #26; owner adoption/merge remains pending.
 
 ## Compatibility and applicability
 
