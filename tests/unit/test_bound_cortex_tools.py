@@ -1,8 +1,10 @@
 from copy import deepcopy
 import hashlib
 import unittest
+import tempfile
+from pathlib import Path
 from nexus_sandbox.bound_cortex_tools import BoundCortexToolTransport,FixtureBinding
-from nexus_sandbox.cortex_adapter import MARKER
+from nexus_sandbox.cortex_adapter import MARKER,CortexAdapter,Write
 from nexus_sandbox.cortex_tools import ToolFailure
 
 ROOT='Nexus Sandbox Bound Root'
@@ -81,3 +83,26 @@ class BoundCortexToolTests(unittest.TestCase):
                 BoundCortexToolTransport(lambda *a:self.fail('Unexpected provider call'),[bad],ROOT,1,'a'*64)
         with self.assertRaises(ToolFailure):self.t.update(TARGET,MARKER,(['unhashable'],))
         self.assertEqual(self.calls,[])
+
+    def test_adapter_uses_bound_transport_and_reconciles_without_duplicate_update(self):
+        source=self.t.get(ROOT);before=self.t.get(TARGET)
+        key='synthetic:request:bound-integration'
+        request=Write(key,TARGET,MARKER+' '+key,(ROOT,),source,before)
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'journal.sqlite'
+            first=CortexAdapter(path,frozenset((ROOT,TARGET)),self.t).ensure(request)
+            repeat=CortexAdapter(path,frozenset((ROOT,TARGET)),self.t).ensure(request)
+        self.assertEqual((first.operation_outcome,first.protocol_verdict),('SUCCEEDED','VERIFIED'))
+        self.assertEqual((repeat.operation_outcome,repeat.protocol_verdict),('NOT_ATTEMPTED','VERIFIED'))
+        self.assertEqual(first.module_id,before.id)
+        self.assertEqual(self.writes(),1)
+
+    def test_adapter_root_owner_failure_cannot_verify_or_write(self):
+        source=self.t.get(ROOT);before=self.t.get(TARGET)
+        key='synthetic:request:wrong-root-owner'
+        request=Write(key,TARGET,MARKER+' '+key,(ROOT,),source,before)
+        self.data[ROOT]['owner']='foreign'
+        with tempfile.TemporaryDirectory() as folder:
+            result=CortexAdapter(Path(folder)/'journal.sqlite',frozenset((ROOT,TARGET)),self.t).ensure(request)
+        self.assertNotEqual(result.protocol_verdict,'VERIFIED')
+        self.assertEqual(self.writes(),0)

@@ -428,14 +428,14 @@ class CortexToolBridgeTests(unittest.TestCase):
             with self.subTest(result=result), self.assertRaises(ToolFailure):
                 CortexToolTransport(lambda *args: result).get(TARGET)
 
-    def test_update_omits_metadata_and_requires_matching_acknowledgment(self):
+    def test_legacy_writes_are_denied_before_provider_callback(self):
         calls = []
         def invoke(tool, args):
             calls.append((tool, args))
             return {"structuredContent": self.result()}
-        CortexToolTransport(invoke).update(TARGET, self.result()["content"], (SOURCE,))
-        self.assertEqual(calls[0][0], "context_update")
-        self.assertEqual(set(calls[0][1]), {"name", "content", "dependencies"})
         with self.assertRaises(ToolFailure):
-            CortexToolTransport(lambda *args: {}).create(TARGET, MARKER, ())
+            CortexToolTransport(invoke).update(TARGET, self.result()["content"], (SOURCE,))
+        with self.assertRaises(ToolFailure):
+            CortexToolTransport(invoke).create(TARGET, MARKER, ())
+        self.assertEqual(calls, [])
 
