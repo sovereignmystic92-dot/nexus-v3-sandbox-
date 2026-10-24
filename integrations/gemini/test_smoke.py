@@ -51,6 +51,25 @@ class SmokeTests(unittest.TestCase):
             with self.assertRaises(smoke.BridgeError):
                 smoke.run(self.env, self.opener)
 
+    def test_text_signature_accepted_without_emitting_metadata_or_thoughts(self):
+        self.response({"candidates": [{"finishReason": "STOP", "content": {"parts": [
+            {"text": "not final output", "thought": True},
+            {"text": "Tuesday remains provisional.", "thoughtSignature": "opaque-signature", "thought": False}
+        ]}}]})
+        result = smoke.run(self.env, self.opener)
+        self.assertEqual(result["answer"], "Tuesday remains provisional.")
+        self.assertNotIn("opaque-signature", json.dumps(result))
+
+    def test_thought_only_and_malformed_metadata_rejected(self):
+        for part in ({"text": "internal", "thought": True},
+                     {"text": "answer", "thought": "false"},
+                     {"text": "answer", "thoughtSignature": {}},
+                     {"text": "answer", "functionCall": {}},
+                     {"text": "answer", "unknown": True}):
+            self.response({"candidates": [{"finishReason": "STOP", "content": {"parts": [part]}}]})
+            with self.assertRaises(smoke.BridgeError):
+                smoke.run(self.env, self.opener)
+
     def test_oversized_body_fails(self):
         self.opener.open.return_value = io.BytesIO(b" " * (smoke.MAX_RESPONSE_BYTES + 1))
         with self.assertRaisesRegex(smoke.BridgeError, "RESPONSE_TOO_LARGE"):
