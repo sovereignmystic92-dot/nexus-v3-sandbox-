@@ -9,6 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
 from nexus_sandbox.checkpoint_ledger import validate_transition
+from nexus_sandbox.public_checkpoint import validate_public_transition
 
 
 def git(*args):
@@ -40,7 +41,10 @@ def main():
     exists = git('ls-tree',base,'--',path).strip()
     baseline = json.loads(git('show',base+':'+path)) if exists else {'schema_version':1,'records':[],'latest':None}
     candidate = json.loads((ROOT/path).read_text())
-    latest = validate_transition(baseline,candidate)
+    if candidate.get('schema_version') == 2:
+        latest = validate_public_transition(baseline,candidate)
+    else:
+        latest = validate_transition(baseline,candidate)
     print(json.dumps({'checkpoint_ledger':'MATCHED_APPEND_ONLY_BASE','base_sha':base,
                       'candidate_sha':source,'latest':latest,'initialized':latest is not None}))
 
