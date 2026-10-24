@@ -1,0 +1,35 @@
+name: Gemini synthetic connection test
+
+on:
+  workflow_dispatch:
+    inputs:
+      free_tier_confirmed:
+        description: Key belongs to the Free Tier project; send the fixed fictional task once
+        type: boolean
+        required: true
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: gemini-synthetic-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Fetch the public script at this exact workflow commit
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/integrations/gemini/smoke.py" \
+            -o "$RUNNER_TEMP/nexus-gemini-smoke.py"
+      - name: One synthetic Gemini request
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_FREE_TIER_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/nexus-gemini-smoke.py"
