@@ -94,3 +94,8 @@ The previously quoted 8/19 is retained with its mapping gap. No ninth gate is cl
 ## Owner adoption — 2026-10-24
 
 The owner replied “Approve” after presentation of the PR #23 register and its adoption decision. This accepts the checkpoint definitions/register and authorizes merging this documentation change after checks pass. It does not independently certify the evidence, retroactively identify the historical eight, satisfy CP10, close a ninth checkpoint, or authorize production activation. This supersedes proposal/adoption-pending wording above for the definition set only. Individual evidence and status history remain unchanged.
+
+
+## Latest individual adjudication — 2026-10-24
+
+The [requirement-level adjudication](checkpoint-adjudication.md) supersedes the earlier assessment-pending disposition for CP11–CP17 and CP19. These eight pass within their previously declared single-worker synthetic SQLite scope; seven remain PARTIALLY_VERIFIED and four BLOCKED. The historical aggregate is preserved but superseded for scoring without asserting historical identity matches. This creates a traceable new 8/19 baseline when merged; no ninth gate or production readiness follows. Earlier history/evidence entries retain their original dated wording.
