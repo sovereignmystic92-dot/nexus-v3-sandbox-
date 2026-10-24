@@ -43,3 +43,22 @@ CREATE TABLE attempts (
     transaction_id TEXT NOT NULL REFERENCES transactions(transaction_id),
     envelope_json TEXT NOT NULL
 );
+
+-- A typed connection and two actual endpoint references, not dependency edges.
+CREATE TABLE connections (
+    connection_id TEXT PRIMARY KEY,
+    transaction_id TEXT NOT NULL UNIQUE REFERENCES transactions(transaction_id),
+    relation TEXT NOT NULL CHECK (relation = 'derived_from'),
+    archive_id TEXT NOT NULL REFERENCES artifacts(artifact_id),
+    output_id TEXT NOT NULL REFERENCES artifacts(artifact_id),
+    version INTEGER NOT NULL CHECK (version >= 1)
+);
+
+CREATE TABLE endpoint_references (
+    connection_id TEXT NOT NULL REFERENCES connections(connection_id),
+    endpoint_id TEXT NOT NULL REFERENCES artifacts(artifact_id),
+    endpoint_type TEXT NOT NULL CHECK (endpoint_type IN ('source_archive','derived_output')),
+    PRIMARY KEY(connection_id, endpoint_type),
+    UNIQUE(connection_id, endpoint_id)
+);
+

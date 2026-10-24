@@ -1,0 +1,1163 @@
+{
+  "cases": [
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_absent_or_denied_current_authority_fails_closed"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_authority_order_does_not_change_governing_revision"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_blocked_attempt_reports_not_attempted_and_preserves_provenance"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_changed_authority_holds_checkpoint_then_bound_policy_can_resume"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_conflicting_current_authority_blocks_without_artifacts"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_failed_event_write_rolls_back_attempt_and_verification"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_failed_readback_preserves_failed_attempt_after_repair"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_full_envelope_fields_and_independent_readback_hashes"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_malformed_or_duplicate_authority_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_authority_evidence.AuthorityEvidenceTests.test_s06_historical_source_and_hypothesis_do_not_govern"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_backup_directory_sync_failure_does_not_register_backup"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_backup_file_and_directory_sync_precede_catalog_publication"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_backup_file_sync_failure_does_not_register_backup"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_failed_backup_is_preserved_and_retry_cannot_overwrite_it"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_restore_directory_sync_error_is_not_reported_as_success"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_restore_file_sync_error_preserves_recovery_inputs"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_backup_publication.BackupPublicationTests.test_restore_syncs_file_then_parent_before_success"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_boolean_sequence_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_both_modified_hold"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_both_stale_hold"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_claimed_future_sequence_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_coherent_rollback_with_rolled_back_witness_is_undetectable"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_equal_sequence_conflict_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_exact_copies_pass_detached"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_foreign_identity_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_malformed_packet_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_missing_copy_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_missing_witness_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_one_stale_copy_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_pending_state_even_with_matching_digest_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_gate.CheckpointGateTests.test_unexpected_provider_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_bad_encoding_even_with_matching_packet_digest_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_conflict_does_not_touch_destination"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_exact_restore_retains_bytes_and_identity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_existing_journal_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_lost_inventory_is_not_bootstrapped"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_missing_witness_does_not_touch_destination"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_retained_inventory_disagreement_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_stale_copies_do_not_touch_destination"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_trailing_compressed_data_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_checkpoint_restore.CheckpointRestoreTests.test_wrong_journal_digest_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_inventory_cleanup_retry_retries_failed_directory_sync_even_when_empty"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_restore_cleanup_retry_retries_failed_directory_sync_even_when_empty"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_rmdir_failure_after_file_removal_is_retryable"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_uncertain_rmdir_result_is_retryable"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_uncertain_unlink_result_retries_empty_folder"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cleanup_io.CleanupIOTests.test_unlink_failure_before_removal_preserves_candidate"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_artifact_and_checkpoint_rollback_when_event_write_fails"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_conflicting_existing_artifact_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_fixture_claiming_real_data_denied"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_missing_or_misrouted_artifact_never_verifies"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_readback_corruption_never_verifies"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_resume_after_archive_and_output_reopen"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s01_separate_readback_and_events"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s02_repeat_and_reopen_preserve_artifact_ids"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s03_changed_binding_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s04_incomplete_source_blocked"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s05_production_destination_denied_before_transaction_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_s07_source_instructions_remain_literal_data"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_stale_version_rejected_without_extra_event"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_coordinator.CoordinatorTests.test_unknown_source_and_wrong_hash_denied"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_absence_after_uncertain_create_never_repeats_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_allowlist_checks_include_dependencies_and_source"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_anchor_failure_rolls_back_verification_then_reconciles"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_changed_request_binding_rejected_before_transport_call"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_complete_legacy_history_backfills_anchor_before_read"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_create_readback_and_restart_retry_have_separate_outcomes"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_exact_update_baseline_and_retry_preserve_identity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_existing_conflicting_module_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_failed_journal_transaction_prevents_external_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_fresh_readback_rejects_each_exact_field_without_repair"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_blocks_replacement_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_history_loss_requires_trusted_restore_even_for_original"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_latest_receipt_event_divergence_blocks_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_legacy_wrong_latest_verified_receipt_does_not_replace_first_identity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_lost_create_response_reconciles_without_duplicate"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_lost_first_verification_cannot_reanchor_to_later_replacement"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_matching_nonobject_latest_receipt_and_event_block_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_mismatched_write_is_not_verified_or_repaired_automatically"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_nonobject_tail_events_block_before_transport_and_preserve_journal"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_orphaned_anchor_and_events_block_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_process_stop_leaves_durable_intent_then_reconciles"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_read_timeout_does_not_count_as_absence"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_readback_outage_recovers_by_read_without_second_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_source_change_during_write_withholds_completion"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_source_missing_or_changed_holds_without_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_stale_update_baseline_blocks_before_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_three_stage_mission_reopens_journal_and_reuses_archive"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_unverified_preflight_conflict_does_not_pin_foreign_identity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_update_baseline_identity_survives_an_unverified_foreign_conflict"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexAdapterTests.test_verified_create_identity_never_changes_across_replacement_retries"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexToolBridgeTests.test_generic_error_or_malformed_result_never_means_absent"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexToolBridgeTests.test_module_json_tool_result_is_parsed_without_credentials"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexToolBridgeTests.test_only_exact_observed_missing_response_is_absence"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_cortex_adapter.CortexToolBridgeTests.test_update_omits_metadata_and_requires_matching_acknowledgment"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_atomic_commit_syncs_file_then_replaces_then_syncs_directory"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_completion_directory_sync_failure_recovers_without_duplicate_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_directory_sync_failure_stops_before_any_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_file_sync_failure_preserves_ready_inventory_and_blocks_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_pending_directory_sync_precedes_first_transport_access"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_repeated_directory_sync_failure_keeps_pending_request_blocked"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_replacement_failure_preserves_ready_inventory_and_blocks_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_inventory_commit.InventoryCommitTests.test_visible_pending_state_does_not_bypass_retry_commit"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m02_interrupted_mission_resumes_without_duplicate_work"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m04_current_authority_conflict_holds_whole_mission"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_network_preflight.NetworkPreflightTests.test_api_keys_and_proxy_credentials_are_detected_by_name"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_network_preflight.NetworkPreflightTests.test_explicit_network_denial_or_unsupported_ipv6_passes"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_network_preflight.NetworkPreflightTests.test_successful_udp_send_is_not_a_denial"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_network_preflight.NetworkPreflightTests.test_timeout_does_not_prove_denial"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_both_missing_references_repaired_once"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_changed_connection_binding_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_changed_source_blocks_repair_without_changes"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_complete_typed_registration_and_exact_repeat"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_fresh_process_verifies_repaired_committed_reciprocity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_archive_reference_holds_then_bounded_repair_reuses_connection"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_connection_is_not_recreated"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_missing_output_reference_holds_then_bounded_repair_reuses_connection"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_repair_transaction_failure_rolls_back_references_connection_and_event"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_stale_repair_version_denied_without_changes"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_reciprocal_registration.ReciprocalRegistrationTests.test_wrong_endpoint_type_cannot_verify_or_be_repaired"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_backup_catalog_does_not_hold_secrets_or_claim_authentication"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_backup_does_not_overwrite_damaged_journal_evidence"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_both_absent_do_not_initialize_implicitly"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_changed_backup_bytes_refused_without_recreating_journal"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_damaged_journal_and_inventory_stop_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_explicit_initialization_then_replay_retains_identity"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_interrupted_initialization_inventory_is_a_hold"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_inventory_missing_or_both_missing_hold"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_inventory_update_failure_recovers_with_existing_journal"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_lost_reply_can_reconcile_with_guard_without_second_write"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_mismatched_retained_anchor_stops_before_transport"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_missing_journal_stops_before_transport_and_never_recreates"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_other_installation_backup_refused_even_if_added_to_catalog"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_pending_marker_failure_prevents_transport_effects"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_pending_marker_refuses_old_backup_after_final_inventory_failure"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_pending_operation_cannot_register_a_new_backup"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_pending_request_must_be_reconciled_before_a_different_request"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_reinitialization_refuses_existing_inventory_or_journal"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_removal_after_startup_is_checked_on_ensure"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_restore_then_remote_replacement_does_not_verify"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_same_directory_and_symlink_inventory_are_refused"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_stale_backup_rejected_against_newer_sequence_witness"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_unregistered_backup_refused"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_valid_backup_restore_preserves_identity_no_duplicate"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_guard.RecoveryGuardTests.test_wrong_expected_journal_path_refused"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_process_readback.ProcessReadbackTests.test_fresh_process_reads_restored_identity_and_inventory"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_process_readback.ProcessReadbackTests.test_fresh_process_rejects_changed_restored_identity_without_repair"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_recovery_process_readback.ProcessReadbackTests.test_killed_restore_staging_is_cleaned_then_recovered_and_freshly_read"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_empty_interrupted_directory_can_be_cleaned"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_exact_restored_journal_inside_staging_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_existing_journal_never_deleted_by_cleanup"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_hardlinked_backup_is_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_mismatch_preserves_every_candidate"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_missing_witness_preserves_staging"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_next_restore_cleans_verified_old_staging"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_nonprivate_root_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_root_containing_inventory_holds_before_scanning"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_symlink_ancestor_cannot_hide_contained_journal"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_symlink_preserves_all"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_unknown_entry_holds"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_restore_staging.RestoreStagingTests.test_verified_cleanup_is_idempotent"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_runner_boundary.RunnerBoundaryTests.test_bounded_configuration_including_expected_tmpfs_is_accepted"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_runner_boundary.RunnerBoundaryTests.test_docker_socket_or_extra_host_mount_is_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_runner_boundary.RunnerBoundaryTests.test_host_network_privilege_capability_or_pid_mode_is_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_runner_boundary.RunnerBoundaryTests.test_writable_source_mount_or_root_identity_is_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_staged_cleanup.StagedCleanupTests.test_hardlink_preflight_preserves_all_candidates"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_staged_cleanup.StagedCleanupTests.test_missing_journal_preserves_staging"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_staged_cleanup.StagedCleanupTests.test_removes_only_staging_and_is_idempotent"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_staged_cleanup.StagedCleanupTests.test_symlink_preflight_preserves_all_candidates"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_staged_cleanup.StagedCleanupTests.test_unexpected_name_preserved"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_workflow_policy.WorkflowPolicyTests.test_missing_or_symlinked_workflow_is_rejected"
+    },
+    {
+      "status": "PASSED",
+      "test_id": "test_workflow_policy.WorkflowPolicyTests.test_new_trigger_or_extra_workflow_is_rejected"
+    }
+  ],
+  "deferred_scope": [
+    "F04 reciprocal external endpoints",
+    "F05 disk-full/power-loss",
+    "C01 concurrent workers",
+    "C02/C9 worker lease fencing"
+  ],
+  "distinct_tests": 174,
+  "ended_at_utc": "2026-10-24T22:17:42.513514+00:00",
+  "full_acceptance_status": "BLOCKED",
+  "limitations": [
+    "no automatic isolation probe or external integration in this runner",
+    "runtime/authority labels are operator assertions; no independent human audit",
+    "test failures do not prove a database write succeeded"
+  ],
+  "local_test_status": "PASSED",
+  "mission_cases": [
+    {
+      "case_id": "M01",
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable"
+    },
+    {
+      "case_id": "M02",
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m02_interrupted_mission_resumes_without_duplicate_work"
+    },
+    {
+      "case_id": "M03",
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission"
+    },
+    {
+      "case_id": "M04",
+      "status": "PASSED",
+      "test_id": "test_missions.MissionTests.test_m04_current_authority_conflict_holds_whole_mission"
+    }
+  ],
+  "mission_scope": "single transaction per mission; payload preservation only; no semantic synthesis or external registration",
+  "mission_status": "PASSED",
+  "sample_attempts": [
+    {
+      "artifact_ids": [],
+      "attempt_id": "synthetic:attempt:4c32f1f8-1b83-420e-ad19-f110629ad4ac",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.502205+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:4c32f1f8-1b83-420e-ad19-f110629ad4ac"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "NEW",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "validate source",
+      "observed_result": "synthetic fixture binding recorded; OPEN; current authority permits synthetic output",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "PARTIALLY_VERIFIED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.501903+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [],
+      "attempt_id": "synthetic:attempt:67be4d7d-5614-4394-8f46-750e72dbbbb4",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.503561+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:67be4d7d-5614-4394-8f46-750e72dbbbb4"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "VALIDATED",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "resume from VALIDATED",
+      "observed_result": "local checkpoint committed",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "PARTIALLY_VERIFIED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.503264+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive"
+      ],
+      "attempt_id": "synthetic:attempt:fe373e72-385e-4b78-90b7-b8416a26d60b",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.505071+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:fe373e72-385e-4b78-90b7-b8416a26d60b"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "ARCHIVED",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "resume from ARCHIVED",
+      "observed_result": "local checkpoint committed",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "PARTIALLY_VERIFIED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.504765+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output"
+      ],
+      "attempt_id": "synthetic:attempt:32be4301-f493-4529-84e8-4233c126903c",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.506449+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:32be4301-f493-4529-84e8-4233c126903c"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "OUTPUT_CREATED",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "resume from OUTPUT_CREATED",
+      "observed_result": "local checkpoint committed",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "PARTIALLY_VERIFIED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.506122+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
+      ],
+      "attempt_id": "synthetic:attempt:9a1c3074-466b-4eaf-a9a5-226888c6e3ce",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.508051+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:9a1c3074-466b-4eaf-a9a5-226888c6e3ce"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "REGISTERED",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "resume from REGISTERED",
+      "observed_result": "local checkpoint committed",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "PARTIALLY_VERIFIED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.507690+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry"
+      ],
+      "attempt_id": "synthetic:attempt:e177ef12-593f-40e4-82dd-50ff283a7301",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "bound_authority_revision": "d27238f194202f6d4bb72f06739f647a9a8573ac0c6d41ff5a28a00345d91256",
+      "case_id": "S01",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.509871+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:e177ef12-593f-40e4-82dd-50ff283a7301"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "VERIFIED",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "none",
+      "observed_result": "fresh SQLite reader exact ID/destination/payload/hash match",
+      "operation_outcome": "SUCCEEDED",
+      "protocol_verdict": "VERIFIED",
+      "readback_hashes": {
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "readback_observed_at_utc": "2026-10-24T22:17:42.509572+00:00",
+      "reader_identity": "synthetic:reader:01f2f2ec-4ec7-4a23-9fe7-2e8126e77d3c",
+      "reciprocal_readback": {
+        "connection": {
+          "archive_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+          "connection_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:connection",
+          "output_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+          "relation": "derived_from",
+          "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8",
+          "version": 1
+        },
+        "endpoint_references": [
+          {
+            "connection_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:connection",
+            "endpoint_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:output",
+            "endpoint_type": "derived_output"
+          },
+          {
+            "connection_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:connection",
+            "endpoint_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:archive",
+            "endpoint_type": "source_archive"
+          }
+        ]
+      },
+      "run_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.509416+00:00",
+      "transaction_id": "synthetic:transaction:be26e276-130f-5494-b837-c40dce401ac8"
+    },
+    {
+      "artifact_ids": [],
+      "attempt_id": "synthetic:attempt:b02ca8c5-58c7-43cb-9b50-8ec5d683cc3c",
+      "authority_provenance": [
+        {
+          "document_id": "synthetic:authority:conflict",
+          "revision": "1",
+          "role": "current",
+          "rule": "deny_synthetic_output"
+        },
+        {
+          "document_id": "synthetic:authority:local-sandbox-policy",
+          "revision": "1",
+          "role": "current",
+          "rule": "allow_synthetic_output"
+        }
+      ],
+      "authority_revision": "673f8394f3a5af26e11d5f3112219074f506382e191a3ea885d2444736cc56e1",
+      "bound_authority_revision": "673f8394f3a5af26e11d5f3112219074f506382e191a3ea885d2444736cc56e1",
+      "case_id": "AUTH-CONFLICT",
+      "code_revision": "sha256:7b654be3a269b6637ec0d5750413413278804e049e3bb530ab4a58549710b2b7",
+      "ended_at_utc": "2026-10-24T22:17:42.512086+00:00",
+      "evidence_refs": [
+        "synthetic:attempt:b02ca8c5-58c7-43cb-9b50-8ec5d683cc3c"
+      ],
+      "expected_hashes": {
+        "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:archive": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:output": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493",
+        "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:registry": "cc2170c2db44b9a50a62de64890a2c8686025e2248a08315266c0d804d2dd493"
+      },
+      "expected_result": "advance one checkpoint only when source and current authority permit; verify exact committed artifacts",
+      "fixture_revision": "sha256:172c2fd7b83accfe80c0c034cf1c56c9f0c97a3413e26ce5e8a754c1f2ca0043",
+      "last_confirmed_state": "NEW",
+      "limitations": [
+        "local SQLite protocol only; not production readiness",
+        "operator-asserted synthetic data, runtime identity and authority roles",
+        "host isolation and independent human review unverified",
+        "immediate readback only; no leases or cryptographic event protection"
+      ],
+      "next_action": "resolve authority; submit under a new key",
+      "observed_result": "synthetic fixture binding recorded; BLOCKED; conflicting current authority",
+      "operation_outcome": "NOT_ATTEMPTED",
+      "protocol_verdict": "BLOCKED",
+      "readback_hashes": {},
+      "readback_observed_at_utc": null,
+      "reader_identity": null,
+      "reciprocal_readback": null,
+      "run_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484:run",
+      "runtime_identity": "synthetic:runtime:validation-runner",
+      "schema_version": 1,
+      "started_at_utc": "2026-10-24T22:17:42.511849+00:00",
+      "transaction_id": "synthetic:transaction:c85464e7-1868-5bd0-afeb-39fafc41a484"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "synthetic local unit/integration evidence only",
+  "source_sha256": {
+    "src/nexus_sandbox/__init__.py": "ca1675fae2464de38ead30a64f39044016d71fe6d03fca1ae018ed018369efdf",
+    "src/nexus_sandbox/authority.json": "e6d1296ed65e695fd50a8ccb8adb1b9028181ed149a96b1de67b37f2350a3431",
+    "src/nexus_sandbox/authority.py": "5b91df1673ac3c55d64c694fddf1e931d7165f3ae38aa74df9d82e235e490a69",
+    "src/nexus_sandbox/checkpoint_gate.py": "8e12fbece4cab73c6b0730f80d680d7584e5e30b5a66f8549236115976720e18",
+    "src/nexus_sandbox/checkpoint_restore.py": "2f625355da5065c8b0df6cba724c2d70b2d58ba0fa53600402b288fa2b0e82f3",
+    "src/nexus_sandbox/contracts.py": "7a10c12a233139f4fd4915b147ac0f3361cd88bd18f0f879e5b9cb605d40e0fe",
+    "src/nexus_sandbox/coordinator.py": "abeeeff1d983e9fbef3290e5acfcea0f533a74a7f9395dcd73fa42bf8d7c083e",
+    "src/nexus_sandbox/cortex_adapter.py": "1dd81216782759fb303886f648dda5e7468ee6c2a0402245ddddc9a5a6af6eb7",
+    "src/nexus_sandbox/cortex_tools.py": "bc5db3e363369249ec57bbdead240fba8d9924bafe362de3027116f15943d9a4",
+    "src/nexus_sandbox/recovery_guard.py": "cefe9bd1c3ba0e0fc137ee5a8786215e7aa076226368b42df2bf93314f372709",
+    "src/nexus_sandbox/schema.sql": "88b3829c33bf8c77033aafe4742763cce295b96c32844eae796d8cd8edd2a6ed",
+    "tests/fixtures/complete-source.json": "127627385c9f138bf1b83fdac9269485bb68efddd4f8d8e34e3015465bf927b9",
+    "tests/unit/test_authority_evidence.py": "ae8c52c634bba1e99e06e96ad0e241de845ecf24a7f6f5b96bacea3bb3449246",
+    "tests/unit/test_backup_publication.py": "64643633cfc8029e48710c4dc7d5b6854214958b6a4361596e4d9c0ec7361843",
+    "tests/unit/test_checkpoint_gate.py": "12a8620fc73eff0e70d28832122c9145096b773883542295ec35ae435bc985e2",
+    "tests/unit/test_checkpoint_restore.py": "d8e508a300d0302600dbcb735e558d08a849bb78ed1d2bbf1b12f97a08635511",
+    "tests/unit/test_cleanup_io.py": "d4b0ddde3c5bdad5affa455cda66d5415a063793555e0d379287c5049036d74a",
+    "tests/unit/test_coordinator.py": "76201dcf4df90d03b9dd87bc10db22f92a88c4b9040a8cb45ca7fd4d0a1d3739",
+    "tests/unit/test_cortex_adapter.py": "23ea3f00612da7d2addabd592ee9fd731d2472e3b5dd90f3bb5eeb647d6a68fa",
+    "tests/unit/test_inventory_commit.py": "8d5a470d256a0fd82128d82d5e1c8921510fee38056628495ee2a5abecb8cd66",
+    "tests/unit/test_missions.py": "85ef68a21174ead139467d8acc34077de97853f4c15b5a71c5e2e68e719e1c20",
+    "tests/unit/test_network_preflight.py": "a2ac235e391720728a3cd73b818f1b51981a4bfb87f76b5b1a2dfa63356300b5",
+    "tests/unit/test_reciprocal_registration.py": "875b7301be5f0501a32f6bea9fbbe9cb54d6e3195407f0a4e9e0d5ce10a6bdea",
+    "tests/unit/test_recovery_guard.py": "b2caa2842afe8a5240833ed8cf03981a88ce5fe89100930f3b69b4b89a0e2db0",
+    "tests/unit/test_recovery_process_readback.py": "ffbafd87aa57648d01ec123eb5894ad30eb86f8d799f44e5d02ced44944fce6b",
+    "tests/unit/test_restore_staging.py": "363ddee671ba04e41834e2a4e5d2103c6cd99c8054b12d2f6fc9f1a484a2955b",
+    "tests/unit/test_runner_boundary.py": "9774b2fdfcaa0552b4c72013d80d5abe79e1f3b6b58f50543f06680746a8b06c",
+    "tests/unit/test_staged_cleanup.py": "30dca4bacca5df37f7cca8cc984474169237bad826a909c5bebf607de1750a65",
+    "tests/unit/test_workflow_policy.py": "f2af664a2151a22d80de5913a1b1ca81fce54f27302ba3537d68cccaac57b3e8",
+    "tools/container_probe.py": "0a96c066b334f3985a48b417a5a51dc340e445287d2061fb0426b64b7d3d29cb",
+    "tools/fault_checks.py": "d1e5cd5c0b40279ca55b4a4c1d552c0e99ed9a8f9b6ade5c47e1203c43df4c18",
+    "tools/fault_worker.py": "6d2bcd5a58635c100cea98a233b934ab70e575a068c16a808348534692aa8759",
+    "tools/run_isolated.py": "378b6252c3730f87d9e8154aaaeff27688e6dec064ca9957435f93b880f91ed2",
+    "tools/validate.py": "73972a6a6e58c5f28b98cad38362390d60c862151d36e18b6338ad103f791430",
+    "tools/verify_workflows.py": "7486d3add5146fd1be9965b6b925d7408e38ed361bbb3c302ad4fedd71919361",
+    "tools/workflow_policy.json": "a7d05024d536fe7194f00844f433dd702d52f3cc5c9dcfd54231e26feecba90e"
+  },
+  "started_at_utc": "2026-10-24T22:17:40.405661+00:00",
+  "tests_run": 174,
+  "unresolved_controls": [
+    "C1 disposable host/filesystem isolation",
+    "C2 effective grants",
+    "C3 production credential/mount exclusion",
+    "C4 host egress/trigger denial",
+    "C8 host stop/teardown and retention verification"
+  ]
+}
