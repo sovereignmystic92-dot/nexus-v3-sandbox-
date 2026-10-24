@@ -92,6 +92,8 @@ def main():
             raise RuntimeError("Exact source commit required")
         if command(["git", "-C", str(ROOT), "rev-parse", "HEAD"]) != source_sha:
             raise RuntimeError("Checkout does not match requested source commit")
+        report["checkpoint_ledger_preflight"] = json.loads(command([
+            "python3", str(ROOT / "tools/check_checkpoint_ledger.py")]))
         retention = report["github_log_retention_days"]
         if retention is None or not retention.isdigit() or not 1 <= int(retention) <= 90:
             raise RuntimeError("GitHub log-retention evidence absent or exceeds 90-day policy")
@@ -159,3 +161,4 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
