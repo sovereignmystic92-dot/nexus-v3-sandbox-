@@ -68,3 +68,16 @@ class BoundCortexToolTests(unittest.TestCase):
         with self.assertRaises(ToolFailure):self.update()
         self.assertEqual(self.writes(),1)
         self.assertEqual(self.data[TARGET]['version'],2)
+
+    def test_root_dependency_change_is_not_accepted_as_same_root(self):
+        self.data[ROOT]['dependencies']=[TARGET]
+        with self.assertRaises(ToolFailure):self.update()
+        self.assertEqual(self.writes(),0)
+
+    def test_malformed_binding_and_dependency_fail_before_provider_call(self):
+        for bad in (FixtureBinding(7,'id','owner',None),FixtureBinding(ROOT,7,'owner',None),
+                    FixtureBinding(ROOT,'id',7,None)):
+            with self.subTest(binding=bad),self.assertRaises(ValueError):
+                BoundCortexToolTransport(lambda *a:self.fail('Unexpected provider call'),[bad],ROOT,1,'a'*64)
+        with self.assertRaises(ToolFailure):self.t.update(TARGET,MARKER,(['unhashable'],))
+        self.assertEqual(self.calls,[])
