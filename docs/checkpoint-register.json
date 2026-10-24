@@ -318,7 +318,7 @@
       "source_mapping": "C7",
       "definition_state": "ACCEPTED",
       "status": "PARTIALLY_VERIFIED",
-      "status_reason": "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established.",
+      "status_reason": "Fresh Cortex exact comparisons and full local mismatch matrix passed; scope inventory and proposed CP07 pass await hosted candidate validation and review.",
       "pass_requirement": "A fresh reader verifies exact identity, content/hash, version, destination and required dependencies across every intended persistence surface; mismatch cannot produce VERIFIED.",
       "required_evidence": "Attributable fresh-reader comparisons, mismatch/identity mutation tests, complete intended-scope inventory and zero repair during verification.",
       "dependencies": [],
@@ -337,6 +337,19 @@
             "Author evidence mapping, not independent human review.",
             "Proposed mapping not adopted; historical 8/19 identities unresolved."
           ]
+        },
+        {
+          "evidence_id": "cp07-fresh-readback-20261024",
+          "definition_version": "proposal-1",
+          "source_sha": "500d3ddf5330265dab4026df080cf6f7c9b9ad5d",
+          "scope": "Current single-worker synthetic SQLite coordinator/journal/recovery and host-mediated Cortex fixtures; inventory in docs/cp07-readback-assessment.md",
+          "artifact_reference": "docs/cp07-fresh-readback.json",
+          "operation_outcome": "NOT_ATTEMPTED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "actual": "Two rounds, four live fixture reads each, exact original immutable request match; 163 local tests passed including six-field mismatch matrix; no live fixture repair.",
+          "limitations": [
+            "Hosted candidate validation and review pending; no accepted count change."
+          ]
         }
       ],
       "blockers": [
@@ -352,6 +365,14 @@
           "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
           "reason": "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established.",
           "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessor",
+          "observed_at": "2026-10-24T22:10:33.389914+00:00",
+          "evidence_reference": "docs/cp07-readback-assessment.md",
+          "reason": "Fresh Cortex exact comparisons and full local mismatch matrix passed; scope inventory and proposed CP07 pass await hosted candidate validation and review."
         }
       ],
       "dependency_assessment": {

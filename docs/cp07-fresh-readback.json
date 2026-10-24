@@ -1,0 +1,92 @@
+{
+  "checkpoint": "CP07",
+  "assessed_revision": "500d3ddf5330265dab4026df080cf6f7c9b9ad5d",
+  "observed_at": "2026-10-24T22:10:33.389914+00:00",
+  "reader": "ChatGPT via fresh connected Cortex context_get; two rounds of four gets",
+  "comparison_baseline": "Original immutable C05 requests and C11 request retrieved separately from scoped Cortex issues",
+  "operation_outcome": "NOT_ATTEMPTED",
+  "fixture_writes": 0,
+  "reads": 8,
+  "comparisons": [
+    {
+      "name": "Nexus Sandbox C01 \u2014 Synthetic Source \u2014 2026-10-22",
+      "version": 2,
+      "identity_sha256": "c589593b7572dd3d8ed1c8beda821d01bfc04f1acc9f0e9e0298acd246a822e9",
+      "content_sha256": "002c602432132e3fbd1872bbb739907f8d7a649829e2bbc4304ea7e2952bfc16",
+      "dependencies": [],
+      "fields_compared": [
+        "id",
+        "name",
+        "version",
+        "content",
+        "dependencies"
+      ],
+      "comparison": "MATCHED",
+      "second_round": "MATCHED"
+    },
+    {
+      "name": "Nexus Sandbox C05 \u2014 Synthetic Archive \u2014 2026-10-22",
+      "version": 1,
+      "identity_sha256": "6f33be139db255550b7da3fca260e95f979a19b23bf1bb517c2991f98a7e6ae6",
+      "content_sha256": "46ab69c26b08efd881d65b1770666d0356e5376b1418d3d6f658159d9d70fd37",
+      "dependencies": [
+        "Nexus Sandbox C01 \u2014 Synthetic Source \u2014 2026-10-22"
+      ],
+      "fields_compared": [
+        "id",
+        "name",
+        "version",
+        "content",
+        "dependencies"
+      ],
+      "comparison": "MATCHED",
+      "second_round": "MATCHED"
+    },
+    {
+      "name": "Nexus Sandbox C05 \u2014 Synthetic Output \u2014 2026-10-22",
+      "version": 1,
+      "identity_sha256": "e791477d14b5affc54dc76f6287232a6feddc639315c713caf41d912e8277da5",
+      "content_sha256": "f91c573ed081d6727f769f28d53548f9ea94c9ee3bc6c73139dd4f03003f2445",
+      "dependencies": [
+        "Nexus Sandbox C05 \u2014 Synthetic Archive \u2014 2026-10-22"
+      ],
+      "fields_compared": [
+        "id",
+        "name",
+        "version",
+        "content",
+        "dependencies"
+      ],
+      "comparison": "MATCHED",
+      "second_round": "MATCHED"
+    },
+    {
+      "name": "Nexus Sandbox C05 \u2014 Synthetic Registry \u2014 2026-10-22",
+      "version": 3,
+      "identity_sha256": "0bd15d62256caa323c38a7c3fd68385c33e6fbf4e9c7043a125392b94f734820",
+      "content_sha256": "b18632fb849846a76de13664dfc9f65d054960dd64e1913dd8d1007f91a48c3e",
+      "dependencies": [
+        "Nexus Sandbox C05 \u2014 Synthetic Output \u2014 2026-10-22"
+      ],
+      "fields_compared": [
+        "id",
+        "name",
+        "version",
+        "content",
+        "dependencies"
+      ],
+      "comparison": "MATCHED",
+      "second_round": "MATCHED"
+    }
+  ],
+  "local_tests": {
+    "distinct_tests": 163,
+    "status": "PASSED",
+    "command": "PYTHONPATH=src python -m unittest discover -s tests/unit -q"
+  },
+  "limitations": [
+    "Connected reader is not an independent human or separate physical trust domain.",
+    "Mismatch cases are offline mutations, not edits to live fixtures.",
+    "No production activation, Notion resumption, concurrency/fencing or long-term durability claim."
+  ]
+}

@@ -66,6 +66,33 @@ class CortexAdapterTests(unittest.TestCase):
     def adapter(self):
         return CortexAdapter(self.journal, NAMES, self.transport)
 
+    def test_fresh_readback_rejects_each_exact_field_without_repair(self):
+        self.assertEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+        original = self.transport.modules[TARGET]
+        mutations = {
+            "identity": replace(original, id="synthetic:foreign"),
+            "destination_name": replace(original, name=OUTPUT),
+            "version": replace(original, version=original.version + 1),
+            "content": replace(original, content=original.content + " changed"),
+            "dependencies": replace(original, dependencies=(OUTPUT,)),
+            "missing": None,
+        }
+        for field, changed in mutations.items():
+            with self.subTest(field=field):
+                self.transport.modules[TARGET] = changed
+                before = dict(self.transport.modules)
+                writes = self.transport.writes
+                reads = len(self.transport.read_calls)
+                # Construct a fresh adapter against the retained durable identity.
+                for _ in range(2):
+                    result = self.adapter().ensure(self.request)
+                    self.assertNotEqual(result.protocol_verdict, "VERIFIED")
+                self.assertGreater(len(self.transport.read_calls), reads)
+                self.assertEqual(self.transport.writes, writes)
+                self.assertEqual(self.transport.modules, before)
+                self.transport.modules[TARGET] = original
+                self.assertEqual(self.adapter().ensure(self.request).protocol_verdict, "VERIFIED")
+
     def test_create_readback_and_restart_retry_have_separate_outcomes(self):
         first = self.adapter().ensure(self.request)
         repeat = self.adapter().ensure(self.request)
@@ -411,3 +438,4 @@ class CortexToolBridgeTests(unittest.TestCase):
         self.assertEqual(set(calls[0][1]), {"name", "content", "dependencies"})
         with self.assertRaises(ToolFailure):
             CortexToolTransport(lambda *args: {}).create(TARGET, MARKER, ())
+
