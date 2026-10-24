@@ -269,13 +269,13 @@
       "title": "Durability and recovery",
       "source_mapping": "C6",
       "definition_state": "ACCEPTED",
-      "status": "PARTIALLY_VERIFIED",
-      "status_reason": "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open.",
+      "status": "PASSED",
+      "status_reason": "Declared single-worker synthetic local-data loss, crash and corruption requirements met: exact combined state recovered from fresh private provider copies bound to the current sanitized GitHub reference; stale/corrupt copies held; required hosted check explicitly rejected ledger truncation. Proposed adjudication until merged.",
       "pass_requirement": "Declared crash, corruption and loss scenarios restore the correct committed state without duplicate mutations; latest-checkpoint selection has a protected authority and stale/corrupt copies fail closed.",
       "required_evidence": "Process and storage fault tests, trusted latest-witness evidence and recovery after loss of the declared local-state fault domain; explicitly define excluded physical faults.",
       "dependencies": [],
-      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
-      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "assessed_revision": "409110a769fd668fa6538ce0d0b8ebc7a416198b",
+      "scope": "Single stopped/cooperating worker; complete disposable local persistent-data directory containing combined SQLite coordinator/Cortex journal, identity anchors, recovery inventory and backups. Live Notion/Cortex packet custody and synthetic Cortex target observations; authenticated current GitHub reference and reviewed validator trusted. Physical host/device/power loss and provider outage excluded as declared fault boundaries, not claimed proven.",
       "evidence": [
         {
           "evidence_id": "main-40135860508-CP06",
@@ -289,13 +289,38 @@
             "Author evidence mapping, not independent human review.",
             "Proposed mapping not adopted; historical 8/19 identities unresolved."
           ]
+        },
+        {
+          "evidence_id": "cp06-current-reference-recovery-20261024",
+          "definition_version": "proposal-1",
+          "source_sha": "409110a769fd668fa6538ce0d0b8ebc7a416198b",
+          "scope": "Single stopped/cooperating worker; complete disposable local persistent-data directory containing combined SQLite coordinator/Cortex journal, identity anchors, recovery inventory and backups. Live Notion/Cortex packet custody and synthetic Cortex target observations; authenticated current GitHub reference and reviewed validator trusted. Physical host/device/power loss and provider outage excluded as declared fault boundaries, not claimed proven.",
+          "observed_at": "2026-10-24T23:31:19.198Z",
+          "operator": "ChatGPT author assessor",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40142926229",
+          "negative_run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40142945425",
+          "artifact_reference": "docs/cp06-recovery-adjudication.md",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "expected": "Declared crash, corruption and loss scenarios restore the correct committed state without duplicate mutations; latest-checkpoint selection has a protected authority and stale/corrupt copies fail closed.",
+          "actual": "Positive main run passed 198 distinct cases and four separately counted faults with initialized exact-base ledger preflight. Fresh accepted-reference and private provider readbacks restored the full declared local directory after deletion. Fresh-process readback verified coordinator/reciprocal records and the actual synthetic Cortex target twice, with zero transport writes. Old matching pair/manifest, old copies under current manifest and coherently corrupt copies were rejected. Negative hosted candidate reported REJECTED: Public accepted history truncated before container execution; candidate closed, never merged.",
+          "readback": {
+            "reader": "Fresh connected GitHub/Notion/Cortex reads and a separate Python process",
+            "comparison": "MATCHED exact current commitment, private manifest, provider identities, packet hashes, restored coordinator records and target identity/version/content/dependencies",
+            "artifact_reference": "Detailed routing and recovery evidence retained privately in authorized Notion/Cortex sandbox records"
+          },
+          "limitations": [
+            "Single stopped worker and logical directory loss on a surviving trusted host.",
+            "Cortex verification uses original dictionaries from fresh live tool reads in a read-only observation transport; no installed autonomous network client.",
+            "Trusts GitHub service/current-ref retrieval and reviewed checker; malicious administrator or removal of checker excluded.",
+            "Physical host/device/power loss, provider outage, production and long-term retention not established.",
+            "Full foundation acceptance remains BLOCKED."
+          ]
         }
       ],
-      "blockers": [
-        "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open."
-      ],
-      "accepted_by": null,
-      "accepted_at": null,
+      "blockers": [],
+      "accepted_by": "ChatGPT author assessor under owner standing approval for sandbox audit; not independent human review",
+      "accepted_at": "2026-10-24T23:31:19.198Z",
       "history": [
         {
           "previous_status": "NOT_TESTED",
@@ -304,12 +329,20 @@
           "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
           "reason": "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open.",
           "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PASSED",
+          "assessor": "ChatGPT author assessor under owner standing approval",
+          "observed_at": "2026-10-24T23:31:19.198Z",
+          "evidence_reference": "docs/cp06-recovery-adjudication.md",
+          "reason": "Declared single-worker synthetic local-data loss, crash and corruption requirements met: exact combined state recovered from fresh private provider copies bound to the current sanitized GitHub reference; stale/corrupt copies held; required hosted check explicitly rejected ledger truncation. Proposed adjudication until merged."
         }
       ],
       "dependency_assessment": {
         "assessed_by": "ChatGPT author assessor",
-        "assessed_at": "2026-10-24T22:03:59Z",
-        "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+        "assessed_at": "2026-10-24T23:31:19.198Z",
+        "disposition": "CP06's declared recovery behavior is assessed under explicit trusted-host/provider assumptions. Broader isolation, grants, credentials, triggers, fencing, cleanup and independent human-review gates remain open and continue to block production activation."
       }
     },
     {
@@ -1353,7 +1386,7 @@
   "assessment_summary": {
     "definition_acceptance": "ACCEPTED",
     "historical_reconciliation": "Historical aggregate preserved but superseded for scoring; original identities remain UNRESOLVED",
-    "accepted_pass_count": 10,
+    "accepted_pass_count": 11,
     "total_count": 19,
     "passed_checkpoint_ids": [
       "CP07",
@@ -1365,12 +1398,13 @@
       "CP16",
       "CP17",
       "CP19",
-      "CP18"
+      "CP18",
+      "CP06"
     ],
-    "partially_verified_count": 6,
+    "partially_verified_count": 5,
     "blocked_count": 3,
-    "status_adjudication": "Proposed 10/19 on PR #26; authoritative main remains 9/19 until adoption and merge.",
-    "warning": "Synthetic mixed-scope acceptance only; full foundation acceptance remains BLOCKED."
+    "status_adjudication": "Eleven bounded itemized passes proposed on CP06 adjudication branch until merged; owner standing approval applies to verified sandbox changes.",
+    "warning": "Mixed-scope synthetic acceptance only. Full foundation acceptance remains BLOCKED; no gate requirement or denominator changed."
   },
   "definition_acceptance": {
     "accepted_by": "Repository owner via current conversation",
