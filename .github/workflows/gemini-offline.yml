@@ -1,0 +1,61 @@
+name: Gemini bridge offline tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: gemini-offline-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gemini-offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Fetch exact public revision without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+          GIT_CONFIG_NOSYSTEM: '1'
+          GIT_CONFIG_GLOBAL: /dev/null
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir checkout
+          cd checkout
+          git init --quiet
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          mkdir -p "$RUNNER_TEMP/gemini-offline"
+          for file in smoke.py test_smoke.py; do
+            test -f "integrations/gemini/$file"
+            test ! -L "integrations/gemini/$file"
+            cp "integrations/gemini/$file" "$RUNNER_TEMP/gemini-offline/$file"
+          done
+          chmod 755 "$RUNNER_TEMP/gemini-offline"
+          chmod 644 "$RUNNER_TEMP/gemini-offline/"*.py
+      - name: Run mocked tests without network or credentials
+        run: |
+          set -euo pipefail
+          image='python@sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2'
+          docker pull "$image"
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges:true --user 65534:65534 \
+            --pids-limit 128 --memory 256m --cpus 1 \
+            --tmpfs /tmp:rw,noexec,nosuid,size=16m,mode=1777 \
+            --mount "type=bind,src=$RUNNER_TEMP/gemini-offline,dst=/tests,readonly" \
+            --workdir /tests "$image" \
+            python3 -B -m unittest discover -s /tests -p 'test_*.py' -v
+      - name: Remove staged tests
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gemini-offline"
+
+# No environment, secrets, Gemini API call, package installation or write token.
+# Public source/image downloads happen on the host before the network-none tests.
