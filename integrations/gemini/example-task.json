@@ -1,0 +1,9 @@
+{
+  "task_id": "synthetic:nexus-review:inventory-001",
+  "classification": "synthetic",
+  "question": "Can the fictional team confirm all 12 starter kits are ready? Cite sources, distinguish readiness from stock, and list what remains unknown.",
+  "sources": [
+    {"id": "S1", "text": "Each starter kit needs one notebook and two pencils. The team plans 12 kits."},
+    {"id": "S2", "text": "The stock sheet lists 12 notebooks and 20 pencils. Counts have not been physically verified and no kits have been assembled."}
+  ]
+}

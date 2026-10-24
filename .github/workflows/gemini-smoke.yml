@@ -4,7 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       free_tier_confirmed:
-        description: Key belongs to the Free Tier project; send the fixed fictional task once
+        description: Key belongs to the Free Tier project; send one synthetic task
+        type: boolean
+        required: true
+        default: false
+      task_json:
+        description: Optional synthetic JSON task packet; blank runs the original library test
+        type: string
+        required: false
+        default: ''
+      synthetic_confirmed:
+        description: Custom packet contains only fictional nonprivate data; public logs are acceptable
         type: boolean
         required: true
         default: false
@@ -32,4 +42,6 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_FREE_TIER_CONFIRMED: 'true'
+          NEXUS_TASK_JSON: ${{ inputs.task_json }}
+          NEXUS_SYNTHETIC_CONFIRMED: ${{ inputs.synthetic_confirmed }}
         run: python3 -I "$RUNNER_TEMP/nexus-gemini-smoke.py"
