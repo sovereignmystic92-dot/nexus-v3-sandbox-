@@ -29,6 +29,7 @@ jobs:
   smoke:
     if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
     runs-on: ubuntu-24.04
+    environment: gemini-pilot
     timeout-minutes: 3
     steps:
       - name: Fetch the public script at this exact workflow commit
@@ -40,7 +41,7 @@ jobs:
             -o "$RUNNER_TEMP/nexus-gemini-smoke.py"
       - name: One synthetic Gemini request
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_PILOT_API_KEY }}
           GEMINI_FREE_TIER_CONFIRMED: 'true'
           NEXUS_TASK_JSON: ${{ inputs.task_json }}
           NEXUS_SYNTHETIC_CONFIRMED: ${{ inputs.synthetic_confirmed }}
