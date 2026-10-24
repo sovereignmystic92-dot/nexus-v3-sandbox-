@@ -41,6 +41,8 @@ jobs:
           done
           chmod 755 "$RUNNER_TEMP/gemini-offline"
           chmod 644 "$RUNNER_TEMP/gemini-offline/"*.py
+      - name: Check reviewed workflow inventory
+        run: python3 -I checkout/tools/verify_workflows.py
       - name: Run mocked tests without network or credentials
         run: |
           set -euo pipefail

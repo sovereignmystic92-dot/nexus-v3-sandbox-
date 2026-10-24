@@ -10,13 +10,33 @@ import socket
 import sys
 
 
+def credential_names(names):
+    return [key for key in names if any(s in key.upper() for s in
+            ("TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "API_KEY", "PRIVATE_KEY"))
+            or key.upper().startswith(("AWS_", "AZURE_", "GOOGLE_", "GITHUB_", "ACTIONS_", "RUNNER_"))]
+
+
+def denied_probe(family, kind, address):
+    """Call only after loopback-only/no-route preflight; use documentation IPs."""
+    try:
+        with socket.socket(family, kind) as client:
+            client.settimeout(1)
+            if kind == socket.SOCK_DGRAM:
+                client.sendto(b"synthetic-boundary-probe", address)
+            else:
+                client.connect(address)
+    except OSError as error:
+        return error.errno in (errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EACCES,
+                               errno.EPERM, errno.EAFNOSUPPORT, errno.EPROTONOSUPPORT)
+    return False
+
+
 def main():
     status = dict(line.split(":", 1) for line in Path("/proc/self/status").read_text().splitlines() if ":" in line)
     interfaces = sorted(p.name for p in Path("/sys/class/net").iterdir())
     routes = Path("/proc/net/route").read_text().splitlines()[1:]
     env_names = sorted(os.environ)
-    forbidden = [key for key in env_names if any(s in key for s in ("TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"))
-                 or key.startswith(("AWS_", "AZURE_", "GOOGLE_", "GITHUB_", "ACTIONS_", "RUNNER_"))]
+    forbidden = credential_names(env_names)
     checks = {
         "nonroot_uid": os.getuid() == 65534,
         "capabilities_dropped": int(status["CapEff"].strip(), 16) == 0,
@@ -30,13 +50,12 @@ def main():
     }
     # Only probe a numeric documentation address after the interface checks pass.
     checks["external_connect_denied"] = False
+    checks["external_udp_denied"] = False
+    checks["external_ipv6_denied"] = False
     if checks["loopback_only"] and checks["no_default_ipv4_route"]:
-        try:
-            with socket.socket() as client:
-                client.settimeout(1)
-                client.connect(("192.0.2.1", 443))
-        except OSError as error:
-            checks["external_connect_denied"] = error.errno in (errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EACCES, errno.EPERM)
+        checks["external_connect_denied"] = denied_probe(socket.AF_INET, socket.SOCK_STREAM, ("192.0.2.1", 443))
+        checks["external_udp_denied"] = denied_probe(socket.AF_INET, socket.SOCK_DGRAM, ("192.0.2.1", 53))
+        checks["external_ipv6_denied"] = denied_probe(socket.AF_INET6, socket.SOCK_STREAM, ("2001:db8::1", 443))
     try:
         Path("/sandbox/.write-probe").write_text("synthetic probe")
         checks["source_write_denied"] = False
