@@ -50,4 +50,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except ValueError as error:
+        # Validator messages are fixed public diagnostics, never packet content.
+        print(json.dumps({'checkpoint_ledger':'REJECTED','reason':str(error)}))
+        raise SystemExit(2)
