@@ -1,0 +1,885 @@
+{
+  "schema_version": 1,
+  "definition_version": "proposal-1",
+  "title": "Nexus foundation checkpoint register",
+  "definition_state": "ACCEPTED",
+  "baseline_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+  "legacy_tracker": {
+    "reported_passed": 8,
+    "reported_total": 19,
+    "mapping_status": "UNRECONCILED",
+    "warning": "Historical aggregate only. No recovered itemized source establishes which eight passed. CP01-CP19 are a new proposed mapping, not recovered original checkpoint identities."
+  },
+  "operating_scope": "Synthetic sandbox; single-worker. Notion production integration paused; no activation or canonical promotion.",
+  "status_values": [
+    "NOT_TESTED",
+    "IN_PROGRESS",
+    "PARTIALLY_VERIFIED",
+    "BLOCKED",
+    "FAILED",
+    "PASSED",
+    "REOPENED"
+  ],
+  "count_policy": "Count only PASSED items with complete evidence, explicit scope and attributable acceptance. Proposed definitions and unreconciled historical totals cannot establish an accepted score. Do not narrow or split a requirement merely to increase the count.",
+  "checkpoints": [
+    {
+      "id": "CP01",
+      "title": "Host and filesystem isolation",
+      "source_mapping": "C1",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Container boundary checks passed. Broader host trust and independent host-boundary assessment remain open.",
+      "pass_requirement": "A scoped run confirms nonroot execution, read-only source/root, bounded resources, declared mounts and no host socket; broader host trust is explicitly assessed.",
+      "required_evidence": "Hosted boundary evidence and exact runner configuration; independent assessment of the declared host boundary.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP01",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Container boundary checks passed. Broader host trust and independent host-boundary assessment remain open.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Container boundary checks passed. Broader host trust and independent host-boundary assessment remain open."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Container boundary checks passed. Broader host trust and independent host-boundary assessment remain open.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP02",
+      "title": "Identity and effective grants",
+      "source_mapping": "C2",
+      "definition_state": "ACCEPTED",
+      "status": "BLOCKED",
+      "status_reason": "Complete effective grants and restricted provider-side test identity are unavailable.",
+      "pass_requirement": "The executing identities and all effective grants are inventoried; test authority is demonstrably restricted to the approved synthetic scope.",
+      "required_evidence": "Provider-side identity/grant inventory and denied out-of-scope access using safe synthetic targets.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP02",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Complete effective grants and restricted provider-side test identity are unavailable.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Complete effective grants and restricted provider-side test identity are unavailable."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "BLOCKED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Complete effective grants and restricted provider-side test identity are unavailable.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP03",
+      "title": "Credential and mount exclusion",
+      "source_mapping": "C3",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Container credential-name/mount checks passed; host-side complete credential exclusion remains unverified.",
+      "pass_requirement": "Production credentials and mounts are excluded from every execution surface in scope, including host-mediated integrations.",
+      "required_evidence": "Complete scoped secret/mount configuration inventory and positive/negative access evidence without exposing values.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP03",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Container credential-name/mount checks passed; host-side complete credential exclusion remains unverified.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Container credential-name/mount checks passed; host-side complete credential exclusion remains unverified."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Container credential-name/mount checks passed; host-side complete credential exclusion remains unverified.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP04",
+      "title": "Network and triggers",
+      "source_mapping": "C4",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Container denial probes and reviewed workflow inventory passed. Full hooks/settings/scheduler/host-egress inventory, approval release and branch-denial evidence remain missing.",
+      "pass_requirement": "All in-scope outbound paths, workflows, hooks, schedulers and deployment triggers are inventoried; enforced allowed/denied paths and manual approval/branch restrictions are verified.",
+      "required_evidence": "Container probes plus host/service settings evidence, approval hold/release and safe server-side branch-denial tests; workflow inventory alone is insufficient.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP04",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Container denial probes and reviewed workflow inventory passed. Full hooks/settings/scheduler/host-egress inventory, approval release and branch-denial evidence remain missing.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Container denial probes and reviewed workflow inventory passed. Full hooks/settings/scheduler/host-egress inventory, approval release and branch-denial evidence remain missing."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Container denial probes and reviewed workflow inventory passed. Full hooks/settings/scheduler/host-egress inventory, approval release and branch-denial evidence remain missing.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP05",
+      "title": "Synthetic fixture and destination binding",
+      "source_mapping": "C5",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete.",
+      "pass_requirement": "Every operation binds immutable synthetic IDs, verified account/root markers and allowlisted destinations; wrong account/destination is denied before mutation.",
+      "required_evidence": "Positive and negative fixture routing tests and independently fetched identity/destination evidence.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP05",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP06",
+      "title": "Durability and recovery",
+      "source_mapping": "C6",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open.",
+      "pass_requirement": "Declared crash, corruption and loss scenarios restore the correct committed state without duplicate mutations; latest-checkpoint selection has a protected authority and stale/corrupt copies fail closed.",
+      "required_evidence": "Process and storage fault tests, trusted latest-witness evidence and recovery after loss of the declared local-state fault domain; explicitly define excluded physical faults.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP06",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "SIGKILL, ENOSPC and staged restore checks passed. Protected latest witness, coherent rollback resistance and declared total-local-state-loss recovery remain open.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP07",
+      "title": "Independent readback",
+      "source_mapping": "C7",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established.",
+      "pass_requirement": "A fresh reader verifies exact identity, content/hash, version, destination and required dependencies across every intended persistence surface; mismatch cannot produce VERIFIED.",
+      "required_evidence": "Attributable fresh-reader comparisons, mismatch/identity mutation tests, complete intended-scope inventory and zero repair during verification.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP07",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Local fresh storage and fresh-process restored-identity checks passed. Complete intended external adapter/readback scope is not established.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP08",
+      "title": "Stop, cleanup and retention",
+      "source_mapping": "C8",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+      "pass_requirement": "Ordinary and forced-stop lifecycles prevent further writes and remove disposable data; retained evidence has an explicit retention policy and observed deletion where required.",
+      "required_evidence": "Ordinary cleanup, host-stop recovery/teardown evidence, before/after inventory and retention/deletion observations.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP08",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP09",
+      "title": "Remote ownership and fencing",
+      "source_mapping": "C9",
+      "definition_state": "ACCEPTED",
+      "status": "BLOCKED",
+      "status_reason": "Remote CAS/fencing not established; single-worker deferral is not acceptance.",
+      "pass_requirement": "Simultaneous acquisition yields one owner and stale writes are rejected at the actual mutation boundary, including in-flight requests, takeover and restart.",
+      "required_evidence": "Real backend CAS/fencing or an enforceable exclusive write gateway; a local lock or sequential readback is insufficient.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP09",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Remote CAS/fencing not established; single-worker deferral is not acceptance.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Remote CAS/fencing not established; single-worker deferral is not acceptance."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "BLOCKED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Remote CAS/fencing not established; single-worker deferral is not acceptance.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP10",
+      "title": "Independent human review",
+      "source_mapping": "review",
+      "definition_state": "ACCEPTED",
+      "status": "BLOCKED",
+      "status_reason": "Independent human review has not been established.",
+      "pass_requirement": "An identified independent human reviews the declared revision, reproduces critical checks and records findings, scope exclusions and signoff.",
+      "required_evidence": "Reviewer identity, reviewed SHA, commands/results, findings disposition and explicit signed/attributable verdict; AI review and owner merge assent alone do not satisfy this.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP10",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Independent human review has not been established.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Independent human review has not been established."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "BLOCKED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Independent human review has not been established.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP11",
+      "title": "Complete transaction and exact repeat",
+      "source_mapping": "S01/S02",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Bounded SQLite complete/repeat requirement is supported by M01/S01/S02. Proposed definitions and scope acceptance remain pending; this is not reconciliation of the historical eight.",
+      "pass_requirement": "A complete synthetic source reaches registered output with exact fresh readback; an identical repeat retains the same IDs and creates no duplicate.",
+      "required_evidence": "End-to-end complete/repeat traces at the declared adapter scope with exact state and artifact counts.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP11",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_missions.MissionTests.test_m01_complete_mission_and_repeat_are_durable",
+            "test_coordinator.CoordinatorTests.test_s01_separate_readback_and_events",
+            "test_coordinator.CoordinatorTests.test_s02_repeat_and_reopen_preserve_artifact_ids"
+          ],
+          "assessment": "Bounded SQLite complete/repeat requirement is supported by M01/S01/S02. Proposed definitions and scope acceptance remain pending; this is not reconciliation of the historical eight.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Bounded SQLite complete/repeat requirement is supported by M01/S01/S02. Proposed definitions and scope acceptance remain pending; this is not reconciliation of the historical eight."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Bounded SQLite complete/repeat requirement is supported by M01/S01/S02. Proposed definitions and scope acceptance remain pending; this is not reconciliation of the historical eight.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP12",
+      "title": "Idempotency binding conflict",
+      "source_mapping": "S03",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Bounded SQLite binding-conflict behavior has passing S03 evidence. Definition/scope acceptance pending.",
+      "pass_requirement": "Reusing a key with changed payload is rejected while the original committed records remain unchanged.",
+      "required_evidence": "Changed-payload negative test with pre/post inventory and zero unintended mutations.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP12",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_coordinator.CoordinatorTests.test_s03_changed_binding_rejected"
+          ],
+          "assessment": "Bounded SQLite binding-conflict behavior has passing S03 evidence. Definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Bounded SQLite binding-conflict behavior has passing S03 evidence. Definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Bounded SQLite binding-conflict behavior has passing S03 evidence. Definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP13",
+      "title": "Incomplete source hold",
+      "source_mapping": "S04",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Bounded SQLite incomplete-source hold has passing M03/S04 evidence. Definition/scope acceptance pending.",
+      "pass_requirement": "Incomplete source causes a durable BLOCKED/INCOMPLETE disposition without output or a success claim.",
+      "required_evidence": "Missing/partial-source test, durable reason/next action and zero output creation.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP13",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_missions.MissionTests.test_m03_incomplete_evidence_holds_whole_mission",
+            "test_coordinator.CoordinatorTests.test_s04_incomplete_source_blocked"
+          ],
+          "assessment": "Bounded SQLite incomplete-source hold has passing M03/S04 evidence. Definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Bounded SQLite incomplete-source hold has passing M03/S04 evidence. Definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Bounded SQLite incomplete-source hold has passing M03/S04 evidence. Definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP14",
+      "title": "Forbidden destination hold",
+      "source_mapping": "S05",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Bounded SQLite forbidden-destination rejection has passing S05 evidence. Definition/scope acceptance pending.",
+      "pass_requirement": "An out-of-allowlist destination is rejected before a write or production probe.",
+      "required_evidence": "Safe synthetic negative test with zero transport writes and preserved journal.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP14",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_coordinator.CoordinatorTests.test_s05_production_destination_denied_before_transaction_write"
+          ],
+          "assessment": "Bounded SQLite forbidden-destination rejection has passing S05 evidence. Definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Bounded SQLite forbidden-destination rejection has passing S05 evidence. Definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Bounded SQLite forbidden-destination rejection has passing S05 evidence. Definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP15",
+      "title": "Authority precedence and source instructions",
+      "source_mapping": "S06/S07",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Bounded structured authority/source-data behavior has passing S06/S07/conflict evidence. Arbitrary natural-language authority is excluded. Definition/scope acceptance pending.",
+      "pass_requirement": "Historical/source/hypothesis content cannot grant authority; conflicting current authority holds execution with provenance retained.",
+      "required_evidence": "Historical-conflict, current-conflict and source-instruction tests with bound authority revision and no escalation.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP15",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_authority_evidence.AuthorityEvidenceTests.test_s06_historical_source_and_hypothesis_do_not_govern",
+            "test_coordinator.CoordinatorTests.test_s07_source_instructions_remain_literal_data",
+            "test_authority_evidence.AuthorityEvidenceTests.test_conflicting_current_authority_blocks_without_artifacts"
+          ],
+          "assessment": "Bounded structured authority/source-data behavior has passing S06/S07/conflict evidence. Arbitrary natural-language authority is excluded. Definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Bounded structured authority/source-data behavior has passing S06/S07/conflict evidence. Arbitrary natural-language authority is excluded. Definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Bounded structured authority/source-data behavior has passing S06/S07/conflict evidence. Arbitrary natural-language authority is excluded. Definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP16",
+      "title": "Recovery after source archive",
+      "source_mapping": "F01",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Actual SIGKILL-after-archive recovered ARCHIVED and finished VERIFIED with three artifacts/six events/six attempts. Bounded SQLite definition/scope acceptance pending.",
+      "pass_requirement": "Interruption after archive resumes from the durable checkpoint with no duplicate source.",
+      "required_evidence": "Actual interruption and reopened-process recovery at the archive boundary, with exact record counts.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP16",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Actual SIGKILL-after-archive recovered ARCHIVED and finished VERIFIED with three artifacts/six events/six attempts. Bounded SQLite definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Actual SIGKILL-after-archive recovered ARCHIVED and finished VERIFIED with three artifacts/six events/six attempts. Bounded SQLite definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Actual SIGKILL-after-archive recovered ARCHIVED and finished VERIFIED with three artifacts/six events/six attempts. Bounded SQLite definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP17",
+      "title": "Recovery after output before registration",
+      "source_mapping": "F02",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Actual SIGKILL-after-output recovered OUTPUT_CREATED and finished VERIFIED without duplicate records. No external unknown-outcome guarantee inferred. Bounded SQLite definition/scope acceptance pending.",
+      "pass_requirement": "Interruption after output creation recovers/registers that existing output without recreation.",
+      "required_evidence": "Actual interruption and reopened-process recovery at the output/registration boundary, including unknown-outcome reconciliation for external adapters in scope.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP17",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "Actual SIGKILL-after-output recovered OUTPUT_CREATED and finished VERIFIED without duplicate records. No external unknown-outcome guarantee inferred. Bounded SQLite definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Actual SIGKILL-after-output recovered OUTPUT_CREATED and finished VERIFIED without duplicate records. No external unknown-outcome guarantee inferred. Bounded SQLite definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Actual SIGKILL-after-output recovered OUTPUT_CREATED and finished VERIFIED without duplicate records. No external unknown-outcome guarantee inferred. Bounded SQLite definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP18",
+      "title": "Reciprocal connection registration",
+      "source_mapping": "F04",
+      "definition_state": "ACCEPTED",
+      "status": "BLOCKED",
+      "status_reason": "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement.",
+      "pass_requirement": "A missing reciprocal endpoint prevents completion; bounded repair updates the existing connection and both endpoint references then independently verifies them.",
+      "required_evidence": "Typed endpoint, missing-reciprocity, repair and repeat tests against the declared persistence surfaces; dependency chains are not reciprocal endpoints.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP18",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [],
+          "assessment": "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "BLOCKED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "External reciprocal endpoint registration is documented as absent; no exact repair/readback evidence satisfies this requirement.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    },
+    {
+      "id": "CP19",
+      "title": "Readback and storage failure safety",
+      "source_mapping": "F03/F05",
+      "definition_state": "ACCEPTED",
+      "status": "PARTIALLY_VERIFIED",
+      "status_reason": "Local readback mismatch/missing/misroute and rollback tests passed; actual tmpfs ENOSPC/SQLITE_FULL preserved checkpoint and recovered. Bounded SQLite definition/scope acceptance pending.",
+      "pass_requirement": "Missing/wrong readback cannot become VERIFIED; failed/full storage cannot claim durable success and preserves the last confirmed checkpoint for safe recovery.",
+      "required_evidence": "Mismatch, destination/hash failure, transaction rollback and bounded ENOSPC tests with durable-state/readback evidence.",
+      "dependencies": [],
+      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+      "scope": "Single-worker synthetic SQLite coordinator only; no Notion/Cortex execution or semantic processing.",
+      "evidence": [
+        {
+          "evidence_id": "main-40135860508-CP19",
+          "definition_version": "proposal-1",
+          "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+          "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "case_ids": [
+            "test_coordinator.CoordinatorTests.test_readback_corruption_never_verifies",
+            "test_coordinator.CoordinatorTests.test_missing_or_misrouted_artifact_never_verifies",
+            "test_coordinator.CoordinatorTests.test_artifact_and_checkpoint_rollback_when_event_write_fails"
+          ],
+          "assessment": "Local readback mismatch/missing/misroute and rollback tests passed; actual tmpfs ENOSPC/SQLITE_FULL preserved checkpoint and recovered. Bounded SQLite definition/scope acceptance pending.",
+          "limitations": [
+            "Author evidence mapping, not independent human review.",
+            "Proposed mapping not adopted; historical 8/19 identities unresolved."
+          ]
+        }
+      ],
+      "blockers": [
+        "Local readback mismatch/missing/misroute and rollback tests passed; actual tmpfs ENOSPC/SQLITE_FULL preserved checkpoint and recovered. Bounded SQLite definition/scope acceptance pending."
+      ],
+      "accepted_by": null,
+      "accepted_at": null,
+      "history": [
+        {
+          "previous_status": "NOT_TESTED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessment",
+          "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+          "reason": "Local readback mismatch/missing/misroute and rollback tests passed; actual tmpfs ENOSPC/SQLITE_FULL preserved checkpoint and recovered. Bounded SQLite definition/scope acceptance pending.",
+          "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        }
+      ]
+    }
+  ],
+  "assessment_summary": {
+    "definition_acceptance": "ACCEPTED",
+    "historical_reconciliation": "UNRESOLVED",
+    "accepted_pass_count": null,
+    "candidate_supported_sqlite_checkpoints": [
+      "CP11",
+      "CP12",
+      "CP13",
+      "CP14",
+      "CP15",
+      "CP16",
+      "CP17",
+      "CP19"
+    ],
+    "warning": "These eight proposed bounded SQLite candidates are not asserted to be the historical eight and are not marked PASSED.",
+    "status_adjudication": "Supporting evidence retained. Individual PASS acceptance not recorded by this definition-adoption change."
+  },
+  "definition_acceptance": {
+    "accepted_by": "Repository owner via current conversation",
+    "accepted_at": "2026-10-24",
+    "authorization": "Owner replied Approve after presentation of PR #23 and request to adopt the register.",
+    "scope": "Checkpoint definitions and evidence register adoption; does not assert historical item identities, independent human review, production activation or an additional passed gate."
+  }
+}
