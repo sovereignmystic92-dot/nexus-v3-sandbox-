@@ -1,4 +1,8 @@
-"""Host callback bridge to connected Cortex tools; no token or network driver."""
+"""Read-only legacy callback bridge; bound transport required for updates.
+
+Historical probes that used unbound create/update now fail before invoking the
+provider. This does not restrict access to tools outside this Python bridge.
+"""
 
 import json
 from .cortex_adapter import Module
@@ -33,19 +37,7 @@ class CortexToolTransport:
             raise ToolFailure("Incomplete Cortex module observation") from None
 
     def _write(self, tool, name, content, dependencies):
-        result = self.invoke(tool, {"name": name, "content": content,
-                                    "dependencies": list(dependencies)})
-        if result.get("isError"):
-            raise ToolFailure("Cortex write did not acknowledge success; reconcile")
-        try:
-            blocks = [b["text"] for b in result.get("content", []) if b.get("type") == "text"]
-            data = result.get("structuredContent") or json.loads("\n".join(blocks))
-            if (not isinstance(data["id"], str) or not data["id"] or data["name"] != name
-                    or type(data["version"]) is not int or data["version"] < 1
-                    or data["content"] != content or data["dependencies"] != list(dependencies)):
-                raise ValueError()
-        except Exception:
-            raise ToolFailure("Cortex write acknowledgment incomplete; reconcile") from None
+        raise ToolFailure("Unbound provider writes disabled; use a verified bound fixture transport")
 
     def create(self, name, content, dependencies):
         self._write("context_create", name, content, dependencies)
@@ -53,3 +45,4 @@ class CortexToolTransport:
     def update(self, name, content, dependencies):
         # Omits owner/parent/permissions/default_assignee fields entirely.
         self._write("context_update", name, content, dependencies)
+
