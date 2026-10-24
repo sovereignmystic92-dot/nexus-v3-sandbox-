@@ -1,17 +1,1 @@
-{
-  "schema_version": 2,
-  "records": [
-    {
-      "checkpoint_sequence": 1,
-      "created_at_utc": "2026-10-24T23:21:16.074067Z",
-      "source_commit": "25b6edb8e25f28577a7069ef53d33eeafead5b21",
-      "private_manifest_sha256": "0754e938762d483536576fb337feca33e1aefab15a3dc1d7835e612d445757fd",
-      "previous_entry_sha256": null
-    }
-  ],
-  "latest": {
-    "checkpoint_sequence": 1,
-    "entry_sha256": "4a2235eff98ce59de72db2367bc77833c98314e3f55c45b65ba59b7ce691512f",
-    "private_manifest_sha256": "0754e938762d483536576fb337feca33e1aefab15a3dc1d7835e612d445757fd"
-  }
-}
+{"schema_version":2,"records":[],"latest":null}
