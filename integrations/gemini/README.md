@@ -1,5 +1,10 @@
 # Gemini connection pilot
 
+**Secret migration candidate:** follow [secret-boundary.md](secret-boundary.md)
+before using this revision. It uses the `gemini-pilot` environment and its
+`GEMINI_PILOT_API_KEY` secret. The repository-secret setup below describes the
+historical pilot and is superseded by that migration guide.
+
 Status: the fixed library task passed live run 40121331969. Custom task input is a new candidate, not live-verified. This remains an indirect GitHub bridge, not a direct ChatGPT connector.
 The existing isolated audit workflow is unchanged. This separate workflow has network
 access and receives one secret only for its API step. It does not run the audit container.
