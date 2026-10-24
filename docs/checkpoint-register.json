@@ -222,7 +222,7 @@
       "source_mapping": "C5",
       "definition_state": "ACCEPTED",
       "status": "PARTIALLY_VERIFIED",
-      "status_reason": "Pinned-root existing-fixture guard and adapter integration tests pass; legacy unbound create/update calls now stop before the provider callback. Authenticated caller/account identity, full host routing and intended creation/enrollment assurance remain incomplete.",
+      "status_reason": "Pinned-root transport passed a bounded real synthetic update, duplicate-free repeat and separate-process read-only reconciliation with metadata preserved; legacy unbound writes are disabled. Authenticated caller/account identity, complete host routing and safe creation/enrollment assurance remain incomplete.",
       "pass_requirement": "Every operation binds immutable synthetic IDs, verified account/root markers and allowlisted destinations; wrong account/destination is denied before mutation.",
       "required_evidence": "Positive and negative fixture routing tests and independently fetched identity/destination evidence.",
       "dependencies": [],
@@ -259,11 +259,29 @@
             "No live bound-update validation, provider grant enforcement or safe creation enrollment.",
             "Current source SHA is the inspected base; changed candidate source/CI is recorded by its PR."
           ]
+        },
+        {
+          "evidence_id": "cp05-guarded-live-update-20261024",
+          "definition_version": "proposal-1",
+          "source_sha": "ab1e8fee5e61ba5d552115bf729e585d9670d481",
+          "scope": "New synthetic fixtures; one actual Cortex update through host-mediated JSON-line callback, then read-only restart; no production writes.",
+          "observed_at": "2026-10-24T23:55:02.927Z",
+          "operator": "ChatGPT author assessor",
+          "artifact_reference": "docs/cp05-guarded-live-update.md",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "PARTIALLY_VERIFIED",
+          "actual": "Writer phase: 25 live gets, one update, VERIFIED; same-request repeat NOT_ATTEMPTED/VERIFIED. Wrong root ID/owner and unenrolled target held with zero mutation. New process: 16 live gets, zero updates, two NOT_ATTEMPTED/VERIFIED outcomes. Independent final metadata reads preserved root/source and target ID/owner/parent/permissions/assignee/creation/archival fields; target v1->v2 content/dependencies matched.",
+          "limitations": [
+            "Does not identify the authenticated caller/account principal or prove effective grants.",
+            "Host callbacks are explicit and allowlisted, not an installed autonomous transport.",
+            "Direct connector access and other host paths are not controlled by this Python library.",
+            "Fixture creation/enrollment is separate; provider CAS/concurrent writer safety is not added."
+          ]
         }
       ],
       "blockers": [
-        "Authenticated caller/account identity is not exposed by the currently available Cortex tools; module owner is not the caller principal.",
-        "Complete host routing coverage, guarded live update validation and creation/enrollment assurance remain incomplete."
+        "Authenticated caller/account principal is not exposed by the currently available Cortex tools; module owner is not caller identity.",
+        "Complete host routing and creation/enrollment assurance remain incomplete."
       ],
       "accepted_by": null,
       "accepted_at": null,
@@ -283,6 +301,14 @@
           "observed_at": "2026-10-24T23:44:03.737Z",
           "evidence_reference": "docs/cp05-transport-integration.md",
           "reason": "Pinned-root existing-fixture guard and adapter integration tests pass; legacy unbound create/update calls now stop before the provider callback. Authenticated caller/account identity, full host routing and intended creation/enrollment assurance remain incomplete."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author assessor",
+          "observed_at": "2026-10-24T23:55:02.927Z",
+          "evidence_reference": "docs/cp05-guarded-live-update.md",
+          "reason": "Pinned-root transport passed a bounded real synthetic update, duplicate-free repeat and separate-process read-only reconciliation with metadata preserved; legacy unbound writes are disabled. Authenticated caller/account identity, complete host routing and safe creation/enrollment assurance remain incomplete."
         }
       ],
       "dependency_assessment": {
