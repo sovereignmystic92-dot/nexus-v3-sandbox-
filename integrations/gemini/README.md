@@ -30,7 +30,7 @@ content is sent. The public repository's workflow logs may be public. Gemini's f
 tier may use submitted content to improve products. No Notion or Cortex credentials
 are available to this job, and no writes to those services are attempted.
 
-The model is fixed to `gemini-2.5-flash-lite`, with one request, 512 maximum output
+The model is fixed to `gemini-3.5-flash-lite`, with one request, 512 maximum output
 tokens, 45-second transport timeout, 64 KiB response cap, no tools, redirects, retry,
 model fallback, or arbitrary prompt input. An uncertain transport result stops;
 it does not prove the provider did not process the request. A fresh manual run is

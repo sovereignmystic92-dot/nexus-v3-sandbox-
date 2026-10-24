@@ -6,7 +6,7 @@ import sys
 import urllib.error
 import urllib.request
 
-MODEL = "gemini-2.5-flash-lite"
+MODEL = "gemini-3.5-flash-lite"
 URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
 PROMPT = (
     "Analyze this fictional scheduling task using only the two sources. "
