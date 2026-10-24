@@ -82,4 +82,10 @@ Single-worker deferral of remote fencing does not pass CP09. Shared-filesystem p
 
 ## Initial disposition
 
-Definitions and update format created; checkpoint statuses not assessed. The previously quoted 8/19 is retained with its mapping gap. No ninth gate is claimed and no gate is weakened to meet a numerical target.
+All 19 proposed checkpoints have now received an author evidence assessment against actual main run 40135860508 at `709a4d39d1c0058d3f4dc8c8832025ad324d55b5`. Retrieved logs contain 162 passing distinct tests and four separately counted fault checks. The report is retained in [checkpoint-evidence-main-709a4d3.json](checkpoint-evidence-main-709a4d3.json); tests were not rerun during this mapping.
+
+Eight proposed requirements have supporting bounded SQLite evidence: CP11, CP12, CP13, CP14, CP15, CP16, CP17 and CP19. These are candidate assessments, not a reconstruction of the historical eight. They remain PARTIALLY_VERIFIED pending explicit acceptance of the proposed definition and operating scope. No accepted score is derived yet.
+
+CP01/03/04/05/06/07/08 have partial evidence and material scope gaps. CP02/09/10/18 are BLOCKED. In particular, CP04 cannot close from workflow-byte checks and container probes alone; its missing host/settings/hooks and server-side gate evidence is substantive. CP18 lacks reciprocal endpoint implementation and is not a documentation-only closure.
+
+The previously quoted 8/19 is retained with its mapping gap. No ninth gate is claimed and no gate is weakened to meet a numerical target. A decision to adopt this proposal must be recorded as a new baseline with a transparent legacy reconciliation, rather than asserting that matching candidate counts prove historical identities.
