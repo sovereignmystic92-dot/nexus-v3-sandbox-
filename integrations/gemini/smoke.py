@@ -61,10 +61,21 @@ def run(environ, opener=None):
         if candidate.get("finishReason") != "STOP":
             raise BridgeError("INCOMPLETE_OR_BLOCKED_RESPONSE")
         parts = candidate["content"]["parts"]
-        if not parts or any(set(part) != {"text"} or not isinstance(part["text"], str)
-                            for part in parts):
+        if not isinstance(parts, list) or not parts:
             raise BridgeError("NON_TEXT_RESPONSE")
-        answer = "\n".join(part["text"] for part in parts).strip()
+        texts = []
+        for part in parts:
+            # REST text parts may carry opaque signatures and a thought flag.
+            # This single-turn pilot never replays signatures or emits thoughts.
+            if (not isinstance(part, dict)
+                    or set(part) - {"text", "thought", "thoughtSignature"}
+                    or not isinstance(part.get("text"), str)
+                    or ("thought" in part and type(part["thought"]) is not bool)
+                    or ("thoughtSignature" in part and not isinstance(part["thoughtSignature"], str))):
+                raise BridgeError("NON_TEXT_RESPONSE")
+            if not part.get("thought", False):
+                texts.append(part["text"])
+        answer = "\n".join(texts).strip()
         if not answer or key in answer:
             raise BridgeError("EMPTY_OR_SENSITIVE_RESPONSE")
     except (ValueError, KeyError, IndexError, TypeError, AttributeError):
