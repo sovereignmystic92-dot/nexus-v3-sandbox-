@@ -78,6 +78,11 @@ jobs:
         working-directory: checkout
         shell: bash
         run: python3 tools/run_isolated.py
+      - name: Verify real container cleanup after runner SIGTERM
+        working-directory: checkout
+        shell: bash
+        run: python3 tools/real_container_stop_probe.py
 
 # No schedule, production deployment, external adapters, uploaded artifacts,
 # paid runner label, repository merge, or secret-dependent action is included.
+
