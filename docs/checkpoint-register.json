@@ -509,7 +509,8 @@
         }
       ],
       "blockers": [
-        "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified."
+        "Host-loss cleanup and future retention deletion remain unverified.",
+        "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
       ],
       "accepted_by": null,
       "accepted_at": null,
@@ -535,6 +536,13 @@
           "assessor": "ChatGPT author",
           "evidence_reference": "docs/cp08-runner-stop.md",
           "reason": "Actual SIGTERM/SIGINT owned-runner interruption with fake Docker backend verifies real staging cleanup and BLOCKED reporting. No forced-host-stop or retention proof."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author",
+          "evidence_reference": "docs/cp08-provider-deletion-result.md",
+          "reason": "One authorized disposable Cortex module created and exactly read back; delete rejected by provider durability policy; fresh read confirms it remains unarchived. No deletion pass claimed."
         }
       ],
       "dependency_assessment": {
@@ -1467,5 +1475,14 @@
     "accepted_at": "2026-10-24",
     "authorization": "Owner replied Approve after presentation of PR #23 and request to adopt the register.",
     "scope": "Checkpoint definitions and evidence register adoption; does not assert historical item identities, independent human review, production activation or an additional passed gate."
+  },
+  "owner_authorization": {
+    "scope": "Continue Nexus synthetic sandbox foundation audit work, including bounded disposable artifact lifecycle tests and reviewable repository changes.",
+    "approval": "User explicitly gave standing approval to anything other than billing services in the ongoing sandbox audit conversation.",
+    "excluded": [
+      "Enabling billing, incurring charges, or provisioning paid services",
+      "Production activation remains outside the current audit scope"
+    ],
+    "source": "Current conversation on 2026-10-25 UTC / 2026-10-24 America/New_York"
   }
 }
