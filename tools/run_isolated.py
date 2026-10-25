@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import subprocess
 import tempfile
 from uuid import uuid4
@@ -98,6 +99,13 @@ def main():
               "container_removed": False, "source_staging_removed": False}
     container = None
     temporary = None
+    def stop_requested(signum, frame):
+        # Catchable stops unwind through the same bounded teardown path.
+        for stop_signal in (signal.SIGTERM, signal.SIGINT):
+            signal.signal(stop_signal, signal.SIG_IGN)
+        raise RuntimeError('Runner stop requested: ' + signal.Signals(signum).name)
+    previous_handlers = {s: signal.signal(s, stop_requested)
+                         for s in (signal.SIGTERM, signal.SIGINT)}
     try:
         if not shutil.which("docker"):
             raise RuntimeError("Docker executable unavailable; no isolated tests attempted")
@@ -163,6 +171,9 @@ def main():
         report["blocker"] = type(error).__name__ + (": " + str(error) if isinstance(error, (ValueError, RuntimeError)) else "")
         report["isolated_run_status"] = "BLOCKED"
     finally:
+        # A second catchable stop must not interrupt removal/report publication.
+        for stop_signal in previous_handlers:
+            signal.signal(stop_signal, signal.SIG_IGN)
         if container:
             try:
                 command(["docker", "rm", "--force", container])
@@ -176,6 +187,8 @@ def main():
             report["isolated_run_status"] = "BLOCKED"
         report["ended_at_utc"] = datetime.now(timezone.utc).isoformat()
         print(json.dumps(report, sort_keys=True))
+        for stop_signal, handler in previous_handlers.items():
+            signal.signal(stop_signal, handler)
     return 0 if report["isolated_run_status"] == "PASSED" else 2
 
 

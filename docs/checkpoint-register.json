@@ -528,6 +528,13 @@
           "assessor": "ChatGPT author",
           "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
           "reason": "Cleanup failure reporting hardened with two local regressions. No forced-host-stop or future deletion proof inferred."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author",
+          "evidence_reference": "docs/cp08-runner-stop.md",
+          "reason": "Actual SIGTERM/SIGINT owned-runner interruption with fake Docker backend verifies real staging cleanup and BLOCKED reporting. No forced-host-stop or retention proof."
         }
       ],
       "dependency_assessment": {
