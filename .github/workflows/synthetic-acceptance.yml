@@ -4,7 +4,6 @@ on:
   push:
     branches: [main, foundation-audit-draft, mission-scenarios, cortex-adapter]
   pull_request:
-    branches: [main, mission-scenarios, automation-failure-handoff, automation-ci-evidence]
     types: [opened, synchronize, reopened, ready_for_review]
 
 # Public source fetch needs no token. No secrets or write scopes are passed.
@@ -41,39 +40,7 @@ jobs:
           git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
           git checkout --detach --quiet FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          python3 - <<'PY'
-          import json, os, re, subprocess
-          event = os.environ["SOURCE_EVENT"]
-          ref = os.environ["SOURCE_REF"]
-          sha = os.environ["SOURCE_SHA"]
-          base = os.environ.get("PR_BASE_SHA", "")
-          head = os.environ.get("PR_HEAD_SHA", "")
-          base_ref = os.environ.get("PR_BASE_REF", "")
-          observed_base = ""
-          raw = subprocess.check_output(["git", "cat-file", "-p", "HEAD"], text=True)
-          parents = [line.split(" ", 1)[1] for line in raw.split("\n\n", 1)[0].splitlines() if line.startswith("parent ")]
-          if event == "pull_request":
-              if not re.fullmatch(r"refs/pull/[0-9]+/merge", ref):
-                  raise SystemExit("Expected a pull-request merge ref")
-              if base_ref not in ("main", "mission-scenarios", "automation-failure-handoff", "automation-ci-evidence") or not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (base, head)):
-                  raise SystemExit("Unexpected PR base/ref metadata")
-              remote = subprocess.check_output(["git", "-c", "credential.helper=", "ls-remote", "--exit-code",
-                  "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git", "refs/heads/" + base_ref], text=True).strip()
-              fields = remote.split()
-              if len(fields) != 2 or fields[1] != "refs/heads/" + base_ref or not re.fullmatch(r"[0-9a-f]{40}", fields[0]):
-                  raise SystemExit("Current PR base branch could not be established")
-              observed_base = fields[0]
-              if parents != [observed_base, head]:
-                  raise SystemExit("Merge candidate differs from current base branch or event head")
-          elif event != "push" or not ref.startswith("refs/heads/"):
-              raise SystemExit("Unexpected source event/ref")
-          print(json.dumps({"ci_source": {"event": event, "ref": ref, "sha": sha,
-              "base_sha": observed_base or base, "event_base_sha": base,
-              "base_ref": base_ref, "observed_base_sha": observed_base,
-              "event_base_matches_candidate": base == observed_base if event == "pull_request" else None,
-              "head_sha": head, "parents": parents,
-              "merge_candidate_checked": event == "pull_request"}}, sort_keys=True))
-          PY
+          python3 tools/verify_ci_source.py
       - name: Check container boundary and run synthetic suite
         working-directory: checkout
         shell: bash
