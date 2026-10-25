@@ -61,3 +61,22 @@ class NotionReadProbeTests(unittest.TestCase):
             self.assertEqual(probe.main(),2);self.assertIn('SKIPPED',out.getvalue())
         with patch.dict(probe.os.environ,{'NOTION_READ_PROBE_CONFIRMED':'true'},clear=True),patch('sys.stdout',new_callable=io.StringIO) as out:
             self.assertEqual(probe.main(),2);self.assertIn('BLOCKED',out.getvalue())
+
+    def test_status_diagnostics_are_fixed_and_do_not_include_remote_content(self):
+        for status, reason in [(401,'TOKEN_REJECTED'),(403,'ACCESS_FORBIDDEN'),(404,'PAGE_UNAVAILABLE'),(429,'RATE_LIMITED'),(302,'HTTP_NOT_OK')]:
+            self.status=status
+            with self.assertRaises(probe.ProbeHold) as caught:
+                probe.probe(self.root,'synthetic-secret',self.factory)
+            self.assertEqual(str(caught.exception),reason)
+
+    def test_invalid_root_diagnostic_precedes_network(self):
+        with self.assertRaisesRegex(probe.ProbeHold,'ROOT_ID_FORMAT'):
+            probe.probe('not-a-page-id','secret',self.factory)
+        self.assertEqual(self.calls,[])
+
+    def test_main_redacts_untrusted_exception_text(self):
+        env={'NOTION_READ_PROBE_CONFIRMED':'true'}
+        with patch.dict(probe.os.environ,env,clear=True),patch.object(probe,'probe',side_effect=probe.ProbeHold('private-secret')),patch('sys.stdout',new_callable=io.StringIO) as out:
+            self.assertEqual(probe.main(),2)
+            self.assertNotIn('private-secret',out.getvalue())
+            self.assertIn('RESPONSE_VALIDATION',out.getvalue())
