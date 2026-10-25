@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, foundation-audit-draft, mission-scenarios, cortex-adapter]
   pull_request:
-    branches: [main, mission-scenarios]
+    branches: [main, mission-scenarios, automation-failure-handoff, automation-ci-evidence]
     types: [opened, synchronize, reopened, ready_for_review]
 
 # Public source fetch needs no token. No secrets or write scopes are passed.
@@ -55,7 +55,7 @@ jobs:
           if event == "pull_request":
               if not re.fullmatch(r"refs/pull/[0-9]+/merge", ref):
                   raise SystemExit("Expected a pull-request merge ref")
-              if base_ref not in ("main", "mission-scenarios") or not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (base, head)):
+              if base_ref not in ("main", "mission-scenarios", "automation-failure-handoff", "automation-ci-evidence") or not all(re.fullmatch(r"[0-9a-f]{40}", value) for value in (base, head)):
                   raise SystemExit("Unexpected PR base/ref metadata")
               remote = subprocess.check_output(["git", "-c", "credential.helper=", "ls-remote", "--exit-code",
                   "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git", "refs/heads/" + base_ref], text=True).strip()
