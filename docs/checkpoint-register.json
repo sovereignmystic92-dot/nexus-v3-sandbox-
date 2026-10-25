@@ -70,6 +70,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Container boundary checks passed. Broader host trust and independent host-boundary assessment remain open."
+        ],
+        "reopen_when": "Changing host/container boundary, or seeking broader deployment assurance.",
+        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -118,6 +127,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Complete effective grants and restricted provider-side test identity are unavailable."
+        ],
+        "reopen_when": "Enabling unattended or production access, changing executing account, or provider identity/grant introspection becoming available.",
+        "constraint": "Status remains BLOCKED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -166,6 +184,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Container credential-name/mount checks passed; host-side complete credential exclusion remains unverified."
+        ],
+        "reopen_when": "Adding credentials, mounts, adapters or a new host execution surface.",
+        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -214,6 +241,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Container denial probes and reviewed workflow inventory passed. Full hooks/settings/scheduler/host-egress inventory, approval release and branch-denial evidence remain missing."
+        ],
+        "reopen_when": "Adding/changing network paths, webhooks, schedulers, deployment triggers or requesting autonomous operation.",
+        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -304,7 +340,17 @@
           "reason": "Owner requested finishing other sandbox work and proceeding to the next gate; identity/grants remain required before unattended or production writes.",
           "authorization": "Current conversation: finish everything else within this gate and leave that deferred, then move to the next gate."
         }
-      ]
+      ],
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Authenticated caller/permissions verification deferred, not passed.",
+          "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
+        ],
+        "reopen_when": "Enabling creation/enrollment, new fixtures/accounts, guarded live updates or any production routing.",
+        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
+      }
     },
     {
       "id": "CP06",
@@ -549,6 +595,16 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Host-loss cleanup and future retention deletion remain unverified.",
+          "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
+        ],
+        "reopen_when": "Selecting replacement storage, requiring expiry/erasure, deploying a surviving supervisor, or gaining host-loss/provider-deletion evidence.",
+        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -597,6 +653,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Remote CAS/fencing not established; single-worker deferral is not acceptance."
+        ],
+        "reopen_when": "Adding a second worker, parallel writers, another host or a provider conditional-write/fencing capability.",
+        "constraint": "Status remains BLOCKED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -645,6 +710,15 @@
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+      },
+      "final_disposition": {
+        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "remaining_requirement": [
+          "Independent human review has not been established."
+        ],
+        "reopen_when": "Requesting independent human signoff, production activation or broader assurance.",
+        "constraint": "Status remains BLOCKED; not converted to PASSED by assessment closure."
       }
     },
     {
@@ -1484,5 +1558,15 @@
       "Production activation remains outside the current audit scope"
     ],
     "source": "Current conversation on 2026-10-25 UTC / 2026-10-24 America/New_York"
+  },
+  "audit_disposition": {
+    "assessment_status": "COMPLETE_WITH_DOCUMENTED_EXCEPTIONS",
+    "full_foundation_acceptance": "BLOCKED",
+    "production_activation": "NOT_AUTHORIZED",
+    "owner_decision": "Owner agreed to closing the assessment with documented exceptions in the current conversation.",
+    "checkpoint_score": "11/19 passed; eight requirements remain unpassed",
+    "interim_information_policy": "Preserve old information as archived/superseded artifacts with source provenance and explicit noncurrent status; do not describe preservation as deletion. Production Notion processing remains paused; no bulk changes authorized.",
+    "future_work": "Reopen only affected checkpoints when listed triggers occur. New feature work must respect existing single-worker synthetic sandbox limits.",
+    "closure_record": "docs/foundation-audit-closure.md"
   }
 }
