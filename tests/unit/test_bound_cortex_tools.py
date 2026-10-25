@@ -106,3 +106,24 @@ class BoundCortexToolTests(unittest.TestCase):
             result=CortexAdapter(Path(folder)/'journal.sqlite',frozenset((ROOT,TARGET)),self.t).ensure(request)
         self.assertNotEqual(result.protocol_verdict,'VERIFIED')
         self.assertEqual(self.writes(),0)
+
+    def test_malformed_provider_observations_hold_before_mutation(self):
+        malformed=[{'structuredContent':v} for v in ([],False,0,'record')]
+        malformed += [{'content':v} for v in (None,{},[None],[{'type':'text','text':7}])]
+        malformed += [{'content':[{'type':'text','text':'[]'}]}]
+        for response in malformed:
+            calls=[]
+            def invoke(tool,args):
+                calls.append(tool)
+                return response
+            bindings=tuple(self.t.bindings.values())
+            transport=BoundCortexToolTransport(invoke,bindings,ROOT,1,self.t.root_hash)
+            with self.subTest(response=response),self.assertRaises(ToolFailure):
+                transport.update(TARGET,MARKER+' replacement',())
+            self.assertEqual(calls,['context_get'])
+
+    def test_unhashable_destination_is_denied_without_provider_access(self):
+        for name in ([],{},None):
+            with self.subTest(name=name),self.assertRaises(ToolFailure):self.t.get(name)
+        self.assertEqual(self.calls,[])
+
