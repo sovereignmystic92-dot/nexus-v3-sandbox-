@@ -6,7 +6,9 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
-from run_isolated import validate_container
+from run_isolated import validate_container, cleanup_staging
+import tempfile
+from types import SimpleNamespace
 
 
 class RunnerBoundaryTests(unittest.TestCase):
@@ -47,6 +49,30 @@ class RunnerBoundaryTests(unittest.TestCase):
         self.info["Config"]["User"] = "0:0"
         self.assertFalse(all(validate_container(self.info, self.stage).values()))
 
+    def test_staging_cleanup_failure_preserves_report_and_blocks_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            marker=Path(directory)/'evidence'
+            marker.write_text('retained')
+            def fail():raise OSError('sensitive host path must not be logged')
+            report={'isolated_run_status':'PASSED','container_removed':True}
+            cleanup_staging(SimpleNamespace(name=directory,cleanup=fail),report)
+            self.assertEqual(report['isolated_run_status'],'BLOCKED')
+            self.assertFalse(report['source_staging_removed'])
+            self.assertTrue(marker.exists())
+            self.assertNotIn('sensitive',str(report))
+
+    def test_cleanup_requires_observed_absence_and_supports_retry(self):
+        temporary=tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        report={'isolated_run_status':'PASSED'}
+        cleanup_staging(SimpleNamespace(name=temporary.name,cleanup=lambda:None),report)
+        self.assertEqual(report['isolated_run_status'],'BLOCKED')
+        self.assertFalse(report['source_staging_removed'])
+        cleanup_staging(temporary,report)
+        self.assertTrue(report['source_staging_removed'])
+        self.assertEqual(report['isolated_run_status'],'BLOCKED')
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -20,6 +20,20 @@ def command(args, **kwargs):
                           timeout=kwargs.pop("timeout", 60), **kwargs).stdout.strip()
 
 
+def cleanup_staging(temporary, report):
+    """Keep a failed cleanup observable without losing the final run report."""
+    report['source_staging_removed'] = False
+    try:
+        staging_path = Path(temporary.name)
+        temporary.cleanup()
+        report['source_staging_removed'] = not staging_path.exists()
+        if not report['source_staging_removed']:
+            raise RuntimeError('Staging remains')
+    except Exception:
+        report['source_cleanup_error'] = 'Source staging removal not confirmed'
+        report['isolated_run_status'] = 'BLOCKED'
+
+
 def validate_container(info, stage):
     host = info["HostConfig"]
     mounts = info["Mounts"]
@@ -157,9 +171,7 @@ def main():
             except Exception:
                 report["cleanup_error"] = "Container removal not confirmed"
         if temporary:
-            staging_path = Path(temporary.name)
-            temporary.cleanup()
-            report["source_staging_removed"] = not staging_path.exists()
+            cleanup_staging(temporary, report)
         if report["isolated_run_status"] == "PASSED" and not (report["container_removed"] and report["source_staging_removed"]):
             report["isolated_run_status"] = "BLOCKED"
         report["ended_at_utc"] = datetime.now(timezone.utc).isoformat()
@@ -169,4 +181,5 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

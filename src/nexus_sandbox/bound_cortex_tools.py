@@ -44,7 +44,7 @@ class BoundCortexToolTransport:
         self._invoke=invoke
 
     def _bound(self,name):
-        if name not in self.bindings:
+        if not isinstance(name,str) or name not in self.bindings:
             raise ToolFailure('Destination is outside the pinned fixture scope')
         return self.bindings[name]
 
@@ -52,8 +52,14 @@ class BoundCortexToolTransport:
         if not isinstance(result,dict) or result.get('isError'):
             raise ToolFailure('Bound fixture observation unavailable; no mutation permitted')
         try:
-            data=result.get('structuredContent') or json.loads('\n'.join(
-                b['text'] for b in result.get('content',[]) if b.get('type')=='text'))
+            data=result.get('structuredContent')
+            if data is None:
+                blocks=result.get('content',[])
+                if (type(blocks) is not list or any(type(b) is not dict for b in blocks)):
+                    raise ValueError()
+                data=json.loads('\n'.join(b['text'] for b in blocks if b.get('type')=='text'))
+            if type(data) is not dict:
+                raise ValueError()
             binding=self._bound(name)
             if (data['id']!=binding.module_id or data['name']!=binding.name
                     or data['owner']!=binding.owner or data['parent']!=binding.parent
@@ -105,3 +111,4 @@ class BoundCortexToolTransport:
         if (after['version']!=before['version']+1 or after['content']!=content
                 or after['dependencies']!=list(dependencies)):
             raise ToolFailure('Write acknowledgment differs; reconcile without blind retry')
+

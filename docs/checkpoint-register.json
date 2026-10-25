@@ -222,7 +222,7 @@
       "source_mapping": "C5",
       "definition_state": "ACCEPTED",
       "status": "PARTIALLY_VERIFIED",
-      "status_reason": "Pinned-root existing-fixture guard and adapter integration tests pass; legacy unbound create/update calls now stop before the provider callback. Authenticated caller/account identity, full host routing and intended creation/enrollment assurance remain incomplete.",
+      "status_reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete.",
       "pass_requirement": "Every operation binds immutable synthetic IDs, verified account/root markers and allowlisted destinations; wrong account/destination is denied before mutation.",
       "required_evidence": "Positive and negative fixture routing tests and independently fetched identity/destination evidence.",
       "dependencies": [],
@@ -262,8 +262,8 @@
         }
       ],
       "blockers": [
-        "Authenticated caller/account identity is not exposed by the currently available Cortex tools; module owner is not the caller principal.",
-        "Complete host routing coverage, guarded live update validation and creation/enrollment assurance remain incomplete."
+        "Authenticated caller/permissions verification deferred, not passed.",
+        "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
       ],
       "accepted_by": null,
       "accepted_at": null,
@@ -283,13 +283,28 @@
           "observed_at": "2026-10-24T23:44:03.737Z",
           "evidence_reference": "docs/cp05-transport-integration.md",
           "reason": "Pinned-root existing-fixture guard and adapter integration tests pass; legacy unbound create/update calls now stop before the provider callback. Authenticated caller/account identity, full host routing and intended creation/enrollment assurance remain incomplete."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author",
+          "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
+          "reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete."
         }
       ],
       "dependency_assessment": {
         "assessed_by": "ChatGPT author assessor",
         "assessed_at": "2026-10-24T22:03:59Z",
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
-      }
+      },
+      "deferred_requirements": [
+        {
+          "requirement": "Authenticated caller/account identity and provider-enforced effective permissions",
+          "disposition": "DEFERRED_BY_OWNER",
+          "reason": "Owner requested finishing other sandbox work and proceeding to the next gate; identity/grants remain required before unattended or production writes.",
+          "authorization": "Current conversation: finish everything else within this gate and leave that deferred, then move to the next gate."
+        }
+      ]
     },
     {
       "id": "CP06",
@@ -506,6 +521,13 @@
           "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
           "reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
           "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PARTIALLY_VERIFIED",
+          "assessor": "ChatGPT author",
+          "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
+          "reason": "Cleanup failure reporting hardened with two local regressions. No forced-host-stop or future deletion proof inferred."
         }
       ],
       "dependency_assessment": {
