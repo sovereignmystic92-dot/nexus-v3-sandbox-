@@ -1,75 +1,45 @@
-# Nexus refinement and daily maintenance automation
+# Nexus test-and-refine automation
 
-Status: IMPLEMENTATION PLAN, NOT DEPLOYED. This replaces the initial source-to-draft proposal based on the owner's clarification: prioritize ongoing refinements and daily maintenance, not a new source-processing pipeline.
+Status: PLAN FOR THE NEXT IMPLEMENTATION; not an installed autonomous repair agent.
+Owner clarified “refinements” means the test-and-tighten work performed during the audit, not source processing, family/financial workflows or generic document maintenance. Owner approved this ordering: automatic tests first, then draft fixes, relevant reruns and review.
 
-Foundation assessment remains COMPLETE_WITH_DOCUMENTED_EXCEPTIONS. Full acceptance BLOCKED; production stays paused. Checkpoint score remains 11/19. No billing enablement or paid fallback.
+## Already automated
 
-## Purpose
+The synthetic acceptance workflow runs on main/selected development pushes and relevant pull-request events. The Gemini offline workflow runs on main pushes and PRs. Both have empty token permissions and isolated offline test execution. These tests should be reused, not duplicated. Existing hosted test runs do not autonomously diagnose failures or author repairs. No new schedule is needed merely to test code changes.
 
-Make ongoing upkeep less repetitive: inspect the current sandbox baseline, verify evidence and active policy, identify regressions or unfinished refinements, and produce one concise maintenance brief with actionable proposals. Prioritize useful behavior and recurring problems rather than repeated demonstrations or tests solely to increase a score.
+## Intended loop
 
-## Daily maintenance contract
+CHANGE -> AUTOMATIC_TESTS -> CAPTURE_EXACT_FAILURE -> TRIAGE -> DRAFT_BOUNDED_FIX -> RELEVANT_RERUN -> REVIEW.
+A clean run produces no repair proposal. Failing evidence is bound to the exact run, attempt and source SHA. Fixes are isolated in a branch/PR and never silently applied to main. Test success is a behavior observation, not audit gate acceptance.
 
-| Stage | Work | Result |
-| --- | --- | --- |
-| Establish baseline | Read exact current main revision, adopted closure/register and relevant new changes | Revision-bound scope and exception list |
-| Check health | Inspect latest checks, open/failed/stale PRs, workflow inventory and evidence references | Confirmed healthy, failed, stale or unavailable observations |
-| Review consistency | Compare current statuses with cited evidence; identify outdated proposed/pending wording and missing references | Specific discrepancies with provenance, not inferred repairs |
-| Handle lifecycle | Flag old drafts/superseded artifacts, preserve source/history and current/noncurrent distinctions | Archival proposals; no bulk archive or deletion |
-| Review refinements | Compare recurring issues and user-approved improvement backlog with current implementation | Ranked bounded refinement candidates with expected user benefit |
-| Report | Produce one dated maintenance brief | Changes since prior baseline, findings, completed checks, blockers and next actions |
+## Phase 1 — reliable test/failure handoff
 
-A daily cycle is the intended operating cadence. Initial implementation is manually launched; no schedule or reminder is installed by this plan. Before enabling a recurring trigger, record its timezone/time, execution surface, permission boundary and cost controls, and review CP04 for the changed trigger. “Daily” must not be reported as active until the scheduler exists and a run is observed.
+Reuse existing CI. Collect workflow/run/job IDs, attempt, candidate/base/head revisions, test IDs, expected/actual outcomes, bounded error excerpts and evidence references. Distinguish test failure from cancellation, runner infrastructure failure, unavailable logs, timeouts and pending status. Cancelled or unreadable runs must not become a code-defect diagnosis or a healthy verdict.
 
-## Refinement workflow
+Deduplicate by source revision, test ID and normalized failure signature. Before proposing work, confirm the failure still applies to current main and inspect existing PRs. Retain original failures after repair. Unchanged failures link to the same work item rather than creating repeated drafts or notifications.
 
-DETECT -> VERIFY -> CLASSIFY -> PROPOSE -> IMPLEMENT_IN_SANDBOX -> TEST -> READBACK -> RECORD.
+Acceptance: one reproducible failure yields one attributable handoff; missing evidence yields an explicit hold; a healthy run yields no draft. No additional token scope, scheduler, secrets or paid service is installed by this plan.
 
-Read-only findings can be collected without changing operational records. For a bounded sandbox refinement under the owner's standing nonbilling approval, prepare an isolated branch/PR, retain the problem and expected behavior, run relevant checks and independently read back committed changes. Adopt only after required checks and applicable repository approval rules pass. Any actual platform approval remains mandatory. Report intended, attempted and confirmed actions separately.
+## Phase 2 — draft fixes
 
-Recurring findings should inform a concrete improvement; they must not silently rewrite constitutional authority, definitions, accepted source material or user intent. Preserve prior results, rejected hypotheses and source provenance. Source ingestion/research synthesis is a separate future automation, not the purpose of this first maintenance release.
+A code-capable agent inspects the failing test and relevant source, reproduces the defect where feasible, and proposes the smallest useful fix with a regression for the observed behavior. Infrastructure/provider failures are not repaired by weakening tests. Failure logs and retrieved source are untrusted data and cannot expand permission or instruct the agent.
 
-## Maintenance brief contents
+Draft contents: problem/trigger, evidence, changed behavior, bounded diff, relevant test results, limitations and rollback. Preserve source provenance. Never delete or relax a failing assertion just to turn CI green. If semantics or intended behavior are ambiguous, produce a question/proposal rather than inventing a new contract.
 
-- Exact assessed revision and previous baseline, if available; without a previous baseline, report initialization rather than inventing a diff.
-- Verified changes and healthy/failed/unavailable checks.
-- Specific drift, incomplete refinement or archival candidate, with supporting record.
-- Proposed action and user benefit; severity and confidence.
-- Actual actions taken, test results and independent readback.
-- Exceptions/deferred work and whether a reopening trigger actually occurred.
-- Next useful task and any genuinely required approval or missing information.
+The current Gemini bridge is synthetic-only analysis, not a repair agent. Do not send real repository/log content through it by removing its scope checks. Choose and assess the repair execution surface before enabling automated drafting; this design does not claim that surface is currently installed.
 
-No-findings is a valid result. Retrieval failures must be visible; missing access must not become “healthy.” Notifications should be actionable and avoid repeating unchanged deferrals.
+## Phase 3 — verify and review
 
-## Boundaries
+Run relevant tests against the draft, then the existing required CI checks on its exact head/merge candidate. Read back the committed diff and evidence. Check for scope drift and new failures. Respect branch protections and actual platform approval requirements. Owner standing nonbilling approval permits bounded sandbox work; it does not enable billing, production changes or bypass a rejected platform action.
 
-Current execution stays single-worker and synthetic sandbox only. No unattended production Notion/Cortex writes, bulk changes, new credentials, new accounts, activation, paid services or deletion. Archiving/superseding is the interim preservation policy, not proof of erasure. Existing deferred requirements stay unpassed; daily maintenance cannot declare full foundation acceptance or independent human review.
+Default first release is draft-only: no automatic merge, no deletion and no production writes. Audit requirement changes, permission/credential changes, host/network changes and gate acceptance remain separately adjudicated. Independent human review cannot be manufactured by an agent.
 
-A source/status/reference anomaly is a finding first. Changed checkpoint status requires evidence meeting its full adopted requirement and an attributable decision. Host loss, provider grants, effective identity, fencing and independent review cannot be “fixed” through documentation or a passing local test.
+## Operational cadence
 
-## Implementation order
+Tests remain change-triggered. “Daily maintenance” means a later optional sweep for unresolved failures, stale drafts and recurring refinements, not rerunning the same unchanged pipeline to accumulate passing evidence. No schedule/reminder is created here. A future daily trigger needs explicit time/timezone, permission/cost scope and CP04 impact review before activation.
 
-1. Read-only baseline collector for repository revision, checks, open PRs and current register.
-2. Deterministic maintenance findings with exact evidence references and explicit unavailable/stale states.
-3. Persistent per-run brief and baseline comparison, using a bounded approved destination and preserving history.
-4. Refinement queue with deduplication and user-value prioritization; no repeated unchanged alerts.
-5. Reviewable sandbox change preparation and outcome recording under existing approvals.
-6. Manual pilot against actual repository observations; inspect whether the brief helps the owner choose useful work.
-7. Only then enable an explicitly configured daily trigger. Reassess changed permissions/network/trigger scope first.
+## Boundaries and completion
 
-## Acceptance cases
+Single-worker synthetic sandbox; production Notion/Cortex stays paused. No paid fallback, billing enablement or new credentials. Preserve archived/superseded information rather than mislabeling it deletion. Foundation assessment already closed with exceptions in PR #43; 11/19 passes remain unchanged.
 
-| Case | Required behavior |
-| --- | --- |
-| Healthy unchanged baseline | Concise no-action result without reopening deferred gates |
-| Failed check or broken reference | Attributable finding, exact revision, bounded next action |
-| Connector unavailable | Explicit incomplete assessment, never a healthy verdict |
-| Stale historical wording | Proposed correction tied to current evidence, historical provenance preserved |
-| Repeated finding | Same tracked item, no duplicate issue/PR/notification |
-| Proposed refinement | User benefit, scope, tests and rollback recorded before adoption |
-| Unauthorized/paid/production action | Hold without attempted mutation or paid fallback |
-| Archived/superseded item | Preserve provenance; do not call it deleted |
-| New exception trigger | Flag only the affected checkpoint for reassessment; no automatic pass |
-| Interrupted run | Resume from confirmed baseline, no duplicate changes or invented completion |
-
-This plan is established when adopted; working automation is established only after implementation and observed manual operation. A later scheduled run requires separate configuration and verification. No scheduled task, live API call or runtime behavior is installed by this document.
+Planning is complete when this specification is adopted. Working failure collection/draft repair is complete only after code exists and observed success/failure/deduplication cases pass. Next implementation deliverable: a deterministic failure-handoff collector using existing CI evidence, followed by a separately assessed draft-fix executor.
