@@ -92,4 +92,8 @@ def main():
 
 
 if __name__=='__main__':
-    raise SystemExit(main())
+    result=main()
+    if result==0:
+        from real_container_kill_probe import run
+        result=run()
+    raise SystemExit(result)
