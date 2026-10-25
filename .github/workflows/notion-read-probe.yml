@@ -30,7 +30,7 @@ jobs:
           set -euo pipefail
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           curl --fail --silent --show-error --max-time 30 --proto '=https' \
-            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/integrations/notion/read_probe.py" \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_read_probe.py" \
             -o "$RUNNER_TEMP/notion-read-probe.py"
       - name: Read and validate sandbox metadata
         env:
