@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-spec = importlib.util.spec_from_file_location('notion_read_probe', Path(__file__).resolve().parents[2]/'integrations/notion/read_probe.py')
+spec = importlib.util.spec_from_file_location('notion_read_probe', Path(__file__).resolve().parents[2]/'tools/notion_read_probe.py')
 probe = importlib.util.module_from_spec(spec); spec.loader.exec_module(probe)
 
 
