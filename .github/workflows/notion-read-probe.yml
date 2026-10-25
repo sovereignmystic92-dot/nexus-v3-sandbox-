@@ -1,0 +1,40 @@
+name: Notion sandbox read-only probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      read_confirmed:
+        description: Make one read-only request to the private synthetic sandbox root
+        required: true
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: notion-sandbox-read-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.read_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 2
+    steps:
+      - name: Fetch exact public script without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/integrations/notion/read_probe.py" \
+            -o "$RUNNER_TEMP/notion-read-probe.py"
+      - name: Read and validate sandbox metadata
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_SANDBOX_ROOT_ID: ${{ secrets.NOTION_SANDBOX_ROOT_ID }}
+          NOTION_READ_PROBE_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/notion-read-probe.py"
