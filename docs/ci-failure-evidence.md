@@ -1,0 +1,9 @@
+# CI evidence bridge
+
+Stacked on PR45. tools/ci_failure_evidence.py retrieves exact run-attempt metadata and a bounded complete job inventory through an injected read-only GitHub JSON transport. Job identities, repository, SHA and attempt must match. An optional injected log reader accepts bounded plain verbose unittest streams only; missing, duplicate, truncated or unsupported case streams produce incomplete evidence. Diagnostic sections are hashed, never executed or returned as raw text. GitHub timestamped/multi-suite logs need a separately tested decoding adapter; this parser does not assume those formats.
+
+Local validation: PYTHONPATH=src python3 -m unittest discover -s tests/unit -q passed 234 tests (216 main, ten PR45, eight new methods). Initial test invocation omitted PYTHONPATH and had import errors; a new parser regression also exposed the leading diagnostic divider, corrected before the passing run.
+
+Live observation: connected GitHub retrieval of run 40162039633 attempt 1 and its jobs matched repository sovereignmystic92-dot/nexus-v3-sandbox-, revision cff762df8d3c7bcbc759fd66889dc568195a8342 and job 121075444716. Feeding those original decoded responses through the injected bridge produced INCOMPLETE_EVIDENCE, zero findings, complete job inventory and incomplete case evidence. No job logs were read. This demonstrates metadata integration and a safe missing-evidence hold, not live failure diagnosis.
+
+Host transport remains responsible for authenticated retrieval and response-size/time bounds. No token loading, HTTP client, schedule, repair executor, persistent deduplication, workflow edits, merge or gate promotion added. Persistent deduplication and bounded real GitHub log decoding remain next components. Score stays 11/19. Hosted validation is pending at publication.
