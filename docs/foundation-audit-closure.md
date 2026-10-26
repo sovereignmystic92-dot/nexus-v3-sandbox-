@@ -43,3 +43,8 @@ PR #42 is a separate open candidate for SIGKILL plus foreground surviving-superv
 The audit is a completed assessment with a current exception register. Continue useful sandbox functionality rather than adding more equivalent gate tests. Production, autonomous writes, broader host assurance, new accounts/adapters and multiple workers require reopening the relevant exceptions first. Historical reports retain dated proposed/pending wording; this closure and the itemized register govern the current administrative disposition after adoption.
 
 No records were deleted or archived by publishing this document. No deployment, billing change, runtime modification or new gate pass follows.
+
+
+## Owner-authorized CP10 requirement revision — 2026-10-26
+
+The owner accepts **Second-AI evidence review** in place of independent human review for CP10's bounded sandbox assessment, under definition version owner-ai-review-2026-10-26. See [definition amendment](checkpoint-definitions.md#owner-authorized-cp10-amendment--2026-10-26) and the register's preserved requirement history. This supersedes the CP10 human-review requirement above prospectively; no independent human assurance is claimed. The second review requires an identifiable separate reviewer, exact revision, a complete evidence-backed checklist, explicit findings/exclusions and primary verification plus readback. Same-model review is disclosed. Review pending: CP10 stays BLOCKED and the score remains 11/19, five partial, three blocked. Revising the criterion alone does not establish acceptance or authorize production.
