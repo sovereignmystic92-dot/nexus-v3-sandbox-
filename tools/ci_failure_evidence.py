@@ -27,7 +27,9 @@ def extract_cases(log):
         return []
     cases = []
     for name, owner, result in rows:
-        identity = owner + '.' + name
+        # Python unittest versions differ: newer output includes the method in
+        # the parenthesized full ID; older output includes only module/class.
+        identity = owner if owner.endswith('.' + name) else owner + '.' + name
         status = {'ok': 'PASSED', 'FAIL': 'FAILED', 'ERROR': 'ERROR'}.get(result, 'SKIPPED')
         signature = None
         if status in ('FAILED', 'ERROR'):
@@ -47,7 +49,8 @@ def extract_cases(log):
     return cases
 
 
-def retrieve(repository, current_sha, run_id, attempt, fetch_json, read_job_log=None):
+def retrieve(repository, current_sha, run_id, attempt, fetch_json, read_job_log=None,
+             case_parser=extract_cases):
     """Fetch exact attempt metadata/jobs; log reader is optional and read-only.
 
     fetch_json accepts only relative GitHub repository paths. The host owns
@@ -81,7 +84,7 @@ def retrieve(repository, current_sha, run_id, attempt, fetch_json, read_job_log=
         if read_job_log is not None and job.get('status') == 'completed':
             log = read_job_log(job['id'], run_id, attempt)
             log_reads += 1
-            if log is not None: parsed = extract_cases(log)
+            if log is not None: parsed = case_parser(log)
         complete = complete and bool(parsed)
         cases.extend(parsed)
     # Partial suites cannot support a clean or actionable failure verdict.
