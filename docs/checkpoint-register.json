@@ -106,6 +106,42 @@
             "Author evidence mapping, not independent human review.",
             "Proposed mapping not adopted; historical 8/19 identities unresolved."
           ]
+        },
+        {
+          "evidence_id": "cp02-readonly-inventory-20261026",
+          "definition_version": "proposal-1",
+          "source_sha": "b268273de1ae81b190b96720c399303c317808aa",
+          "observed_at": "2026-10-26",
+          "operator": "ChatGPT connected-tool read-only inspection",
+          "scope": "GitHub connection identity/repository role, current workflow declarations, Notion connector identity/tool availability and historical sandbox probe log. Not a complete effective-grant inventory.",
+          "actual": {
+            "github_authenticated_login": "sovereignmystic92-dot",
+            "github_user_id": 338385941,
+            "github_repository_user_role": "admin",
+            "connector_effective_grants": "UNKNOWN; user role does not establish connector token scopes",
+            "notion_connector_identity": "Personal user; distinct from the workflow sandbox integration. Private identifiers omitted.",
+            "notion_connector_tools": "Read and mutation operations exposed; availability is not complete provider grant evidence.",
+            "workflow": "notion-read-probe.yml declares permissions {}, manual dispatch, main/ref/input gate, notion-sandbox environment and separate Notion secret",
+            "historical_run": {
+              "id": 40170348428,
+              "attempt": 1,
+              "sha": "ea9ac92eeb0aee43677f30b99ac2be31c7364726",
+              "job_id": 121099739321,
+              "date": "2026-10-25T06:48:25.3293003Z",
+              "result": "one read; root identity/title matched; zero writes; credential_scope NOT_PROVEN",
+              "github_token_permissions": "Metadata: read"
+            }
+          },
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40170348428",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "BLOCKED",
+          "limitations": [
+            "No new live probe executed.",
+            "No authenticated sandbox Notion bot identity or complete accessible-page/grant inventory obtained.",
+            "No same-credential positive/negative safe-target access pair established.",
+            "No inherited grants, host credentials/mounts, complete provider settings or all intermediary routes inventoried.",
+            "No credential values retrieved and no permissions changed."
+          ]
         }
       ],
       "blockers": [
@@ -666,13 +702,13 @@
     },
     {
       "id": "CP10",
-      "title": "Independent human review",
+      "title": "Second-AI evidence review",
       "source_mapping": "review",
       "definition_state": "ACCEPTED",
       "status": "BLOCKED",
-      "status_reason": "Independent human review has not been established.",
-      "pass_requirement": "An identified independent human reviews the declared revision, reproduces critical checks and records findings, scope exclusions and signoff.",
-      "required_evidence": "Reviewer identity, reviewed SHA, commands/results, findings disposition and explicit signed/attributable verdict; AI review and owner merge assent alone do not satisfy this.",
+      "status_reason": "Owner authorized a second-AI criterion on 2026-10-26; the revised evidence review and primary verification are not yet complete. Historical human review remains unestablished.",
+      "pass_requirement": "An identifiable second AI reviewer, separate from the implementing author, reviews one exact declared revision and completes a checklist covering all 19 checkpoints, evidence provenance, scope, critical checks, unresolved findings and exclusions. Every checklist item has an evidence-backed PASS/FAIL/UNKNOWN/NOT_APPLICABLE disposition. Critical execution-dependent claims require attributable reproduction or inspected exact-revision run evidence. The primary author verifies cited evidence and independently reads back the saved review before acceptance. Any material unsupported claim or undispositioned finding prevents PASSED.",
+      "required_evidence": "Second reviewer/session identity and available model identity, exact reviewed SHA, complete checklist with source/run/case references, expected versus observed results, reproduction versus inspection distinction, findings dispositions, explicit review verdict and separate primary verification/readback. A checked box without evidence is insufficient. Same-model second-agent review must be disclosed; it is not independent human review.",
       "dependencies": [],
       "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
       "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
@@ -692,7 +728,7 @@
         }
       ],
       "blockers": [
-        "Independent human review has not been established."
+        "Complete second-AI checklist review, attributable evidence and separate primary verification/readback are pending."
       ],
       "accepted_by": null,
       "accepted_at": null,
@@ -704,6 +740,15 @@
           "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
           "reason": "Independent human review has not been established.",
           "observed_at": "2026-10-24T21:49:01.860318+00:00"
+        },
+        {
+          "previous_status": "BLOCKED",
+          "new_status": "BLOCKED",
+          "assessor": "Repository owner explicitly authorizes second-AI substitution; ChatGPT records amendment",
+          "observed_at": "2026-10-26",
+          "definition_version": "owner-ai-review-2026-10-26",
+          "evidence_reference": "Current owner instruction and Foundation Audit continuation",
+          "reason": "Versioned requirement change for synthetic sandbox scope; no completion or score increase."
         }
       ],
       "dependency_assessment": {
@@ -712,14 +757,24 @@
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
       },
       "final_disposition": {
-        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
-        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "assessment": "OWNER_REVISED_REQUIREMENT_REVIEW_PENDING",
         "remaining_requirement": [
-          "Independent human review has not been established."
+          "Complete second-AI checklist review, attributable evidence and separate primary verification/readback are pending."
         ],
-        "reopen_when": "Requesting independent human signoff, production activation or broader assurance.",
-        "constraint": "Status remains BLOCKED; not converted to PASSED by assessment closure."
-      }
+        "reopen_when": "Changed source/evidence, missing verification or broader production/human assurance request.",
+        "constraint": "No pass or production acceptance follows from revising the criterion; human review is not claimed."
+      },
+      "requirement_history": [
+        {
+          "definition_version": "proposal-1",
+          "title": "Independent human review",
+          "pass_requirement": "An identified independent human reviews the declared revision, reproduces critical checks and records findings, scope exclusions and signoff.",
+          "required_evidence": "Reviewer identity, reviewed SHA, commands/results, findings disposition and explicit signed/attributable verdict; AI review and owner merge assent alone do not satisfy this.",
+          "disposition": "Superseded prospectively for bounded sandbox review by explicit owner amendment; original human assurance remains unestablished.",
+          "status": "BLOCKED"
+        }
+      ],
+      "definition_version": "owner-ai-review-2026-10-26"
     },
     {
       "id": "CP11",
@@ -1568,5 +1623,16 @@
     "interim_information_policy": "Preserve old information as archived/superseded artifacts with source provenance and explicit noncurrent status; do not describe preservation as deletion. Production Notion processing remains paused; no bulk changes authorized.",
     "future_work": "Reopen only affected checkpoints when listed triggers occur. New feature work must respect existing single-worker synthetic sandbox limits.",
     "closure_record": "docs/foundation-audit-closure.md"
-  }
+  },
+  "requirement_amendments": [
+    {
+      "id": "CP10-AI-20261026",
+      "checkpoint": "CP10",
+      "authorization": "Owner: let cp10 be checked by a second a.i. as long as the list is checked off and verified.",
+      "definition_version": "owner-ai-review-2026-10-26",
+      "scope": "Bounded sandbox evidence review only; no production activation or independent human assurance.",
+      "prior_requirement_preserved": true,
+      "score_change": 0
+    }
+  ]
 }
