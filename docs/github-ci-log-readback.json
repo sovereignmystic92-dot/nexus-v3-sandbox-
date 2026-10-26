@@ -1,0 +1,40 @@
+{
+  "run_id": 40247091859,
+  "attempt": 1,
+  "job_id": 121330844546,
+  "source_sha": "bd8e016c4824ace740546373929b50a2462e8469",
+  "raw_log_sha256": "cff05f82e7e3d7c622759b3b9069592a998dd943ef48cffd7ff616b377efbd04",
+  "cases_parsed": 13,
+  "canonical_case_ids": [
+    "test_smoke.SmokeTests.test_blocked_truncated_tool_and_sensitive_responses_fail",
+    "test_smoke.SmokeTests.test_custom_packet_binding_and_no_execution",
+    "test_smoke.SmokeTests.test_custom_packet_requires_confirmation",
+    "test_smoke.SmokeTests.test_invalid_custom_packets_never_call_transport",
+    "test_smoke.SmokeTests.test_key_in_custom_packet_refused_before_transport",
+    "test_smoke.SmokeTests.test_no_confirmation_or_key_never_calls_transport",
+    "test_smoke.SmokeTests.test_oversized_body_fails",
+    "test_smoke.SmokeTests.test_packet_hash_stable_across_json_whitespace",
+    "test_smoke.SmokeTests.test_redirect_refused",
+    "test_smoke.SmokeTests.test_single_fixed_request_and_provisional_output",
+    "test_smoke.SmokeTests.test_text_signature_accepted_without_emitting_metadata_or_thoughts",
+    "test_smoke.SmokeTests.test_thought_only_and_malformed_metadata_rejected",
+    "test_smoke.SmokeTests.test_timeout_and_http_error_no_retry_or_provider_body"
+  ],
+  "all_cases_passed": true,
+  "disposition": "HEALTHY",
+  "findings": 0,
+  "provenance": {
+    "repository": "sovereignmystic92-dot/nexus-v3-sandbox-",
+    "run_id": 40247091859,
+    "attempt": 1,
+    "source_sha": "bd8e016c4824ace740546373929b50a2462e8469",
+    "job_ids": [
+      121330844546
+    ],
+    "job_inventory_complete": true,
+    "case_evidence_complete": true,
+    "log_reads": 1,
+    "transport": "host-injected read-only retrieval"
+  },
+  "scope": "Retrieved completed live GitHub job; offline decoding of original response; no live failing run diagnosed"
+}
