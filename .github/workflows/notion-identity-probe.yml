@@ -1,0 +1,34 @@
+name: Notion sandbox credential identity
+on:
+  workflow_dispatch:
+    inputs:
+      identity_confirmed:
+        description: Read token bot identity; publish only Nexus Sandbox name and bot UUID
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-sandbox-read-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.identity_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 2
+    steps:
+      - name: Fetch exact public script without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_identity_probe.py" \
+            -o "$RUNNER_TEMP/notion_identity_probe.py"
+      - name: Observe credential bot identity
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_IDENTITY_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/notion_identity_probe.py"
