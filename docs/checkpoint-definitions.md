@@ -108,3 +108,12 @@ Definition version: owner-ai-review-2026-10-26, CP10 only. The owner explicitly 
 The reviewer must be separate from the implementing author and identified by session/agent and available model identity. Bind the review to one exact SHA. Cover all 19 checkpoints, provenance, scope, critical checks, unresolved findings and exclusions. Each item requires evidence-backed PASS/FAIL/UNKNOWN/NOT_APPLICABLE; boxes or agreement alone are insufficient. Distinguish fresh reproduction from inspection of existing exact-revision runs. The primary author must verify citations/results and independently read back the saved review. Material unsupported claims or undispositioned findings prevent acceptance. Same-model review must be disclosed and does not supply model diversity or independent human signoff.
 
 This explicit requirement change supersedes the earlier no-AI CP10 restriction prospectively; it does not retrospectively satisfy it, erase evidence, change other checkpoints or increase the score. CP10 remains BLOCKED until the revised evidence requirements are completed. Production and expanded operation remain outside scope.
+
+
+## CP10 revised review completion — 2026-10-26
+
+The separate AI reviewer completed all 19 checklist dispositions for unchanged code b268273de1ae81b190b96720c399303c317808aa and inspected the three-file amendment at a7190772fcf94d943505132d17c4d76c625ba859. Primary verified run 40247819859 attempt 1/job 121333032283, all 265 named passing cases, four faults, mapped CP11–CP19 cases and saved amendment content. The full review was saved in the canonical Foundation Audit and independently fetched back, including all checklist items and exclusions.
+
+Under owner-ai-review-2026-10-26, CP10 is proposed PASSED. This supersedes review-pending wording above for this candidate only. Candidate score is 12/19 (five partial, two blocked), while adopted main remains 11/19 until PR adoption. The change is definition-dependent, not a retrospective independent-human pass. Retained exclusions: same-model separate context, no new test reproduction, private live CP06/CP07 evidence not repeated, stale proposal/current-facing wording retained as documentation debt, unproven grants/host controls/host-loss/deletion/fencing. Reviewing those exceptions does not close them. Full acceptance remains BLOCKED; production NOT_AUTHORIZED.
+
+Review record: https://app.notion.com/p/4018c067daa48122b82ec2ae8067d021 (CP10 second-AI review — verified result — 2026-10-26). No material review finding is silently dropped.
