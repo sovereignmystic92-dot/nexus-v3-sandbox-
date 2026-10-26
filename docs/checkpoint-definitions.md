@@ -99,3 +99,12 @@ The owner replied “Approve” after presentation of the PR #23 register and it
 ## Latest individual adjudication — 2026-10-24
 
 The [requirement-level adjudication](checkpoint-adjudication.md) supersedes the earlier assessment-pending disposition for CP11–CP17 and CP19. These eight pass within their previously declared single-worker synthetic SQLite scope; seven remain PARTIALLY_VERIFIED and four BLOCKED. The historical aggregate is preserved but superseded for scoring without asserting historical identity matches. This creates a traceable new 8/19 baseline when merged; no ninth gate or production readiness follows. Earlier history/evidence entries retain their original dated wording.
+
+
+## Owner-authorized CP10 amendment — 2026-10-26
+
+Definition version: owner-ai-review-2026-10-26, CP10 only. The owner explicitly accepts a second AI review when every checklist item is checked against evidence and the result is verified. The fixed inventory remains 19; CP10 is now **Second-AI evidence review** for the bounded sandbox scope. Earlier human-review wording above is historical for CP10; human assurance remains unestablished.
+
+The reviewer must be separate from the implementing author and identified by session/agent and available model identity. Bind the review to one exact SHA. Cover all 19 checkpoints, provenance, scope, critical checks, unresolved findings and exclusions. Each item requires evidence-backed PASS/FAIL/UNKNOWN/NOT_APPLICABLE; boxes or agreement alone are insufficient. Distinguish fresh reproduction from inspection of existing exact-revision runs. The primary author must verify citations/results and independently read back the saved review. Material unsupported claims or undispositioned findings prevent acceptance. Same-model review must be disclosed and does not supply model diversity or independent human signoff.
+
+This explicit requirement change supersedes the earlier no-AI CP10 restriction prospectively; it does not retrospectively satisfy it, erase evidence, change other checkpoints or increase the score. CP10 remains BLOCKED until the revised evidence requirements are completed. Production and expanded operation remain outside scope.
