@@ -1,0 +1,42 @@
+name: Notion sandbox access-boundary probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      boundary_confirmed:
+        description: Read allowed sandbox metadata and test denial for the unshared synthetic control
+        type: boolean
+        required: true
+        default: false
+
+permissions: {}
+concurrency:
+  group: notion-sandbox-read-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.boundary_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 2
+    steps:
+      - name: Fetch exact public scripts without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          for file in notion_read_probe.py notion_boundary_probe.py; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/${file}" \
+              -o "$RUNNER_TEMP/${file}"
+          done
+      - name: Verify positive and negative page access
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_SANDBOX_ROOT_ID: ${{ secrets.NOTION_SANDBOX_ROOT_ID }}
+          NOTION_SANDBOX_DENIED_PAGE_ID: ${{ secrets.NOTION_SANDBOX_DENIED_PAGE_ID }}
+          NOTION_BOUNDARY_PROBE_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/notion_boundary_probe.py"
