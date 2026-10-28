@@ -52,3 +52,14 @@ class ContentTests(unittest.TestCase):
                       self.block(paragraph={'rich_text':'invalid'}),
                       self.block(paragraph={'rich_text':[{'type':'text','plain_text':'x','text':{'content':'y'}}]})):
             with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[block],has_more=False)])
+    def test_unsupported_and_malformed_mentions_hold(self):
+        for mention in ({'type':'invented','invented':None},{'type':'page','page':None},
+                        {'type':'page','page':{'id':'invalid'}},{'type':'date','date':{'start':'invalid'}}):
+            block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'x','mention':mention}]})
+            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[block],has_more=False)])
+    def test_supported_page_and_date_mentions_are_observed(self):
+        for mention in ({'type':'page','page':{'id':m.read.AUDIT_ID}},
+                        {'type':'date','date':{'start':'2026-10-28','end':None,'time_zone':None}}):
+            block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'x','mention':mention}]})
+            result=self.invoke([dict(object='list',results=[block],has_more=False)])
+            self.assertEqual(result['blocks_observed'],1)

@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import time
+from datetime import datetime
 from urllib.parse import urlencode
 from uuid import UUID
 
@@ -28,8 +29,25 @@ def validate_payload(block):
                     or value['content']!=part['plain_text']):raise read.Hold('CONTENT_MALFORMED')
             if part['type']=='equation' and type(value.get('expression')) is not str:
                 raise read.Hold('CONTENT_MALFORMED')
-            if part['type']=='mention' and (type(value.get('type')) is not str
-                    or value['type'] not in value):raise read.Hold('CONTENT_MALFORMED')
+            if part['type']=='mention':
+                subtype=value.get('type')
+                if subtype not in {'page','database','data_source','user','date'}:
+                    raise read.Hold('CONTENT_UNSUPPORTED_TYPE')
+                target=value.get(subtype)
+                if type(target) is not dict:raise read.Hold('CONTENT_MALFORMED')
+                try:
+                    if subtype=='date':
+                        if type(target.get('start')) is not str:raise ValueError()
+                        datetime.fromisoformat(target['start'])
+                        if target.get('end') is not None:
+                            if type(target['end']) is not str:raise ValueError()
+                            datetime.fromisoformat(target['end'])
+                        if target.get('time_zone') is not None and type(target['time_zone']) is not str:
+                            raise ValueError()
+                    else:
+                        if type(target.get('id')) is not str:raise ValueError()
+                        UUID(target['id'])
+                except (ValueError,TypeError,AttributeError):raise read.Hold('CONTENT_MALFORMED') from None
         if kind=='code' and (type(payload.get('language')) is not str or not payload['language']):
             raise read.Hold('CONTENT_MALFORMED')
         if kind=='to_do' and type(payload.get('checked')) is not bool:raise read.Hold('CONTENT_MALFORMED')
