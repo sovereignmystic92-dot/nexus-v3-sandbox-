@@ -33,9 +33,21 @@ def run_resumable(binding, executors, save, read, reconcile):
     binding = copy.deepcopy(binding)
     confirmed = ()
     stage = STAGES[0]
+    def same(a, b):
+        # Python equality alone treats Boolean True as integer 1. Every
+        # checkpoint readback must preserve types as well as values.
+        if type(a) is not type(b):
+            return False
+        if type(a) is dict:
+            return a.keys() == b.keys() and all(same(a[k], b[k]) for k in a)
+        if type(a) is tuple:
+            return len(a) == len(b) and all(same(x, y) for x, y in zip(a, b))
+        if type(a) is Receipt:
+            return same(vars(a), vars(b))
+        return a == b
     def persist(state):
         save(binding['run_id'], copy.deepcopy(state))
-        if read(binding['run_id']) != state:
+        if not same(read(binding['run_id']), state):
             raise ValueError('Checkpoint readback mismatch')
     try:
         state = read(binding['run_id'])

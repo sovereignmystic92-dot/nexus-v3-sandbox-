@@ -110,4 +110,10 @@ assert result.status=='COMPLETE',result
         self.state['binding']['schema_version'] = True
         self.assertEqual(self.run_job().status, 'BLOCKED')
         self.assertEqual(self.calls, [])
+    def test_intent_readback_boolean_schema_prevents_dispatch(self):
+        def changed(key,state):
+            self.save(key,state)
+            self.state['binding']['schema_version']=True
+        self.assertEqual(self.run_job(save=changed).status,'BLOCKED')
+        self.assertEqual(self.calls,[])
 
