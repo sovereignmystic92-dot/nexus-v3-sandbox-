@@ -41,3 +41,15 @@ credential, remote storage, permissions, CP09 work or checkpoint-score change.
 CP08's adopted owner-cp08-sandbox-2026-10-28 result remains scoped to its existing
 tested sandbox boundary. This extends the resumable handoff; it does not turn
 that bounded pass into original full-host/retention acceptance.
+# Review hardening
+
+Persisted PRESENT is not retry authorization. Every retry must supply a fresh
+strict-Boolean `retry_scope(step)` observation bound to the saved target; absent
+or rejected checks block dispatch. UNCERTAIN still requires observation-only
+reconciliation first. The caller must refuse changed ownership or scope.
+
+STOP_RUNNER records Linux boot ID, PID and `/proc` start time. Recovery must use
+`original_process_absent` to compare the incarnation before considering a signal.
+A changed incarnation means the original is absent: reconcile it, never signal
+the replacement PID. Unreadable or malformed identity is a hold. This supplies
+recovery identity, not a multi-worker lease or an automatic recovery service.

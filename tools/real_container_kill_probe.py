@@ -12,6 +12,25 @@ import tempfile
 from cleanup_handoff import Journal
 
 
+def process_identity(pid, proc=Path('/proc')):
+    """Linux process incarnation; PID reuse never identifies the old worker."""
+    boot=(proc/'sys/kernel/random/boot_id').read_text().strip()
+    stat=(proc/str(pid)/'stat').read_text()
+    start=stat[stat.rindex(')')+2:].split()[19]
+    if not boot or not start.isdigit():
+        raise RuntimeError('Process identity unavailable')
+    return 'linux-process:'+boot+':'+str(pid)+':'+start
+
+
+def original_process_absent(identity, pid, proc=Path('/proc')):
+    # Missing boot custody is not evidence that the worker is absent.
+    (proc/'sys/kernel/random/boot_id').read_text()
+    try:
+        return process_identity(pid, proc) != identity
+    except FileNotFoundError:
+        return True
+
+
 def run():
     from real_container_stop_probe import DRIVER, ROOT
     root=Path(tempfile.mkdtemp(prefix='nexus-supervisor-')).resolve()
@@ -42,10 +61,11 @@ def run():
         if not any(m.get('Source')==str(stage) and m.get('Destination')=='/sandbox'
                    for m in info['Mounts']):
             raise RuntimeError('Owned mount mismatch')
+        worker_identity=process_identity(child.pid)
         plan={'run_id':os.environ.get('GITHUB_RUN_ID','local')+':'+
                       os.environ.get('GITHUB_RUN_ATTEMPT','1')+':'+root.name,
               'source_sha':os.environ.get('SOURCE_SHA','UNVERIFIED'),
-              'steps':[{'action':'STOP_RUNNER','target':'pid:'+str(child.pid),
+              'steps':[{'action':'STOP_RUNNER','target':worker_identity,
                         'expected_state':'Owned runner observed ready; no stop acknowledged'},
                        {'action':'REMOVE_CONTAINER','target':info['Id'],
                         'expected_state':'Owned container mount validated; runner stopped first'},
@@ -56,6 +76,8 @@ def run():
         journal=Journal.create(custody/'cleanup.sqlite',plan)
         emit(journal.snapshot())
         def stop():
+            if original_process_absent(worker_identity,child.pid):
+                raise RuntimeError('Original worker absent; reconcile only, never signal replacement')
             child.kill();child.wait(timeout=5)
         journal.execute('STOP_RUNNER',stop,
                         lambda:child.returncode==-signal.SIGKILL,emit)

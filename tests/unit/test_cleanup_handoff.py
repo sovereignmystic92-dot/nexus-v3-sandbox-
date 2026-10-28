@@ -9,9 +9,25 @@ import unittest
 TOOLS = Path(__file__).resolve().parents[2] / 'tools'
 sys.path.insert(0, str(TOOLS))
 from cleanup_handoff import Hold, Journal
+from real_container_kill_probe import process_identity, original_process_absent
 
 
 class CleanupHandoffTests(unittest.TestCase):
+    def test_process_incarnation_rejects_reused_pid(self):
+        with tempfile.TemporaryDirectory() as folder:
+            proc=Path(folder)
+            (proc/'sys/kernel/random').mkdir(parents=True)
+            (proc/'sys/kernel/random/boot_id').write_text('synthetic-boot')
+            (proc/'123').mkdir()
+            stat=proc/'123/stat'
+            stat.write_text('123 (worker with spaces) '+' '.join(['S']+['0']*18+['100']))
+            identity=process_identity(123,proc)
+            self.assertFalse(original_process_absent(identity,123,proc))
+            stat.write_text('123 (replacement) '+' '.join(['S']+['0']*18+['200']))
+            self.assertTrue(original_process_absent(identity,123,proc))
+            (proc/'sys/kernel/random/boot_id').write_text('different-boot')
+            self.assertTrue(original_process_absent(identity,123,proc))
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='nexus-handoff-test-')
         self.addCleanup(self.temp.cleanup)
@@ -100,7 +116,17 @@ class CleanupHandoffTests(unittest.TestCase):
             self.journal.execute('REMOVE', lambda:None, lambda:False)
         self.assertEqual(self.journal.snapshot()['next_permitted_step'],
                          'VERIFY_OWNERSHIP_THEN_EXECUTE')
-        self.journal.execute('REMOVE', self.target.unlink, lambda:not self.target.exists())
+        reopened=Journal(self.path,self.plan)
+        with self.assertRaises(Hold):
+            reopened.execute('REMOVE', self.target.unlink, lambda:True)
+        with self.assertRaises(Hold):
+            reopened.execute('REMOVE', self.target.unlink, lambda:True,
+                             retry_scope=lambda step:False)
+        self.assertTrue(self.target.exists())
+        def fresh_scope(step):
+            return step['target']==str(self.target) and self.target.is_file()
+        reopened.execute('REMOVE', self.target.unlink, lambda:not self.target.exists(),
+                         retry_scope=fresh_scope)
         self.assertEqual(self.journal.snapshot()['steps'][0]['attempts'], 2)
 
     def test_completed_repeat_does_not_call_removal(self):

@@ -154,8 +154,14 @@ class Journal:
         self._change(action, 'VERIFIED' if absent else 'PRESENT')
         return self.snapshot()
 
-    def execute(self, action, remove, observe, checkpoint=lambda _: None):
+    def execute(self, action, remove, observe, checkpoint=lambda _: None, *, retry_scope=None):
         """Intent commits before action; uncertainty survives callback failure."""
+        pending = self.snapshot()
+        step = next((s for s in pending['steps'] if s['action'] == action), None)
+        if step is not None and step['state'] == 'PRESENT':
+            # A persisted observation is never a fresh retry authorization.
+            if retry_scope is None or retry_scope(dict(step)) is not True:
+                raise Hold('Fresh target-bound ownership check required before retry')
         if not self._change(action, 'UNCERTAIN', begin=True):
             return self.snapshot()
         checkpoint(self.snapshot())  # Separate connection readback before action.
