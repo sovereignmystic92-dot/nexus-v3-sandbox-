@@ -1,4 +1,4 @@
-"""Opt-in bounded top-level content GETs. No body, token or text is logged."""
+"""Opt-in bounded top-level and table-row GETs. No body, token or text is logged."""
 import importlib.util
 import json
 import os
@@ -83,52 +83,87 @@ def validate_payload(block):
 
 
 def probe(token,factory=None,pause=time.sleep):
-    read.probe(token,factory)  # Exact identity/inactive status checked first.
-    cursors=set();blocks=set();cursor=None;requests=1
-    for _ in range(10):
-        pause(0.4)
-        query={'page_size':100}
-        if cursor is not None:query['start_cursor']=cursor
-        conn=(factory or read.http.client.HTTPSConnection)('api.notion.com',port=443,timeout=10,context=read.ssl.create_default_context())
-        try:
-            conn.request('GET','/v1/blocks/'+read.AUDIT_ID+'/children?'+urlencode(query),headers={
-                'Authorization':'Bearer '+token,'Notion-Version':'2022-06-28','Accept':'application/json'})
-            requests+=1;response=conn.getresponse()
-            if response.status!=200:raise read.Hold('CONTENT_HTTP_NOT_OK')
-            if response.getheader('Content-Type','').split(';')[0].strip()!='application/json':
-                raise read.Hold('CONTENT_MALFORMED')
-            raw=response.read(read.MAX_BYTES+1)
-            if len(raw)>read.MAX_BYTES:raise read.Hold('CONTENT_OVERSIZED')
-            page=json.loads(raw,object_pairs_hook=read.unique)
-            if (type(page) is not dict or page.get('object')!='list'
-                    or type(page.get('results')) is not list or len(page['results'])>100
-                    or type(page.get('has_more')) is not bool):raise read.Hold('CONTENT_MALFORMED')
+    read.probe(token,factory)
+    blocks=set();requests=1;tables=0;rows=0
+
+    def children(parent_id,parent_type):
+        nonlocal requests
+        cursors=set();cursor=None
+        while True:
+            if requests>=11:raise read.Hold('CONTENT_PAGINATION_LIMIT')
+            pause(0.4)
+            query={'page_size':100}
+            if cursor is not None:query['start_cursor']=cursor
+            conn=(factory or read.http.client.HTTPSConnection)('api.notion.com',port=443,timeout=10,context=read.ssl.create_default_context())
+            try:
+                conn.request('GET','/v1/blocks/'+parent_id+'/children?'+urlencode(query),headers={
+                    'Authorization':'Bearer '+token,'Notion-Version':'2022-06-28','Accept':'application/json'})
+                requests+=1;response=conn.getresponse()
+                if response.status!=200:raise read.Hold('CONTENT_HTTP_NOT_OK')
+                if response.getheader('Content-Type','').split(';')[0].strip()!='application/json':
+                    raise read.Hold('CONTENT_MALFORMED')
+                raw=response.read(read.MAX_BYTES+1)
+                if len(raw)>read.MAX_BYTES:raise read.Hold('CONTENT_OVERSIZED')
+                page=json.loads(raw,object_pairs_hook=read.unique)
+                if (type(page) is not dict or page.get('object')!='list'
+                        or type(page.get('results')) is not list or len(page['results'])>100
+                        or type(page.get('has_more')) is not bool):raise read.Hold('CONTENT_MALFORMED')
+            finally:conn.close()
+            # Validate the entire page before exposing any child as a read target.
+            validated=[]
             for block in page['results']:
                 if (type(block) is not dict or block.get('object')!='block'
                         or type(block.get('has_children')) is not bool
                         or block.get('archived') is not False or block.get('in_trash',False) is not False
                         or type(block.get('type')) is not str or block['type']=='unsupported'
                         or type(block.get(block['type'])) is not dict):raise read.Hold('CONTENT_MALFORMED')
-                validate_payload(block)
                 parent=block.get('parent')
-                if (type(parent) is not dict or parent.get('type')!='page_id'
-                        or UUID(parent['page_id']).hex!=read.AUDIT_ID):raise read.Hold('CONTENT_PARENT_MISMATCH')
-                identity=UUID(block['id']).hex
+                try:
+                    if (type(parent) is not dict or parent.get('type')!=parent_type
+                            or UUID(parent[parent_type]).hex!=parent_id):
+                        raise read.Hold('CONTENT_PARENT_MISMATCH')
+                    identity=UUID(block['id']).hex
+                except (ValueError,TypeError,KeyError,AttributeError):
+                    raise read.Hold('CONTENT_PARENT_MISMATCH') from None
                 if identity in blocks:raise read.Hold('CONTENT_DUPLICATE')
-                blocks.add(identity)
-                if block['has_children']:raise read.Hold('CONTENT_NESTED_UNVERIFIED')
-            if not page['has_more']:
-                if page.get('next_cursor') is not None:raise read.Hold('CONTENT_MALFORMED')
-                return dict(operation='READ_ONLY',requests=requests,writes=0,audit_identity='MATCHED',
-                            content_read='COMPLETE_BOUNDED_TOP_LEVEL',blocks_observed=len(blocks),
-                            nested_content='NONE_OBSERVED',atomic_snapshot='NOT_PROVEN',
-                            bridge_execution='NOT_TESTED',write_capability='NOT_TESTED')
-            cursor=page.get('next_cursor')
-            if type(cursor) is not str or not cursor or len(cursor)>4096 or cursor in cursors:
-                raise read.Hold('CONTENT_CURSOR_INVALID')
-            cursors.add(cursor)
-        finally:conn.close()
-    raise read.Hold('CONTENT_PAGINATION_LIMIT')
+                blocks.add(identity);validated.append((block,identity))
+            more=page['has_more'];next_cursor=page.get('next_cursor')
+            if more:
+                if (type(next_cursor) is not str or not next_cursor or len(next_cursor)>4096
+                        or next_cursor in cursors):raise read.Hold('CONTENT_CURSOR_INVALID')
+                cursors.add(next_cursor)
+            elif next_cursor is not None:raise read.Hold('CONTENT_MALFORMED')
+            yield from validated
+            if not more:return
+            cursor=next_cursor
+
+    for block,identity in children(read.AUDIT_ID,'page_id'):
+        if block['type']=='table':
+            payload=block['table'];width=payload.get('table_width')
+            if (type(width) is not int or not 1<=width<=100
+                    or type(payload.get('has_column_header')) is not bool
+                    or type(payload.get('has_row_header')) is not bool
+                    or not block['has_children']):raise read.Hold('CONTENT_MALFORMED')
+            table_rows=0
+            for row,_ in children(identity,'block_id'):
+                if row['type']!='table_row':raise read.Hold('CONTENT_MALFORMED')
+                if row['has_children']:raise read.Hold('CONTENT_NESTED_UNVERIFIED')
+                cells=row['table_row'].get('cells')
+                if type(cells) is not list or len(cells)!=width:raise read.Hold('CONTENT_MALFORMED')
+                for cell in cells:
+                    validate_payload({'type':'paragraph','paragraph':{'rich_text':cell}})
+                table_rows+=1;rows+=1
+            if not table_rows:raise read.Hold('CONTENT_MALFORMED')
+            tables+=1
+        else:
+            # A row outside its enrolled table is never accepted.
+            validate_payload(block)
+            if block['has_children']:raise read.Hold('CONTENT_NESTED_UNVERIFIED')
+    return dict(operation='READ_ONLY',requests=requests,writes=0,audit_identity='MATCHED',
+                content_read='COMPLETE_BOUNDED_TOP_LEVEL_AND_TABLE_ROWS',blocks_observed=len(blocks),
+                tables_observed=tables,table_rows_observed=rows,
+                nested_content='TABLE_ROWS_ONLY' if tables else 'NONE_OBSERVED',
+                atomic_snapshot='NOT_PROVEN',bridge_execution='NOT_TESTED',write_capability='NOT_TESTED')
 
 
 def main():

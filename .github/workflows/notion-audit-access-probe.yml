@@ -8,7 +8,7 @@ on:
         type: boolean
         default: false
       audit_content_confirmed:
-        description: Also enumerate bounded top-level content; stop on nesting or incomplete pagination
+        description: Also read bounded top-level content and table rows; stop on other nesting or incomplete pagination
         required: true
         type: boolean
         default: false
