@@ -1,9 +1,61 @@
 import copy
 import unittest
+import os
+from pathlib import Path
+import pickle
+import subprocess
+import sys
+import tempfile
 from nexus_sandbox.processing_pipeline import Receipt, STAGES, run_resumable
 
 
 class ResumeTests(unittest.TestCase):
+    def test_fresh_process_loss_after_effect_reconciles_without_replay(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            state = root/'checkpoint'
+            effect = root/'effect'
+            binding = dict(run_id='job', source_id='source', source_sha256='a'*64,
+                           destination_id='destination', policy_revision='policy1',
+                           code_revision='compatible1', schema_version=1)
+            state.write_bytes(pickle.dumps(dict(binding=binding, receipts=(), pending=None)))
+            script = '''
+import os,pickle,sys
+from pathlib import Path
+from nexus_sandbox.processing_pipeline import *
+state,effect=map(Path,sys.argv[1:])
+def read(_): return pickle.loads(state.read_bytes())
+def save(_,value):
+    temporary=state.with_suffix('.next')
+    with temporary.open('wb') as f:
+        pickle.dump(value,f); f.flush(); os.fsync(f.fileno())
+    os.replace(temporary,state)
+    fd=os.open(state.parent,os.O_RDONLY); os.fsync(fd); os.close(fd)
+binding=read(None)['binding']
+def execute(stage):
+    def call(prior):
+        if stage==STAGES[0]:
+            with effect.open('x') as f: f.write('one-effect'); f.flush(); os.fsync(f.fileno())
+            os._exit(77)
+        return Receipt('job',stage,True,('observed',))
+    return call
+def reconcile(stage,binding,prior):
+    if stage==STAGES[0] and effect.read_text()=='one-effect':
+        return Receipt('job',stage,True,('fresh-destination-observation',))
+result=run_resumable(binding,{s:execute(s) for s in STAGES},save,read,reconcile)
+assert result.status=='COMPLETE',result
+'''
+            env = dict(PATH=os.environ.get('PATH',''), PYTHONPATH=str(Path(__file__).resolve().parents[2]/'src'),
+                       PYTHONDONTWRITEBYTECODE='1')
+            first=subprocess.run([sys.executable,'-B','-c',script,str(state),str(effect)],env=env,capture_output=True)
+            self.assertEqual(first.returncode,77,first.stderr)
+            self.assertEqual(pickle.loads(state.read_bytes())['pending'],STAGES[0])
+            second=subprocess.run([sys.executable,'-B','-c',script,str(state),str(effect)],env=env,capture_output=True)
+            self.assertEqual(second.returncode,0,second.stderr)
+            third=subprocess.run([sys.executable,'-B','-c',script,str(state),str(effect)],env=env,capture_output=True)
+            self.assertEqual(third.returncode,0,third.stderr)
+            self.assertEqual(effect.read_text(),'one-effect')
+
     def setUp(self):
         self.binding = dict(run_id='job', source_id='source', source_sha256='a'*64,
                             destination_id='destination', policy_revision='policy1',
