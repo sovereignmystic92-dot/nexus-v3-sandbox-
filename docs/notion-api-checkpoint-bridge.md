@@ -9,12 +9,23 @@ that behavior, with an eleventh regression test. It does not activate either
 write switch or adopt PR63.
 
 Read-only run40744272675 on main f23f3b9df164403ccb8c93d6b3b9c462e2d9232b
-verified the exact audit and bounded root/table-row retrieval (644 blocks,
-one table/four rows, nine GETs, zero writes). That probe is separate code.
-This API adapter still rejects nested tables and therefore remains blocked for
-the actual Foundation Audit inventory. No bridge-read or write capability is
-inferred from the probe. A reviewed shared table-aware inventory contract is
-required before any bounded write proposal; do not skip source tables.
+verified bounded root/table-row retrieval, not this adapter. This revision extracts
+that probe's validator into `notion_inventory.py`, shared by probe and adapter.
+Only table rows beneath exact-root tables are traversed; cells are validated but
+are not interpreted as checkpoint code blocks. All top-level JSON code blocks are
+retained in order. Unknown types, deeper nesting, malformed rows, parent/UUID
+mismatches, duplicates and incomplete pagination hold before returning evidence.
+Root and table pagination share at most ten content GETs plus metadata. The
+client allows row GET paths only after observing and validating the owning table
+under its bound page. PATCH remains restricted to the exact root and disabled by
+default. Each HTTP response is bounded to 1 MiB; no retries or proxy discovery.
+
+Seventeen API tests and eighteen existing probe tests pass locally. Six added API
+tests cover table/root pagination and complete checkpoint extraction, bad rows,
+shared request budget, unknown/orphan types and exact table-path enrollment.
+No live adapter call or write test has occurred. PR63 integration, explicit job
+enrollment, single-writer custody and a separately reviewed bounded write test
+remain prerequisites; neither prior probe success nor these mocks proves them.
 
 Compose NotionRequest (authenticated HTTPS) -> NotionCheckpointAPI (bounded REST
 shapes) -> AuditCheckpointTransport (PR63 proposal) -> CheckpointAdapter ->
@@ -28,10 +39,10 @@ installed. Host must independently verify credential identity, linkage, page sco
 and current authority; possession of a token or successful GET is insufficient.
 
 The REST adapter observes exact page UUID/inactive flags, enumerates top-level
-children with bounded pagination, rejects repeated IDs, nested/partial inventory,
+children with bounded pagination, rejects repeated IDs, unsupported nesting/partial inventory,
 and exposes only JSON code blocks to checkpoint parsing. It does not claim full
-rendering of arbitrary Notion pages or recursive sources. An audit with nested
-blocks holds; do not weaken completeness to make a live run pass. Snapshot changes
+rendering of arbitrary Notion pages or recursive sources. Only validated table-row nesting is supported; all other nesting holds. Do not
+weaken completeness to make a live run pass. Snapshot changes
 during pagination are outside atomic consistency and require single-writer host
 controls and reconciliation. PATCH adds one code block, chunked at 2000 characters
 per text item, at most 100 items. A write reply is not verification.

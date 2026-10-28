@@ -9,6 +9,7 @@ import re
 from urllib.parse import urlencode
 from uuid import UUID
 import urllib.request
+from .notion_inventory import observe, enrolled_table_id
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -29,12 +30,14 @@ class NotionRequest:
                 or type(write_enabled) is not bool):
             raise ValueError('Explicit authenticated configuration required')
         self._token,self.version,self.write_enabled=token,api_version,write_enabled
+        self._tables=set()
         self._opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),_NoRedirect())
     def __call__(self,method,path,payload):
         page='/v1/pages/'+self.page_id
         children='/v1/blocks/'+self.page_id+'/children'
         if method=='GET':
-            if path!=page and not path.startswith(children+'?'):
+            if (path!=page and not path.startswith(children+'?')
+                    and not any(path.startswith('/v1/blocks/'+table+'/children?') for table in self._tables)):
                 raise ValueError('Unbound API path')
             if payload is not None:raise ValueError('GET payload refused')
         elif method=='PATCH':
@@ -47,10 +50,14 @@ class NotionRequest:
                      'Content-Type':'application/json'})
         try:
             with self._opener.open(request,timeout=30) as response:
-                raw=response.read(2*1024*1024+1)
-                if len(raw)>2*1024*1024:raise ValueError('Response limit')
+                raw=response.read(1024*1024+1)
+                if len(raw)>1024*1024:raise ValueError('Response limit')
                 value=json.loads(raw)
                 if type(value) is not dict or value.get('object')=='error':raise ValueError('API error')
+                if method=='GET' and path.startswith(children+'?'):
+                    for block in value.get('results',[]):
+                        if type(block) is dict and block.get('type')=='table':
+                            self._tables.add(enrolled_table_id(block,self.page_id))
                 return value
         except Exception:
             raise RuntimeError('Notion request unavailable; reconcile uncertain writes') from None
@@ -59,7 +66,7 @@ class NotionRequest:
 class NotionCheckpointAPI:
     def __init__(self,page_id,request,*,write_enabled=False,max_pages=10):
         self.page_id=UUID(page_id).hex
-        if type(write_enabled) is not bool or type(max_pages) is not int or not 1<=max_pages<=100:
+        if type(write_enabled) is not bool or type(max_pages) is not int or not 1<=max_pages<=10:
             raise ValueError('Explicit bounded configuration required')
         self.request,self.write_enabled,self.max_pages=request,write_enabled,max_pages
     def _bound(self,page_id):
@@ -71,60 +78,34 @@ class NotionCheckpointAPI:
                 or UUID(page['id']).hex!=self.page_id
                 or page.get('archived') is not False or page.get('in_trash') is not False):
             raise ValueError('Unavailable or inactive bound page')
-        cursor=None;seen_cursors=set();seen_blocks=set();blocks=[]
-        for _ in range(self.max_pages):
-            query={'page_size':100}
-            if cursor is not None:query['start_cursor']=cursor
-            response=self.request('GET','/v1/blocks/'+self.page_id+'/children?'+urlencode(query),None)
-            if (type(response) is not dict or response.get('object')!='list'
-                    or type(response.get('results')) is not list
-                    or type(response.get('has_more')) is not bool):
-                raise ValueError('Malformed block inventory')
-            for block in response['results']:
-                if (type(block) is not dict or block.get('object')!='block'
-                        or type(block.get('has_children')) is not bool or block['has_children']
-                        or block.get('archived') is not False or block.get('in_trash') is not False):
-                    raise ValueError('Nested or unavailable block; complete inventory not proven')
-                parent=block.get('parent')
-                try:
-                    if (type(parent) is not dict or parent.get('type')!='page_id'
-                            or UUID(parent['page_id']).hex!=self.page_id):
-                        raise ValueError('Block parent does not match bound page')
-                except (KeyError,TypeError,AttributeError):
-                    raise ValueError('Malformed block parent') from None
-                identity=UUID(block['id']).hex
-                if identity in seen_blocks:raise ValueError('Duplicate block inventory')
-                seen_blocks.add(identity)
-                if block.get('type')=='code':
-                    code=block['code']
-                    if (type(code) is not dict or type(code.get('language')) is not str
-                            or not code['language']):
-                        raise ValueError('Malformed code block; inventory incomplete')
-                    if code['language']!='json':
-                        continue
-                    if type(code.get('rich_text')) is not list:
-                        raise ValueError('Malformed JSON code block')
-                    parts=[]
-                    for rich in code['rich_text']:
-                        if (type(rich) is not dict or rich.get('type')!='text'
-                                or type(rich.get('plain_text')) is not str
-                                or type(rich.get('text')) is not dict
-                                or type(rich['text'].get('content')) is not str
-                                or rich['text']['content']!=rich['plain_text']):
-                            raise ValueError('Nonliteral checkpoint text')
-                        parts.append(rich['plain_text'])
-                    value=''.join(parts)
-                    if '\n```' in value:raise ValueError('Ambiguous code fence in checkpoint')
-                    blocks.append('```json\n'+value+'\n```\n')
-            if not response['has_more']:
-                if response.get('next_cursor') is not None:raise ValueError('Inconsistent pagination')
-                return dict(id=self.page_id,metadata={'type':'page'},text=''.join(blocks),
-                            truncated=False,unknown_block_count=0,unknown_block_ids=[])
-            cursor=response.get('next_cursor')
-            if type(cursor) is not str or not cursor or cursor in seen_cursors:
-                raise ValueError('Missing or repeated cursor')
-            seen_cursors.add(cursor)
-        raise ValueError('Pagination bound reached; no complete observation')
+        def fetch_children(parent_id,query):
+            return self.request('GET','/v1/blocks/'+parent_id+'/children?'+urlencode(query),None)
+        root,inventory=observe(self.page_id,fetch_children,max_pages=self.max_pages)
+        blocks=[]
+        for block in root:
+            if block.get('type')=='code':
+                code=block['code']
+                if (type(code) is not dict or type(code.get('language')) is not str
+                        or not code['language']):
+                    raise ValueError('Malformed code block; inventory incomplete')
+                if code['language']!='json':
+                    continue
+                if type(code.get('rich_text')) is not list:
+                    raise ValueError('Malformed JSON code block')
+                parts=[]
+                for rich in code['rich_text']:
+                    if (type(rich) is not dict or rich.get('type')!='text'
+                            or type(rich.get('plain_text')) is not str
+                            or type(rich.get('text')) is not dict
+                            or type(rich['text'].get('content')) is not str
+                            or rich['text']['content']!=rich['plain_text']):
+                        raise ValueError('Nonliteral checkpoint text')
+                    parts.append(rich['plain_text'])
+                value=''.join(parts)
+                if '\n```' in value:raise ValueError('Ambiguous code fence in checkpoint')
+                blocks.append('```json\n'+value+'\n```\n')
+        return dict(id=self.page_id,metadata={'type':'page'},text=''.join(blocks),
+                    truncated=False,unknown_block_count=0,unknown_block_ids=[],inventory=inventory)
     def append_text(self,page_id,text):
         self._bound(page_id)
         if not self.write_enabled:raise ValueError('Live append disabled')

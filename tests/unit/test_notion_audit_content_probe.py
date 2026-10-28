@@ -74,28 +74,28 @@ class ContentTests(unittest.TestCase):
         for blocks in ([self.block(has_children=True)],[self.block(),self.block()],
                        [self.block(parent=dict(type='page_id',page_id='00000000000000000000000000000002'))],
                        [self.block(type='unsupported',unsupported={})]):
-            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=blocks,has_more=False)])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([dict(object='list',results=blocks,has_more=False)])
     def test_repeated_missing_cursor_and_pagination_limit_hold(self):
         for cursor in (None,'same'):
-            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[],has_more=True,next_cursor=cursor)])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([dict(object='list',results=[],has_more=True,next_cursor=cursor)])
     def test_truthy_has_more_and_missing_children_hold(self):
         for p in (dict(object='list',results=[],has_more=1),
                   dict(object='list',results=[dict(self.block(),has_children=None)],has_more=False)):
-            with self.assertRaises(m.read.Hold):self.invoke([p])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([p])
     def test_ten_page_limit_holds_without_retry(self):
         pages=[dict(object='list',results=[],has_more=True,next_cursor=str(i)) for i in range(10)]
-        with self.assertRaises(m.read.Hold):self.invoke(pages)
+        with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke(pages)
         self.assertEqual(len(self.calls),10);self.assertEqual(self.closed,10)
     def test_unknown_type_and_malformed_rich_text_hold(self):
         for block in (self.block(type='invented',invented={}),self.block(paragraph={}),
                       self.block(paragraph={'rich_text':'invalid'}),
                       self.block(paragraph={'rich_text':[{'type':'text','plain_text':'x','text':{'content':'y'}}]})):
-            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[block],has_more=False)])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([dict(object='list',results=[block],has_more=False)])
     def test_unsupported_and_malformed_mentions_hold(self):
         for mention in ({'type':'invented','invented':None},{'type':'page','page':None},
                         {'type':'page','page':{'id':'invalid'}},{'type':'date','date':{'start':'invalid'}}):
             block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'x','mention':mention}]})
-            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[block],has_more=False)])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([dict(object='list',results=[block],has_more=False)])
     def test_supported_page_and_date_mentions_are_observed(self):
         for mention in ({'type':'page','page':{'id':m.read.AUDIT_ID}},
                         {'type':'date','date':{'start':'2026-10-28','end':None,'time_zone':None}}):
@@ -126,25 +126,25 @@ class ContentTests(unittest.TestCase):
                 {'table_width':101,'has_column_header':False,'has_row_header':False},
                 {'table_width':2,'has_column_header':0,'has_row_header':False}):
             b=self.table();b['table']=payload
-            with self.assertRaises(m.read.Hold):self.invoke([self.page([b])])
-        with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page([])])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([self.page([b])])
+        with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([self.page([self.table()]),self.page([])])
     def test_bad_cells_width_and_rich_text_hold(self):
         for cells in (None,[[]],[[],[],[]],['text',[]],
                 [[{'type':'text','plain_text':'secret','text':{'content':'changed'}}],[]]):
             row=self.row();row['table_row']['cells']=cells
-            with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page([row])])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([self.page([self.table()]),self.page([row])])
     def test_wrong_parent_nonrow_duplicate_nested_and_root_row_hold(self):
         wrong=self.row();wrong['parent']['block_id']=f'{99:032x}'
         nested=self.row();nested['has_children']=True
         for children in ([wrong],[nested],[self.block(11)],[self.row(),self.row()]):
-            with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page(children)])
+            with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([self.page([self.table()]),self.page(children)])
         row=self.row();row['parent']=dict(type='page_id',page_id=m.read.AUDIT_ID)
-        with self.assertRaises(m.read.Hold):self.invoke([self.page([row])])
+        with self.assertRaises((m.read.Hold,m.inventory.InventoryError)):self.invoke([self.page([row])])
     def test_rows_exhaust_shared_budget_and_cursor_repetition_holds(self):
         pages=[self.page([self.table()])]+[self.page([self.row(20+i)],True,str(i)) for i in range(10)]
-        with self.assertRaisesRegex(m.read.Hold,'CONTENT_PAGINATION_LIMIT'):self.invoke(pages)
+        with self.assertRaisesRegex((m.read.Hold,m.inventory.InventoryError),'CONTENT_PAGINATION_LIMIT'):self.invoke(pages)
         self.assertEqual(len(self.calls),10);self.assertEqual(self.closed,10)
-        with self.assertRaisesRegex(m.read.Hold,'CONTENT_CURSOR_INVALID'):
+        with self.assertRaisesRegex((m.read.Hold,m.inventory.InventoryError),'CONTENT_CURSOR_INVALID'):
             self.invoke([self.page([self.table()]),self.page([self.row()],True,'x'),
                 self.page([self.row(12)],True,'x')])
     def test_table_body_and_ids_not_in_report(self):
