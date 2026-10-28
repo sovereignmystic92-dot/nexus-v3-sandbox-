@@ -27,11 +27,18 @@ def parse_page(document, requested_id, *, payload_heading=None):
     text = document.get('text')
     if not isinstance(text, str) or '<unknown ' in text:
         raise IncompleteExport('Missing or unknown rendered blocks')
+    opening = '\n<content>\n'
+    closing = '\n</content>\n</page>'
+    if text.count(opening) != 1 or text.count(closing) != 1:
+        raise IncompleteExport('Ambiguous content envelope')
+    header, remainder = text.split(opening, 1)
+    if closing not in remainder or remainder.split(closing, 1)[1].strip():
+        raise IncompleteExport('Misordered content envelope')
     # Anchor structural tags to full lines, and reject ambiguous envelopes.
     roots = re.findall(r'^<page url="https://app\.notion\.com/p/([0-9a-f-]+)"[^>]*>$',
                        text, re.MULTILINE)
     ancestry = re.findall(r'^<ancestor-path>\n([\s\S]*?)\n</ancestor-path>$',
-                          text, re.MULTILINE)
+                          header, re.MULTILINE)
     if len(roots) != 1 or UUID(roots[0]).hex != record_id or len(ancestry) != 1:
         raise IncompleteExport('Ambiguous page identity or ancestry')
     parents = re.findall(r'^<parent-page url="https://app\.notion\.com/p/([0-9a-f-]+)"[^>]*\s*/>$',
@@ -68,3 +75,4 @@ class NotionRecordReader:
     def __call__(self, record_id):
         return parse_page(self.fetch(record_id), record_id,
                           payload_heading=self.payload_heading)
+

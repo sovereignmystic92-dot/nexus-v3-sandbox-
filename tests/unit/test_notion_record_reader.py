@@ -18,6 +18,15 @@ def document(payload='exact source'):
 
 
 class ReaderTests(unittest.TestCase):
+    def test_ancestry_only_inside_content_is_not_parent_evidence(self):
+        value = document()
+        start=value['text'].index('<ancestor-path>')
+        end=value['text'].index('</ancestor-path>')+len('</ancestor-path>')
+        ancestry=value['text'][start:end]
+        value['text']=value['text'][:start]+value['text'][end:]
+        value['text']=value['text'].replace('<content>\n','<content>\n'+ancestry+'\n')
+        binding=Binding(PAGE,PARENT,digest('exact source'))
+        self.assertEqual(verify(binding,self.reader(value)).status,'UNKNOWN')
     def reader(self, doc):
         return NotionRecordReader(lambda _: doc, payload_heading='## Raw')
 
@@ -77,3 +86,4 @@ class ReaderTests(unittest.TestCase):
         reader = NotionRecordReader(failed)
         self.assertEqual(verify(Binding(PAGE, PARENT, digest('x')), reader).status,
                          'UNKNOWN')
+
