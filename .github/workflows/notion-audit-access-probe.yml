@@ -34,6 +34,9 @@ jobs:
               "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/${file}" \
               -o "$RUNNER_TEMP/${file}"
           done
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/src/nexus_sandbox/notion_inventory.py" \
+            -o "$RUNNER_TEMP/notion_inventory.py"
       - name: Read and validate exact Foundation Audit metadata
         env:
           NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
