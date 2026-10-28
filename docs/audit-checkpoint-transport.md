@@ -12,10 +12,17 @@ conflicting matching events hold. Saving re-fetches the page, rejects observed
 drift, appends one generated event and separately fetches it. Lost acknowledgment
 invalidates instance write permission; a fresh read can observe the effect without
 repeating append. Pipeline action uncertainty remains observation-only.
+Enrollment must be empty with no pending intent. Every observed and proposed
+transition preserves the receipt prefix and alternates next-stage intent with
+its matching result; visible regression, skipped intent and post-completion
+changes hold. Malformed or unterminated JSON blocks anywhere on the page hold
+conservatively, even if apparently unrelated; escaped markers cannot hide them.
 
-Four local fake-connector tests cover all seven stages, fourteen intent/result
+Seven local fake-connector tests cover all seven stages, fourteen intent/result
 checkpoints, completed repetition, missing/duplicate/incomplete enrollment,
 malformed sequence, wrong run and uncertain append without duplicate. They do not
+Additional regressions cover escaped malformed events, invalid enrollment and
+visible chain regression/skipped intent. These tests do not
 prove a real connector transport or live provider. Page JSON markers are not
 authentication. Hash chaining detects observed inconsistency, not malicious
 rewriting or whole-history rollback. Preflight comparison is not atomic CAS.

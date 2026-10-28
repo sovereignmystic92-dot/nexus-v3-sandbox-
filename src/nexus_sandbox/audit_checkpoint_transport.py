@@ -8,6 +8,7 @@ import json
 import re
 from uuid import UUID
 from .checkpoint_json import decode, encode, unique_pairs
+from .processing_pipeline import STAGES
 
 
 def canonical(value):
@@ -16,6 +17,17 @@ def canonical(value):
 
 def digest(value):
     return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
+def transition(before,after):
+    old,new=before['receipts'],after['receipts']
+    if before['pending'] is None:
+        allowed=(len(old)<len(STAGES) and new==old
+                 and after['pending']==STAGES[len(old)])
+    else:
+        allowed=(len(new)==len(old)+1 and new[:-1]==old
+                 and new[-1].stage==before['pending'] and after['pending'] is None)
+    if not allowed:raise ValueError('Checkpoint transition regresses or skips intent/result')
 
 
 class AuditCheckpointTransport:
@@ -43,12 +55,15 @@ class AuditCheckpointTransport:
                 or page.get('unknown_block_ids') or type(page.get('text')) is not str):
             raise ValueError('Complete bound page observation required')
         events=[]
-        for block in re.findall(r'^```json\n([\s\S]*?)\n```$',page['text'],re.MULTILINE):
+        blocks=re.findall(r'^```json\n([\s\S]*?)\n```$',page['text'],re.MULTILINE)
+        if len(blocks)!=len(re.findall(r'^```json$',page['text'],re.MULTILINE)):
+            raise ValueError('Unterminated JSON block; inventory incomplete')
+        for block in blocks:
             try: event=json.loads(block,object_pairs_hook=unique_pairs)
             except ValueError:
-                if 'NXS_CHECKPOINT_V1' in block:
-                    raise ValueError('Malformed checkpoint event')
-                continue
+                # Even escaped event markers cannot make malformed records
+                # disappear. Conservative failure includes unrelated JSON.
+                raise ValueError('Malformed JSON; checkpoint inventory incomplete')
             if type(event) is not dict or event.get('event_type')!='NXS_CHECKPOINT_V1':
                 continue
             if event.get('run_id')!=self.binding['run_id']:
@@ -60,7 +75,11 @@ class AuditCheckpointTransport:
                     or event['previous']!=(digest(events[-1]) if events else None)
                     or type(event['checkpoint']) is not str):
                 raise ValueError('Conflicting checkpoint chain')
-            decode(event['checkpoint'],self.binding)
+            checkpoint=decode(event['checkpoint'],self.binding)
+            if not events and (checkpoint['receipts'] or checkpoint['pending'] is not None):
+                raise ValueError('Enrollment must be initial empty state')
+            if events:
+                transition(decode(events[-1]['checkpoint'],self.binding),checkpoint)
             events.append(event)
         if not events: raise ValueError('Explicit enrollment missing; no write permitted')
         return events
@@ -81,6 +100,7 @@ class AuditCheckpointTransport:
             return  # Lost acknowledgment reconciled; no repeated append.
         if current!=self.last:
             raise ValueError('Observed checkpoint changed; reconcile only')
+        transition(decode(current['checkpoint'],self.binding),decode(text,self.binding))
         event=dict(event_type='NXS_CHECKPOINT_V1',run_id=key,page_id=self.page_id,
                    sequence=current['sequence']+1,previous=digest(current),checkpoint=text)
         # A failed/uncertain append forfeits this instance's write permission.
