@@ -24,7 +24,7 @@ def encode(plan):
         raise ValueError('Complete cleanup plan required')
     names = set()
     for step in plan['steps']:
-        if (type(step) is not dict or set(step) != {'action', 'target'}
+        if (type(step) is not dict or set(step) != {'action', 'target', 'expected_state'}
                 or any(not isinstance(v, str) or not v or len(v) > 4096
                        for v in step.values()) or step['action'] in names):
             raise ValueError('Unique bounded actions and exact targets required')

@@ -6,8 +6,9 @@ those resources. The journal lives outside every removed directory in a private
 `nexus-cleanup-handoff-*` directory under RUNNER_TEMP when available. Each action
 commits UNCERTAIN intent before dispatch and reads it through a separate SQLite
 connection. A fresh observation is required to record VERIFIED. Snapshots expose
-exact run/source/target identities, verified actions, pending action, attempts,
+exact run/source/target identities and expected starting states, verified actions, pending action, attempts,
 event history and next permitted step. Each snapshot is also emitted to logs.
+Container deletion binds to the inspected Docker ID rather than a reusable name.
 
 An acknowledgment lost after removal leaves UNCERTAIN. Opening the same journal
 never recreates missing state or repeats the removal. A later authorized caller

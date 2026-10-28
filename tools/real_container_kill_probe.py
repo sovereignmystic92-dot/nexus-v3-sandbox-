@@ -45,10 +45,14 @@ def run():
         plan={'run_id':os.environ.get('GITHUB_RUN_ID','local')+':'+
                       os.environ.get('GITHUB_RUN_ATTEMPT','1')+':'+root.name,
               'source_sha':os.environ.get('SOURCE_SHA','UNVERIFIED'),
-              'steps':[{'action':'STOP_RUNNER','target':'pid:'+str(child.pid)},
-                       {'action':'REMOVE_CONTAINER','target':name},
-                       {'action':'REMOVE_STAGING','target':str(stage.parent)},
-                       {'action':'REMOVE_NAMESPACE','target':str(root)}]}
+              'steps':[{'action':'STOP_RUNNER','target':'pid:'+str(child.pid),
+                        'expected_state':'Owned runner observed ready; no stop acknowledged'},
+                       {'action':'REMOVE_CONTAINER','target':info['Id'],
+                        'expected_state':'Owned container mount validated; runner stopped first'},
+                       {'action':'REMOVE_STAGING','target':str(stage.parent),
+                        'expected_state':'Owned staging retained; container absence verified first'},
+                       {'action':'REMOVE_NAMESPACE','target':str(root),
+                        'expected_state':'Owned namespace empty after staging removal'}]}
         journal=Journal.create(custody/'cleanup.sqlite',plan)
         emit(journal.snapshot())
         def stop():
@@ -58,8 +62,8 @@ def run():
         before=json.loads(docker('inspect',name))[0]['State']['Running']
         staged_before=stage.parent.exists()
         def absent():
-            return not docker('ps','--all','--quiet','--filter','name=^/'+name+'$')
-        journal.execute('REMOVE_CONTAINER',lambda:docker('rm','--force',name),absent,emit)
+            return not docker('ps','--all','--quiet','--filter','id='+info['Id'])
+        journal.execute('REMOVE_CONTAINER',lambda:docker('rm','--force',info['Id']),absent,emit)
         journal.execute('REMOVE_STAGING',lambda:shutil.rmtree(stage.parent),
                         lambda:not stage.parent.exists(),emit)
         journal.execute('REMOVE_NAMESPACE',root.rmdir,lambda:not root.exists(),emit)

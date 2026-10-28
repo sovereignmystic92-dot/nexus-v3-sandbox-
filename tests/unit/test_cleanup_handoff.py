@@ -20,7 +20,8 @@ class CleanupHandoffTests(unittest.TestCase):
         self.target.write_text('synthetic')
         self.path = self.root / 'retained.sqlite'
         self.plan = {'run_id':'synthetic:one', 'source_sha':'synthetic:revision',
-                     'steps':[{'action':'REMOVE','target':str(self.target)}]}
+                     'steps':[{'action':'REMOVE','target':str(self.target),
+                               'expected_state':'Owned synthetic file exists'}]}
         self.journal = Journal.create(self.path, self.plan)
 
     def test_intent_and_next_step_are_saved_before_action(self):
@@ -125,8 +126,10 @@ class CleanupHandoffTests(unittest.TestCase):
 
     def test_step_order_is_enforced_and_last_confirmed_is_visible(self):
         path = self.root / 'ordered.sqlite'
-        plan = dict(self.plan, steps=[{'action':'A','target':'fixture-a'},
-                                      {'action':'B','target':'fixture-b'}])
+        plan = dict(self.plan, steps=[{'action':'A','target':'fixture-a',
+                                      'expected_state':'Synthetic A pending'},
+                                     {'action':'B','target':'fixture-b',
+                                      'expected_state':'Synthetic B pending'}])
         journal = Journal.create(path, plan)
         with self.assertRaises(Hold):
             journal.execute('B', lambda:None, lambda:True)
