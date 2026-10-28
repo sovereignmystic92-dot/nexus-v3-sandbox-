@@ -3,7 +3,10 @@
 This current-main successor to PR64 repairs exact block-parent binding and
 literal `text.content`/`plain_text` consistency. Two regression tests reproduced
 acceptance of malformed observations before repair; all ten focused tests pass
-after repair. It does not activate either write switch or adopt PR63.
+after repair. Subsequent mocked review reproduced implicit environment-proxy
+discovery in urllib's default opener; an explicit empty ProxyHandler disables
+that behavior, with an eleventh regression test. It does not activate either
+write switch or adopt PR63.
 
 Read-only run40744272675 on main f23f3b9df164403ccb8c93d6b3b9c462e2d9232b
 verified the exact audit and bounded root/table-row retrieval (644 blocks,
@@ -33,7 +36,7 @@ during pagination are outside atomic consistency and require single-writer host
 controls and reconciliation. PATCH adds one code block, chunked at 2000 characters
 per text item, at most 100 items. A write reply is not verification.
 
-Ten secret-free tests cover parent/literal binding, fetch/path binding, write defaults, pagination and
+Eleven secret-free tests cover proxy exclusion, parent/literal binding, fetch/path binding, write defaults, pagination and
 limits, nesting/duplicates/malformed inventory, chunking, lost acknowledgment,
 client destination restrictions, malformed code metadata and sanitized transport failure without retries.
 Mocks only: no actual Notion, credential or API-version compatibility established.

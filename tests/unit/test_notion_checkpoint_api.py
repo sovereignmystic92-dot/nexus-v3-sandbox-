@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest.mock import patch
 from nexus_sandbox.notion_checkpoint_api import NotionCheckpointAPI
 from nexus_sandbox.notion_checkpoint_api import NotionRequest
 
@@ -7,6 +8,11 @@ PAGE='00000000000000000000000000000001'
 
 
 class APITests(unittest.TestCase):
+    def test_client_does_not_discover_environment_proxies(self):
+        with patch('urllib.request.getproxies',return_value={'https':'http://synthetic.invalid:8080'}) as lookup:
+            client=NotionRequest(PAGE,'synthetic-token','2022-06-28')
+        lookup.assert_not_called()
+        self.assertFalse(any(getattr(handler,'proxies',{}) for handler in client._opener.handlers))
     def test_wrong_missing_or_malformed_parent_never_claims_complete(self):
         for parent in (None,{},dict(type='page_id',page_id='00000000000000000000000000000003'),
                        dict(type='block_id',block_id=PAGE),dict(type='page_id',page_id='invalid')):

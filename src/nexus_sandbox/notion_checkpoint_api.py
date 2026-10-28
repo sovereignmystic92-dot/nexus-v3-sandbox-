@@ -29,7 +29,7 @@ class NotionRequest:
                 or type(write_enabled) is not bool):
             raise ValueError('Explicit authenticated configuration required')
         self._token,self.version,self.write_enabled=token,api_version,write_enabled
-        self._opener=urllib.request.build_opener(_NoRedirect())
+        self._opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),_NoRedirect())
     def __call__(self,method,path,payload):
         page='/v1/pages/'+self.page_id
         children='/v1/blocks/'+self.page_id+'/children'
