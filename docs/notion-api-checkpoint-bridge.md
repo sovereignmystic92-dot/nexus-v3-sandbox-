@@ -20,7 +20,10 @@ client allows row GET paths only after observing and validating the owning table
 under its bound page. PATCH remains restricted to the exact root and disabled by
 default. Each HTTP response is bounded to 1 MiB; no retries or proxy discovery.
 
-Seventeen API tests and eighteen existing probe tests pass locally. Six added API
+Eighteen API tests and eighteen existing probe tests pass locally. A shared
+duplicate-key decoder rejects contradictory raw JSON before nesting, identity or
+parent evidence can be overwritten; raw-response regressions preserve the review
+failure. Six added API
 tests cover table/root pagination and complete checkpoint extraction, bad rows,
 shared request budget, unknown/orphan types and exact table-path enrollment.
 No live adapter call or write test has occurred. PR63 integration, explicit job

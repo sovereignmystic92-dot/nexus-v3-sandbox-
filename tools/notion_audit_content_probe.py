@@ -35,7 +35,7 @@ def probe(token,factory=None,pause=time.sleep):
                 raise read.Hold('CONTENT_MALFORMED')
             raw=response.read(read.MAX_BYTES+1)
             if len(raw)>read.MAX_BYTES:raise read.Hold('CONTENT_OVERSIZED')
-            return json.loads(raw,object_pairs_hook=read.unique)
+            return json.loads(raw,object_pairs_hook=inventory.unique_pairs)
         finally:conn.close()
     _,report=inventory.observe(read.AUDIT_ID,fetch_children)
     return report

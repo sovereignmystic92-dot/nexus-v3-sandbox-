@@ -154,3 +154,22 @@ class APITests(unittest.TestCase):
         table=self.table();table['parent']['page_id']=f'{99:032x}'
         from nexus_sandbox.notion_inventory import enrolled_table_id
         with self.assertRaises(ValueError):enrolled_table_id(table,PAGE)
+
+    def test_raw_duplicate_keys_hold_before_inventory_or_table_enrollment(self):
+        client=NotionRequest(PAGE,'synthetic-token','2022-06-28')
+        owner=self
+        block=json.dumps(self.block(2))
+        variants=[block.replace('"has_children": false','"has_children": true,"has_children": false'),
+                  block.replace('"id": ', '"id": "foreign","id": ',1),
+                  block.replace('"page_id": ', '"page_id": "foreign","page_id": ',1)]
+        class Response:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def read(self,n):return raw
+        class Opener:
+            def open(self,request,timeout):return Response()
+        client._opener=Opener()
+        for variant in variants:
+            raw=('{"object":"list","results":['+variant+'],"has_more":false,"next_cursor":null}').encode()
+            with self.assertRaises(RuntimeError):client('GET','/v1/blocks/'+PAGE+'/children?page_size=100',None)
+            self.assertEqual(client._tables,set())

@@ -9,7 +9,7 @@ import re
 from urllib.parse import urlencode
 from uuid import UUID
 import urllib.request
-from .notion_inventory import observe, enrolled_table_id
+from .notion_inventory import observe, enrolled_table_id, unique_pairs
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -52,7 +52,7 @@ class NotionRequest:
             with self._opener.open(request,timeout=30) as response:
                 raw=response.read(1024*1024+1)
                 if len(raw)>1024*1024:raise ValueError('Response limit')
-                value=json.loads(raw)
+                value=json.loads(raw,object_pairs_hook=unique_pairs)
                 if type(value) is not dict or value.get('object')=='error':raise ValueError('API error')
                 if method=='GET' and path.startswith(children+'?'):
                     for block in value.get('results',[]):

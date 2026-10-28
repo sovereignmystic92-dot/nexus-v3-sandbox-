@@ -6,6 +6,14 @@ from uuid import UUID
 class InventoryError(ValueError):pass
 
 
+def unique_pairs(pairs):
+    result={}
+    for key,value in pairs:
+        if key in result:raise InventoryError('CONTENT_MALFORMED')
+        result[key]=value
+    return result
+
+
 RICH_TYPES={'paragraph','heading_1','heading_2','heading_3','bulleted_list_item',
             'numbered_list_item','quote','callout','to_do','toggle','code'}
 
