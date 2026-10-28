@@ -43,3 +43,12 @@ PR #42 is a separate open candidate for SIGKILL plus foreground surviving-superv
 The audit is a completed assessment with a current exception register. Continue useful sandbox functionality rather than adding more equivalent gate tests. Production, autonomous writes, broader host assurance, new accounts/adapters and multiple workers require reopening the relevant exceptions first. Historical reports retain dated proposed/pending wording; this closure and the itemized register govern the current administrative disposition after adoption.
 
 No records were deleted or archived by publishing this document. No deployment, billing change, runtime modification or new gate pass follows.
+
+
+## Owner-authorized CP08 sandbox closure — 2026-10-28
+
+Definition version: owner-cp08-sandbox-2026-10-28. The owner directed leaving CP09 unchanged and closing CP08 if its sandbox tests pass. This prospectively replaces CP08's acceptance scope with single-worker synthetic hosted-sandbox cleanup on a surviving Docker host, including ordinary cleanup, catchable runner stop and abrupt runner loss with an explicit surviving foreground supervisor. Owned container and staging absence must be independently observed; retained evidence must have an explicit bounded retention setting.
+
+Fresh run [40638902063](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40638902063), job 122652171244, tested merge candidate ca06264ddd79717f704051b5b9afee7bd01fac1e integrating PR #42 onto current main. All 277 distinct tests, four faults, real-Docker SIGTERM and SIGKILL/surviving-supervisor cases passed. Both owned container and staging removal were observed; runtime log retention was 90 days. See [bounded evidence](cp08-sandbox-closure-20261028.json).
+
+CP08 is PASSED under this sandbox-only definition. The original broader requirement is retained as PARTIALLY_VERIFIED in register history: total-host-loss cleanup, future retention expiry and provider/backend erasure remain unverified. No automatic recovery supervisor was installed. This is an explicit scope amendment, not proof of those excluded guarantees. CP09 and every other checkpoint disposition remain unchanged. Revised score: 12/19 (four partial, three blocked), definition-dependent. No production readiness or new operational activation follows.
