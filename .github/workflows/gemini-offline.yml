@@ -41,6 +41,10 @@ jobs:
           done
           chmod 755 "$RUNNER_TEMP/gemini-offline"
           chmod 644 "$RUNNER_TEMP/gemini-offline/"*.py
+      - name: Approval policy preflight
+        env:
+          APPROVAL_REVISION: ${{ github.sha }}
+        run: python3 -I checkout/tools/approval_gate.py --workflow gemini-offline.yml --revision "$APPROVAL_REVISION"
       - name: Check reviewed workflow inventory
         run: python3 -I checkout/tools/verify_workflows.py
       - name: Run mocked tests without network or credentials
@@ -61,3 +65,4 @@ jobs:
 
 # No environment, secrets, Gemini API call, package installation or write token.
 # Public source/image downloads happen on the host before the network-none tests.
+
