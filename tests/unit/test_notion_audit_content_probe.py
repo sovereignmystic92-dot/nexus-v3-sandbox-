@@ -1,5 +1,8 @@
 import importlib.util
 import json
+import io
+import os
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 import unittest
@@ -9,6 +12,42 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 
 class ContentTests(unittest.TestCase):
+    def output_for(self,error):
+        output=io.StringIO()
+        with patch.dict(os.environ,{'NOTION_AUDIT_READ_CONFIRMED':'true',
+                'NOTION_AUDIT_CONTENT_CONFIRMED':'true','NOTION_SANDBOX_TOKEN':'secret-sentinel'}), \
+                patch.object(m,'probe',side_effect=error),redirect_stdout(output):
+            self.assertEqual(m.main(),2)
+        self.assertNotIn('secret-sentinel',output.getvalue())
+        return json.loads(output.getvalue())
+    def test_known_unsupported_block_reports_only_schema_label_and_still_holds(self):
+        with self.assertRaises(m.Unsupported) as caught:
+            self.invoke([dict(object='list',results=[self.block(type='table',
+                table={'private':'body-sentinel'})],has_more=False)])
+        result=self.output_for(caught.exception)
+        self.assertEqual(result,dict(result='BLOCKED',reason='CONTENT_UNSUPPORTED_TYPE',
+            unsupported_category='BLOCK_TYPE',unsupported_type='table'))
+        self.assertTrue(all(call[0]=='GET' for call in self.calls));self.assertEqual(self.closed,1)
+    def test_known_unsupported_mention_reports_only_schema_label(self):
+        block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'body-sentinel',
+            'mention':{'type':'link_preview','link_preview':{'url':'private-sentinel'}}}]})
+        with self.assertRaises(m.Unsupported) as caught:
+            self.invoke([dict(object='list',results=[block],has_more=False)])
+        self.assertEqual(self.output_for(caught.exception),dict(result='BLOCKED',
+            reason='CONTENT_UNSUPPORTED_TYPE',unsupported_category='MENTION_TYPE',
+            unsupported_type='link_preview'))
+    def test_unknown_provider_types_and_mutated_diagnostics_never_echo(self):
+        for category in ('BLOCK_TYPE','MENTION_TYPE'):
+            for value in ('private-sentinel\nsecret-sentinel',{'private':'sentinel'},['private']):
+                result=self.output_for(m.Unsupported(category,value))
+                self.assertEqual(result['unsupported_type'],'OTHER')
+                self.assertNotIn('sentinel',json.dumps(result))
+        error=m.Unsupported('BLOCK_TYPE','table')
+        error.category=['private-sentinel'];error.label='private-sentinel'
+        self.assertEqual(self.output_for(error)['unsupported_category'],'OTHER')
+    def test_other_failures_have_no_diagnostics(self):
+        self.assertEqual(self.output_for(m.read.Hold('CONTENT_MALFORMED')),
+            dict(result='BLOCKED',reason='CONTENT_MALFORMED'))
     def block(self,n=1,**changes):
         b=dict(object='block',id=f'{n:032x}',type='paragraph',paragraph={'rich_text':[]},has_children=False,
                archived=False,in_trash=False,parent=dict(type='page_id',page_id=m.read.AUDIT_ID));b.update(changes);return b

@@ -14,6 +14,30 @@ read=importlib.util.module_from_spec(spec);spec.loader.exec_module(read)
 RICH_TYPES={'paragraph','heading_1','heading_2','heading_3','bulleted_list_item',
             'numbered_list_item','quote','callout','to_do','toggle','code'}
 
+# Only fixed schema labels may leave the process. Never log provider strings.
+DIAGNOSTIC_TYPES={
+    'BLOCK_TYPE':frozenset({'bookmark','breadcrumb','child_database','column','column_list',
+        'embed','equation','file','image','link_preview','link_to_page','pdf','synced_block',
+        'table','table_of_contents','table_row','template','video','audio'}),
+    'MENTION_TYPE':frozenset({'link_preview','template_mention','custom_emoji'})}
+
+
+class Unsupported(read.Hold):
+    def __init__(self,category,value):
+        super().__init__('CONTENT_UNSUPPORTED_TYPE')
+        self.category=category if category in DIAGNOSTIC_TYPES else 'OTHER'
+        allowed=DIAGNOSTIC_TYPES.get(self.category,frozenset())
+        self.label=value if type(value) is str and value in allowed else 'OTHER'
+
+
+def unsupported_report(error):
+    # Revalidate at the output boundary, including mutated exception attributes.
+    category=getattr(error,'category',None);label=getattr(error,'label',None)
+    if type(category) is not str or category not in DIAGNOSTIC_TYPES:category='OTHER'
+    allowed=DIAGNOSTIC_TYPES.get(category,frozenset())
+    if type(label) is not str or label not in allowed:label='OTHER'
+    return dict(unsupported_category=category,unsupported_type=label)
+
 
 def validate_payload(block):
     kind=block['type'];payload=block[kind]
@@ -32,7 +56,7 @@ def validate_payload(block):
             if part['type']=='mention':
                 subtype=value.get('type')
                 if subtype not in {'page','database','data_source','user','date'}:
-                    raise read.Hold('CONTENT_UNSUPPORTED_TYPE')
+                    raise Unsupported('MENTION_TYPE',subtype)
                 target=value.get(subtype)
                 if type(target) is not dict:raise read.Hold('CONTENT_MALFORMED')
                 try:
@@ -55,7 +79,7 @@ def validate_payload(block):
         if payload!={}:raise read.Hold('CONTENT_MALFORMED')
     elif kind=='child_page':
         if type(payload.get('title')) is not str:raise read.Hold('CONTENT_MALFORMED')
-    else:raise read.Hold('CONTENT_UNSUPPORTED_TYPE')
+    else:raise Unsupported('BLOCK_TYPE',kind)
 
 
 def probe(token,factory=None,pause=time.sleep):
@@ -116,7 +140,9 @@ def main():
         codes={'CONTENT_HTTP_NOT_OK','CONTENT_MALFORMED','CONTENT_OVERSIZED','CONTENT_PARENT_MISMATCH',
                'CONTENT_DUPLICATE','CONTENT_NESTED_UNVERIFIED','CONTENT_CURSOR_INVALID','CONTENT_PAGINATION_LIMIT',
                'CONTENT_UNSUPPORTED_TYPE'}
-        print(json.dumps(dict(result='BLOCKED',reason=str(error) if str(error) in codes else 'CONTENT_UNAVAILABLE')));return 2
+        report=dict(result='BLOCKED',reason=str(error) if str(error) in codes else 'CONTENT_UNAVAILABLE')
+        if isinstance(error,Unsupported):report.update(unsupported_report(error))
+        print(json.dumps(report));return 2
     except Exception:
         print('{"result":"BLOCKED","reason":"CONTENT_UNAVAILABLE"}');return 2
     print(json.dumps(result,sort_keys=True));return 0
