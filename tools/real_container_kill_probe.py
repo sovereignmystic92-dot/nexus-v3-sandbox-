@@ -9,55 +9,107 @@ import signal
 import subprocess
 import sys
 import tempfile
+from cleanup_handoff import Journal
+
+
+def process_identity(pid, proc=Path('/proc')):
+    """Linux process incarnation; PID reuse never identifies the old worker."""
+    boot=(proc/'sys/kernel/random/boot_id').read_text().strip()
+    stat=(proc/str(pid)/'stat').read_text()
+    start=stat[stat.rindex(')')+2:].split()[19]
+    if not boot or not start.isdigit():
+        raise RuntimeError('Process identity unavailable')
+    return 'linux-process:'+boot+':'+str(pid)+':'+start
+
+
+def original_process_absent(identity, pid, proc=Path('/proc')):
+    # Missing boot custody is not evidence that the worker is absent.
+    (proc/'sys/kernel/random/boot_id').read_text()
+    try:
+        return process_identity(pid, proc) != identity
+    except FileNotFoundError:
+        return True
 
 
 def run():
     from real_container_stop_probe import DRIVER, ROOT
-    with tempfile.TemporaryDirectory(prefix='nexus-supervisor-') as namespace:
-        root=Path(namespace).resolve()
-        env=dict(os.environ,TMPDIR=str(root))
-        child=subprocess.Popen([sys.executable,'-u','-c',DRIVER,str(ROOT)],env=env,
-                               stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-        name=None
-        try:
-            if not select.select([child.stdout],[],[],180)[0]:
-                raise RuntimeError('Abrupt-stop readiness timeout')
-            owned=json.loads(child.stdout.readline()).get('ready')
-            if not owned:raise RuntimeError('No owned container readiness')
-            candidate=owned['name']
-            stage=Path(owned['stage'])
-            if (re.fullmatch(r'nexus-acceptance-[0-9a-f]{32}',candidate) is None
-                    or stage.name!='source' or stage.parent.parent.resolve()!=root
-                    or not stage.parent.name.startswith('nexus-isolated-')
-                    or stage.is_symlink() or stage.parent.is_symlink()):
-                raise RuntimeError('Supervisor scope mismatch; no removal authorized')
-            name=candidate
-            def docker(*args):
-                return subprocess.run(['docker',*args],check=True,capture_output=True,
-                                      text=True,timeout=15).stdout.strip()
-            info=json.loads(docker('inspect',name))[0]
-            if not any(m.get('Source')==str(stage) and m.get('Destination')=='/sandbox'
-                       for m in info['Mounts']):
-                raise RuntimeError('Owned mount mismatch')
+    root=Path(tempfile.mkdtemp(prefix='nexus-supervisor-')).resolve()
+    custody=Path(tempfile.mkdtemp(prefix='nexus-cleanup-handoff-',
+                                dir=os.environ.get('RUNNER_TEMP'))).resolve()
+    journal=None
+    env=dict(os.environ,TMPDIR=str(root))
+    child=subprocess.Popen([sys.executable,'-u','-c',DRIVER,str(ROOT)],env=env,
+                           stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    def emit(snapshot):
+        print(json.dumps({'cleanup_handoff':snapshot,
+                          'journal_path':str(custody/'cleanup.sqlite')},sort_keys=True),flush=True)
+    def docker(*args):
+        return subprocess.run(['docker',*args],check=True,capture_output=True,
+                              text=True,timeout=15).stdout.strip()
+    try:
+        if not select.select([child.stdout],[],[],180)[0]:
+            raise RuntimeError('Abrupt-stop readiness timeout')
+        owned=json.loads(child.stdout.readline()).get('ready')
+        if not owned:raise RuntimeError('No owned container readiness')
+        name=owned['name'];stage=Path(owned['stage'])
+        if (re.fullmatch(r'nexus-acceptance-[0-9a-f]{32}',name) is None
+                or stage.name!='source' or stage.parent.parent.resolve()!=root
+                or not stage.parent.name.startswith('nexus-isolated-')
+                or stage.is_symlink() or stage.parent.is_symlink()):
+            raise RuntimeError('Supervisor scope mismatch; no removal authorized')
+        info=json.loads(docker('inspect',name))[0]
+        if not any(m.get('Source')==str(stage) and m.get('Destination')=='/sandbox'
+                   for m in info['Mounts']):
+            raise RuntimeError('Owned mount mismatch')
+        worker_identity=process_identity(child.pid)
+        plan={'run_id':os.environ.get('GITHUB_RUN_ID','local')+':'+
+                      os.environ.get('GITHUB_RUN_ATTEMPT','1')+':'+root.name,
+              'source_sha':os.environ.get('SOURCE_SHA','UNVERIFIED'),
+              'steps':[{'action':'STOP_RUNNER','target':worker_identity,
+                        'expected_state':'Owned runner observed ready; no stop acknowledged'},
+                       {'action':'REMOVE_CONTAINER','target':info['Id'],
+                        'expected_state':'Owned container mount validated; runner stopped first'},
+                       {'action':'REMOVE_STAGING','target':str(stage.parent),
+                        'expected_state':'Owned staging retained; container absence verified first'},
+                       {'action':'REMOVE_NAMESPACE','target':str(root),
+                        'expected_state':'Owned namespace empty after staging removal'}]}
+        journal=Journal.create(custody/'cleanup.sqlite',plan)
+        emit(journal.snapshot())
+        def stop():
+            if original_process_absent(worker_identity,child.pid):
+                raise RuntimeError('Original worker absent; reconcile only, never signal replacement')
             child.kill();child.wait(timeout=5)
-            before=json.loads(docker('inspect',name))[0]['State']['Running']
-            staged_before=stage.parent.exists()
-            docker('rm','--force',name)
-            shutil.rmtree(stage.parent)
-            absent=not docker('ps','--all','--quiet','--filter','name=^/'+name+'$')
-            out,err=child.communicate(timeout=10)
-            passed=(child.returncode==-signal.SIGKILL and before and staged_before
-                    and absent and not stage.parent.exists() and not out.strip())
-            print(json.dumps({'case_id':'REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR',
-                'status':'PASSED' if passed else 'FAILED','signal_observed':child.returncode==-signal.SIGKILL,
-                'orphan_running_before_cleanup':before,'staging_present_before_cleanup':staged_before,
-                'container_absent_after_cleanup':absent,'staging_absent_after_cleanup':not stage.parent.exists(),
-                'runner_report_absent':not out.strip(),'source_sha':os.environ.get('SOURCE_SHA'),
-                'limits':['Supervisor and Docker host survive; not total host loss',
-                          'Explicit foreground test supervisor, not an installed crash-recovery service',
-                          'No retention expiry or checkpoint closure']},sort_keys=True))
-            return 0 if passed else 2
-        finally:
-            if child.poll() is None:child.kill();child.wait(timeout=5)
-            if name:
-                subprocess.run(['docker','rm','--force',name],capture_output=True,timeout=15)
+        journal.execute('STOP_RUNNER',stop,
+                        lambda:child.returncode==-signal.SIGKILL,emit)
+        before=json.loads(docker('inspect',name))[0]['State']['Running']
+        staged_before=stage.parent.exists()
+        def absent():
+            return not docker('ps','--all','--quiet','--filter','id='+info['Id'])
+        journal.execute('REMOVE_CONTAINER',lambda:docker('rm','--force',info['Id']),absent,emit)
+        journal.execute('REMOVE_STAGING',lambda:shutil.rmtree(stage.parent),
+                        lambda:not stage.parent.exists(),emit)
+        journal.execute('REMOVE_NAMESPACE',root.rmdir,lambda:not root.exists(),emit)
+        out,err=child.communicate(timeout=10)
+        # Reopen the retained journal through a fresh handle after resources go.
+        handoff=Journal(custody/'cleanup.sqlite',plan).snapshot()
+        passed=(child.returncode==-signal.SIGKILL and before and staged_before
+                and absent() and not stage.parent.exists() and not out.strip()
+                and handoff['next_permitted_step']=='COMPLETE')
+        print(json.dumps({'case_id':'REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR',
+            'status':'PASSED' if passed else 'FAILED','signal_observed':child.returncode==-signal.SIGKILL,
+            'orphan_running_before_cleanup':before,'staging_present_before_cleanup':staged_before,
+            'container_absent_after_cleanup':absent(),'staging_absent_after_cleanup':not stage.parent.exists(),
+            'runner_report_absent':not out.strip(),'source_sha':os.environ.get('SOURCE_SHA'),
+            'cleanup_handoff':handoff,'journal_path':str(custody/'cleanup.sqlite'),
+            'limits':['Journal survives owned worker and staging loss on the same host only',
+                      'No automatic retry, remote ownership, host-loss recovery or retention deletion',
+                      'Initialization before resource enrollment is outside this handoff']},sort_keys=True))
+        return 0 if passed else 2
+    finally:
+        # Do not silently delete retained staging or blindly repeat an uncertain
+        # operation. A failed run preserves the handoff for explicit inspection.
+        if journal is not None:
+            emit(journal.snapshot())
+        elif child.poll() is None:
+            print(json.dumps({'cleanup_enrollment':'BLOCKED','namespace':str(root),
+                              'runner_pid':child.pid,'next_step':'Inspect ownership before cleanup'}),flush=True)
