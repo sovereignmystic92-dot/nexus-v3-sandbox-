@@ -7,6 +7,12 @@ PAGE='00000000000000000000000000000001'
 
 
 class APITests(unittest.TestCase):
+    def test_malformed_code_metadata_never_claims_complete(self):
+        for code in (None,{},dict(language=None),dict(language='')):
+            def request(method,path,payload):
+                if path.startswith('/v1/pages/'):return self.request(method,path,payload)
+                return dict(object='list',results=[dict(self.block(2),code=code)],has_more=False,next_cursor=None)
+            with self.assertRaises(ValueError):NotionCheckpointAPI(PAGE,request).fetch_page(PAGE)
     def test_pinned_client_refuses_unbound_paths_and_writes(self):
         client=NotionRequest(PAGE,'synthetic-token','2022-06-28')
         for method,path in [('POST','/v1/pages'),('GET','https://other.example/'),

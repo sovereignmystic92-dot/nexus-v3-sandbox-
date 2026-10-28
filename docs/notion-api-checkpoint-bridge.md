@@ -20,9 +20,9 @@ during pagination are outside atomic consistency and require single-writer host
 controls and reconciliation. PATCH adds one code block, chunked at 2000 characters
 per text item, at most 100 items. A write reply is not verification.
 
-Seven secret-free tests cover fetch/path binding, write defaults, pagination and
+Eight secret-free tests cover fetch/path binding, write defaults, pagination and
 limits, nesting/duplicates/malformed inventory, chunking, lost acknowledgment,
-client destination restrictions and sanitized transport failure without retries.
+client destination restrictions, malformed code metadata and sanitized transport failure without retries.
 Mocks only: no actual Notion, credential or API-version compatibility established.
 Reference API shapes: https://developers.notion.com/reference/get-block-children
 and https://developers.notion.com/reference/request-limits .

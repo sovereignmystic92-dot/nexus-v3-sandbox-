@@ -90,7 +90,10 @@ class NotionCheckpointAPI:
                 seen_blocks.add(identity)
                 if block.get('type')=='code':
                     code=block['code']
-                    if type(code) is not dict or code.get('language')!='json':
+                    if (type(code) is not dict or type(code.get('language')) is not str
+                            or not code['language']):
+                        raise ValueError('Malformed code block; inventory incomplete')
+                    if code['language']!='json':
                         continue
                     if type(code.get('rich_text')) is not list:
                         raise ValueError('Malformed JSON code block')
