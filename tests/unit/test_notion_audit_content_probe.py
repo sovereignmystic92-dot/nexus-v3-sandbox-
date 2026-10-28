@@ -22,11 +22,11 @@ class ContentTests(unittest.TestCase):
         return json.loads(output.getvalue())
     def test_known_unsupported_block_reports_only_schema_label_and_still_holds(self):
         with self.assertRaises(m.Unsupported) as caught:
-            self.invoke([dict(object='list',results=[self.block(type='table',
-                table={'private':'body-sentinel'})],has_more=False)])
+            self.invoke([dict(object='list',results=[self.block(type='image',
+                image={'private':'body-sentinel'})],has_more=False)])
         result=self.output_for(caught.exception)
         self.assertEqual(result,dict(result='BLOCKED',reason='CONTENT_UNSUPPORTED_TYPE',
-            unsupported_category='BLOCK_TYPE',unsupported_type='table'))
+            unsupported_category='BLOCK_TYPE',unsupported_type='image'))
         self.assertTrue(all(call[0]=='GET' for call in self.calls));self.assertEqual(self.closed,1)
     def test_known_unsupported_mention_reports_only_schema_label(self):
         block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'body-sentinel',
@@ -102,3 +102,53 @@ class ContentTests(unittest.TestCase):
             block=self.block(paragraph={'rich_text':[{'type':'mention','plain_text':'x','mention':mention}]})
             result=self.invoke([dict(object='list',results=[block],has_more=False)])
             self.assertEqual(result['blocks_observed'],1)
+
+    def table(self,n=10,**changes):
+        return self.block(n,type='table',table=dict(table_width=2,has_column_header=True,
+            has_row_header=False),has_children=True,**changes)
+    def row(self,n=11,**changes):
+        return self.block(n,type='table_row',table_row={'cells':[[],[]]},
+            parent=dict(type='block_id',block_id=f'{10:032x}'),**changes)
+    def page(self,blocks,more=False,cursor=None):
+        return dict(object='list',results=blocks,has_more=more,next_cursor=cursor)
+    def test_table_rows_paginated_and_root_continued_share_budget(self):
+        result=self.invoke([self.page([self.table()],True,'root-next'),
+            self.page([self.row()],True,'row-next'),self.page([self.row(12)]),
+            self.page([self.block(20)])])
+        self.assertEqual(result['tables_observed'],1);self.assertEqual(result['table_rows_observed'],2)
+        self.assertEqual(result['requests'],5);self.assertEqual(self.closed,4)
+        self.assertEqual(result['blocks_observed'],4)
+        self.assertIn('/'+f'{10:032x}'+'/children?',self.calls[1][1])
+        self.assertIn('start_cursor=root-next',self.calls[3][1])
+        self.assertTrue(all(call[0]=='GET' for call in self.calls))
+    def test_table_metadata_and_empty_table_hold(self):
+        for payload in ({},{'table_width':True,'has_column_header':False,'has_row_header':False},
+                {'table_width':101,'has_column_header':False,'has_row_header':False},
+                {'table_width':2,'has_column_header':0,'has_row_header':False}):
+            b=self.table();b['table']=payload
+            with self.assertRaises(m.read.Hold):self.invoke([self.page([b])])
+        with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page([])])
+    def test_bad_cells_width_and_rich_text_hold(self):
+        for cells in (None,[[]],[[],[],[]],['text',[]],
+                [[{'type':'text','plain_text':'secret','text':{'content':'changed'}}],[]]):
+            row=self.row();row['table_row']['cells']=cells
+            with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page([row])])
+    def test_wrong_parent_nonrow_duplicate_nested_and_root_row_hold(self):
+        wrong=self.row();wrong['parent']['block_id']=f'{99:032x}'
+        nested=self.row();nested['has_children']=True
+        for children in ([wrong],[nested],[self.block(11)],[self.row(),self.row()]):
+            with self.assertRaises(m.read.Hold):self.invoke([self.page([self.table()]),self.page(children)])
+        row=self.row();row['parent']=dict(type='page_id',page_id=m.read.AUDIT_ID)
+        with self.assertRaises(m.read.Hold):self.invoke([self.page([row])])
+    def test_rows_exhaust_shared_budget_and_cursor_repetition_holds(self):
+        pages=[self.page([self.table()])]+[self.page([self.row(20+i)],True,str(i)) for i in range(10)]
+        with self.assertRaisesRegex(m.read.Hold,'CONTENT_PAGINATION_LIMIT'):self.invoke(pages)
+        self.assertEqual(len(self.calls),10);self.assertEqual(self.closed,10)
+        with self.assertRaisesRegex(m.read.Hold,'CONTENT_CURSOR_INVALID'):
+            self.invoke([self.page([self.table()]),self.page([self.row()],True,'x'),
+                self.page([self.row(12)],True,'x')])
+    def test_table_body_and_ids_not_in_report(self):
+        row=self.row();row['table_row']['cells'][0]=[dict(type='text',plain_text='private-body',
+            text={'content':'private-body'})]
+        result=self.invoke([self.page([self.table()]),self.page([row])])
+        self.assertNotIn('private-body',json.dumps(result));self.assertNotIn(f'{10:032x}',json.dumps(result))
