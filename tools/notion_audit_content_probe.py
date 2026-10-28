@@ -10,6 +10,35 @@ from uuid import UUID
 spec=importlib.util.spec_from_file_location('audit_read',Path(__file__).with_name('notion_audit_access_probe.py'))
 read=importlib.util.module_from_spec(spec);spec.loader.exec_module(read)
 
+RICH_TYPES={'paragraph','heading_1','heading_2','heading_3','bulleted_list_item',
+            'numbered_list_item','quote','callout','to_do','toggle','code'}
+
+
+def validate_payload(block):
+    kind=block['type'];payload=block[kind]
+    if kind in RICH_TYPES:
+        rich=payload.get('rich_text')
+        if type(rich) is not list:raise read.Hold('CONTENT_MALFORMED')
+        for part in rich:
+            if (type(part) is not dict or part.get('type') not in {'text','mention','equation'}
+                    or type(part.get('plain_text')) is not str
+                    or type(part.get(part['type'])) is not dict):raise read.Hold('CONTENT_MALFORMED')
+            value=part[part['type']]
+            if part['type']=='text' and (type(value.get('content')) is not str
+                    or value['content']!=part['plain_text']):raise read.Hold('CONTENT_MALFORMED')
+            if part['type']=='equation' and type(value.get('expression')) is not str:
+                raise read.Hold('CONTENT_MALFORMED')
+            if part['type']=='mention' and (type(value.get('type')) is not str
+                    or value['type'] not in value):raise read.Hold('CONTENT_MALFORMED')
+        if kind=='code' and (type(payload.get('language')) is not str or not payload['language']):
+            raise read.Hold('CONTENT_MALFORMED')
+        if kind=='to_do' and type(payload.get('checked')) is not bool:raise read.Hold('CONTENT_MALFORMED')
+    elif kind=='divider':
+        if payload!={}:raise read.Hold('CONTENT_MALFORMED')
+    elif kind=='child_page':
+        if type(payload.get('title')) is not str:raise read.Hold('CONTENT_MALFORMED')
+    else:raise read.Hold('CONTENT_UNSUPPORTED_TYPE')
+
 
 def probe(token,factory=None,pause=time.sleep):
     read.probe(token,factory)  # Exact identity/inactive status checked first.
@@ -38,6 +67,7 @@ def probe(token,factory=None,pause=time.sleep):
                         or block.get('archived') is not False or block.get('in_trash',False) is not False
                         or type(block.get('type')) is not str or block['type']=='unsupported'
                         or type(block.get(block['type'])) is not dict):raise read.Hold('CONTENT_MALFORMED')
+                validate_payload(block)
                 parent=block.get('parent')
                 if (type(parent) is not dict or parent.get('type')!='page_id'
                         or UUID(parent['page_id']).hex!=read.AUDIT_ID):raise read.Hold('CONTENT_PARENT_MISMATCH')
@@ -66,7 +96,8 @@ def main():
     try:result=probe(os.environ.pop('NOTION_SANDBOX_TOKEN',''))
     except read.Hold as error:
         codes={'CONTENT_HTTP_NOT_OK','CONTENT_MALFORMED','CONTENT_OVERSIZED','CONTENT_PARENT_MISMATCH',
-               'CONTENT_DUPLICATE','CONTENT_NESTED_UNVERIFIED','CONTENT_CURSOR_INVALID','CONTENT_PAGINATION_LIMIT'}
+               'CONTENT_DUPLICATE','CONTENT_NESTED_UNVERIFIED','CONTENT_CURSOR_INVALID','CONTENT_PAGINATION_LIMIT',
+               'CONTENT_UNSUPPORTED_TYPE'}
         print(json.dumps(dict(result='BLOCKED',reason=str(error) if str(error) in codes else 'CONTENT_UNAVAILABLE')));return 2
     except Exception:
         print('{"result":"BLOCKED","reason":"CONTENT_UNAVAILABLE"}');return 2

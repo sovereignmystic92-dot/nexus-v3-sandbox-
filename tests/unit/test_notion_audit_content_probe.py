@@ -10,7 +10,7 @@ m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 class ContentTests(unittest.TestCase):
     def block(self,n=1,**changes):
-        b=dict(object='block',id=f'{n:032x}',type='paragraph',paragraph={},has_children=False,
+        b=dict(object='block',id=f'{n:032x}',type='paragraph',paragraph={'rich_text':[]},has_children=False,
                archived=False,in_trash=False,parent=dict(type='page_id',page_id=m.read.AUDIT_ID));b.update(changes);return b
     def invoke(self,pages):
         self.calls=[];self.closed=0;owner=self
@@ -47,3 +47,8 @@ class ContentTests(unittest.TestCase):
         pages=[dict(object='list',results=[],has_more=True,next_cursor=str(i)) for i in range(10)]
         with self.assertRaises(m.read.Hold):self.invoke(pages)
         self.assertEqual(len(self.calls),10);self.assertEqual(self.closed,10)
+    def test_unknown_type_and_malformed_rich_text_hold(self):
+        for block in (self.block(type='invented',invented={}),self.block(paragraph={}),
+                      self.block(paragraph={'rich_text':'invalid'}),
+                      self.block(paragraph={'rich_text':[{'type':'text','plain_text':'x','text':{'content':'y'}}]})):
+            with self.assertRaises(m.read.Hold):self.invoke([dict(object='list',results=[block],has_more=False)])
