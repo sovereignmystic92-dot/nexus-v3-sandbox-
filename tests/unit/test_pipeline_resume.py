@@ -106,4 +106,8 @@ assert result.status=='COMPLETE',result
         def failed(*_): raise OSError()
         self.assertEqual(self.run_job(save=failed).status, 'BLOCKED')
         self.assertEqual(self.calls, [])
+    def test_saved_boolean_schema_is_not_integer_schema(self):
+        self.state['binding']['schema_version'] = True
+        self.assertEqual(self.run_job().status, 'BLOCKED')
+        self.assertEqual(self.calls, [])
 

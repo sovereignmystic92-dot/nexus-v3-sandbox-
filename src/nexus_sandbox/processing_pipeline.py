@@ -40,6 +40,8 @@ def run_resumable(binding, executors, save, read, reconcile):
     try:
         state = read(binding['run_id'])
         if (type(state) is not dict or set(state) != {'binding', 'receipts', 'pending'}
+                or type(state['binding']) is not dict
+                or type(state['binding'].get('schema_version')) is not int
                 or state['binding'] != binding or type(state['receipts']) is not tuple
                 or len(state['receipts']) > len(STAGES)):
             raise ValueError('Missing or misbound checkpoint')
@@ -48,6 +50,7 @@ def run_resumable(binding, executors, save, read, reconcile):
             raise ValueError('Invalid ordered checkpoint receipts')
         confirmed = saved
         next_stage = STAGES[len(confirmed)] if len(confirmed) < len(STAGES) else None
+        stage = next_stage
         if state['pending'] is not None and state['pending'] != next_stage:
             raise ValueError('Misordered pending intent')
         if state['pending'] is not None:
