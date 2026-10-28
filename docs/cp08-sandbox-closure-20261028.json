@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "definition_version": "owner-cp08-sandbox-2026-10-28",
+  "owner_authorization": "Close CP08 if sandbox tests pass; leave CP09 alone.",
+  "assessed_at": "2026-10-28T05:37:17.938Z",
+  "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40638902063",
+  "job_id": 122652171244,
+  "observations": {
+    "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+    "ordinary": {
+      "status": "PASSED",
+      "container_removed": true,
+      "source_staging_removed": true,
+      "retention_policy_status": "RUNTIME_SETTING_CONFIRMED",
+      "github_log_retention_days": "90",
+      "tests": 277,
+      "fault_status": "PASSED"
+    },
+    "cases": [
+      {
+        "case_id": "REAL-DOCKER-RUNNER-SIGTERM",
+        "container_absent": true,
+        "limits": [
+          "Catchable runner stop on surviving host; not SIGKILL or host/power loss",
+          "Synthetic waiting workload replaces the suite inside the normal real runner container",
+          "No retention deletion evidence or checkpoint closure"
+        ],
+        "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+        "staging_absent": true,
+        "status": "PASSED"
+      },
+      {
+        "case_id": "REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR",
+        "container_absent_after_cleanup": true,
+        "limits": [
+          "Supervisor and Docker host survive; not total host loss",
+          "Explicit foreground test supervisor, not an installed crash-recovery service",
+          "No retention expiry or checkpoint closure"
+        ],
+        "orphan_running_before_cleanup": true,
+        "runner_report_absent": true,
+        "signal_observed": true,
+        "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+        "staging_absent_after_cleanup": true,
+        "staging_present_before_cleanup": true,
+        "status": "PASSED"
+      }
+    ]
+  },
+  "prior_requirement": {
+    "id": "CP08",
+    "title": "Stop, cleanup and retention",
+    "source_mapping": "C8",
+    "definition_state": "ACCEPTED",
+    "status": "PARTIALLY_VERIFIED",
+    "status_reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+    "pass_requirement": "Ordinary and forced-stop lifecycles prevent further writes and remove disposable data; retained evidence has an explicit retention policy and observed deletion where required.",
+    "required_evidence": "Ordinary cleanup, host-stop recovery/teardown evidence, before/after inventory and retention/deletion observations.",
+    "dependencies": [],
+    "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+    "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+    "evidence": [
+      {
+        "evidence_id": "main-40135860508-CP08",
+        "definition_version": "proposal-1",
+        "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+        "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+        "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+        "case_ids": [],
+        "assessment": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+        "limitations": [
+          "Author evidence mapping, not independent human review.",
+          "Proposed mapping not adopted; historical 8/19 identities unresolved."
+        ]
+      }
+    ],
+    "blockers": [
+      "Host-loss cleanup and future retention deletion remain unverified.",
+      "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
+    ],
+    "accepted_by": null,
+    "accepted_at": null,
+    "history": [
+      {
+        "previous_status": "NOT_TESTED",
+        "new_status": "PARTIALLY_VERIFIED",
+        "assessor": "ChatGPT author assessment",
+        "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+        "reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
+        "observed_at": "2026-10-24T21:49:01.860318+00:00"
+      },
+      {
+        "previous_status": "PARTIALLY_VERIFIED",
+        "new_status": "PARTIALLY_VERIFIED",
+        "assessor": "ChatGPT author",
+        "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
+        "reason": "Cleanup failure reporting hardened with two local regressions. No forced-host-stop or future deletion proof inferred."
+      },
+      {
+        "previous_status": "PARTIALLY_VERIFIED",
+        "new_status": "PARTIALLY_VERIFIED",
+        "assessor": "ChatGPT author",
+        "evidence_reference": "docs/cp08-runner-stop.md",
+        "reason": "Actual SIGTERM/SIGINT owned-runner interruption with fake Docker backend verifies real staging cleanup and BLOCKED reporting. No forced-host-stop or retention proof."
+      },
+      {
+        "previous_status": "PARTIALLY_VERIFIED",
+        "new_status": "PARTIALLY_VERIFIED",
+        "assessor": "ChatGPT author",
+        "evidence_reference": "docs/cp08-provider-deletion-result.md",
+        "reason": "One authorized disposable Cortex module created and exactly read back; delete rejected by provider durability policy; fresh read confirms it remains unarchived. No deletion pass claimed."
+      }
+    ],
+    "dependency_assessment": {
+      "assessed_by": "ChatGPT author assessor",
+      "assessed_at": "2026-10-24T22:03:59Z",
+      "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+    },
+    "final_disposition": {
+      "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+      "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+      "remaining_requirement": [
+        "Host-loss cleanup and future retention deletion remain unverified.",
+        "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
+      ],
+      "reopen_when": "Selecting replacement storage, requiring expiry/erasure, deploying a surviving supervisor, or gaining host-loss/provider-deletion evidence.",
+      "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
+    }
+  },
+  "scope": "Owner-selected single-worker synthetic sandbox; real Docker with surviving host and explicit foreground supervisor only.",
+  "verdict": "PASSED_WITHIN_OWNER_REVISED_SANDBOX_SCOPE",
+  "exclusions": [
+    "Total host/power loss and cleanup after loss of the supervisor or Docker host are unverified.",
+    "Provider/backend erasure and future log-retention expiry are unverified; Cortex deletion rejection remains preserved.",
+    "Foreground test supervisor is not an installed recovery service; no production or multi-worker assurance."
+  ],
+  "cp09_changed": false
+}
