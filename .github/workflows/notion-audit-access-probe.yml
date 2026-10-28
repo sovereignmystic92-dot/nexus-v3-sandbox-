@@ -1,0 +1,34 @@
+name: Notion Foundation Audit read-only access
+on:
+  workflow_dispatch:
+    inputs:
+      audit_read_confirmed:
+        description: Make one read-only request to the exact Foundation Audit page
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-sandbox-read-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.audit_read_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 2
+    steps:
+      - name: Fetch exact public script without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_audit_access_probe.py" \
+            -o "$RUNNER_TEMP/notion_audit_access_probe.py"
+      - name: Read and validate exact Foundation Audit metadata
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_AUDIT_READ_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/notion_audit_access_probe.py"
