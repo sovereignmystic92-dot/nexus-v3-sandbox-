@@ -49,6 +49,8 @@ def probe(request, run_id, source_sha, *, allow_write=False):
     summary = dict(marker=job, destination=AUDIT_ID, source_revision=source_sha,
         checkpoint_sha256=hashlib.sha256(checkpoint.encode()).hexdigest(),
         bridge_activation='INACTIVE', cp09='NOT_PROVEN', cleanup='RETAIN_MARKED_EVIDENCE')
+    stage = 'PREWRITE_OBSERVATION'
+    write_ack = 'NOT_ATTEMPTED'
     try:
         # Only the exact missing-enrollment disposition permits creating this test record.
         # Malformed JSON, unknown content, incomplete inventory and wrong bindings hold.
@@ -65,19 +67,24 @@ def probe(request, run_id, source_sha, *, allow_write=False):
         if not allow_write:
             return dict(summary, result='BLOCKED_OBSERVE_ONLY_ABSENT', reads=reads, writes_attempted=writes)
         uncertain = False
+        stage = 'APPEND'
         try:
             api.append_text(AUDIT_ID, text)
+            write_ack = 'RECEIVED'
         except Exception:
             uncertain = True
+            write_ack = 'UNCERTAIN'
         # A fresh complete observation is mandatory even after success or lost ack.
+        stage = 'READBACK'
         observed = transport._events()
         if observed != [event]:
             raise ValueError('Independent readback mismatch')
         return dict(summary, result='VERIFIED_AFTER_UNCERTAIN_ACK' if uncertain else 'VERIFIED',
-            reads=reads, writes_attempted=writes, write_ack='UNCERTAIN' if uncertain else 'RECEIVED')
+            reads=reads, writes_attempted=writes, write_ack=write_ack)
     except Exception:
         return dict(summary, result='BLOCKED_UNCERTAIN' if writes else 'BLOCKED_BEFORE_WRITE',
-            reads=reads, writes_attempted=writes, next_action='OBSERVE_ONLY_NO_BLIND_RETRY')
+            reads=reads, writes_attempted=writes, failure_stage=stage, write_ack=write_ack,
+            next_action='OBSERVE_ONLY_NO_BLIND_RETRY')
 
 
 def main():
@@ -108,3 +115,4 @@ def main():
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
