@@ -4,6 +4,7 @@ No transport, enrollment, provider write or automatic missing-state recovery.
 Exact bindings must come from current authorized job metadata, not the input.
 """
 import json
+from hashlib import sha256
 from .processing_pipeline import Receipt, STAGES
 
 FIELDS = {'run_id','source_id','source_sha256','destination_id',
@@ -85,3 +86,32 @@ class CheckpointAdapter:
     def save(self,key,state):
         if key!=self.binding['run_id']: raise ValueError('Wrong job')
         self.write_text(key,encode(state,self.binding))
+
+
+def reconcile_report(records, *, complete, marker, destination, payload_sha256):
+    """Classify a fully enumerated synthetic report inventory; never write.
+
+    Records are trusted structured observations, not raw page/body text. A live
+    parser must independently establish record boundaries and transport identity.
+    Even zero matches never authorizes replay of an uncertain append.
+    """
+    if (complete is not True or type(records) is not list
+            or type(marker) is not str or not marker
+            or type(destination) is not str or not destination
+            or type(payload_sha256) is not str or len(payload_sha256)!=64
+            or any(c not in '0123456789abcdef' for c in payload_sha256)):
+        return 'UNKNOWN'
+    matches=[]
+    for record in records:
+        if (type(record) is not dict or set(record)!={'marker','destination','payload'}
+                or any(type(v) is not str for v in record.values())):
+            return 'UNKNOWN'
+        if record['marker']==marker:
+            matches.append(record)
+    if len(matches)>1: return 'BLOCKED_DUPLICATE'
+    if not matches: return 'UNKNOWN_ABSENT'
+    record=matches[0]
+    if record['destination']!=destination: return 'BLOCKED_MISMATCH'
+    try: actual=sha256(record['payload'].encode('utf-8')).hexdigest()
+    except UnicodeError: return 'UNKNOWN'
+    return 'VERIFIED_OBSERVATION' if actual==payload_sha256 else 'BLOCKED_MISMATCH'
