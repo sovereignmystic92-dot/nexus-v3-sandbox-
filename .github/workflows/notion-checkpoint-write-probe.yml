@@ -1,0 +1,43 @@
+name: Notion bounded checkpoint write verification
+on:
+  workflow_dispatch:
+    inputs:
+      checkpoint_test_confirmed:
+        description: Append one marked checkpoint to the Foundation Audit and independently read it back; reruns observe only
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-sandbox-checkpoint-write-test
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.checkpoint_test_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 5
+    steps:
+      - name: Fetch exact reviewed public code without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir -p "$RUNNER_TEMP/checkpoint-probe/tools" "$RUNNER_TEMP/checkpoint-probe/src/nexus_sandbox"
+          for file in __init__.py notion_checkpoint_api.py notion_inventory.py audit_checkpoint_transport.py checkpoint_json.py processing_pipeline.py; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/src/nexus_sandbox/${file}" \
+              -o "$RUNNER_TEMP/checkpoint-probe/src/nexus_sandbox/${file}"
+          done
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_checkpoint_write_probe.py" \
+            -o "$RUNNER_TEMP/checkpoint-probe/tools/notion_checkpoint_write_probe.py"
+      - name: One append attempt with independent readback; reruns observe only
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_CHECKPOINT_TEST_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/checkpoint-probe/tools/notion_checkpoint_write_probe.py"
+      - name: Remove staged probe code
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/checkpoint-probe"
