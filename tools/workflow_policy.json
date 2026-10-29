@@ -6,5 +6,6 @@
   "notion-boundary-probe.yml": "03250dedfcc9ee585d992000503621064dc377c000daf9d765d5140f0e84f0c2",
   "notion-identity-probe.yml": "804f036c7e0a8920103f536c8ceb109d08b5e6997a24064235edde15d4140c20",
   "notion-audit-access-probe.yml": "0a827d840f592a61e2b6c767e79eb3670ee48a72b94e7072c3a519345584aa70",
-  "notion-checkpoint-write-probe.yml": "68544b1caad034ba63c1bf4c50c787c109e3a218a3fb2c9d753c16a9d6d00048"
+  "notion-checkpoint-write-probe.yml": "68544b1caad034ba63c1bf4c50c787c109e3a218a3fb2c9d753c16a9d6d00048",
+  "nexus-passive-synthetic-pilot.yml": "8e44a328e61a04befb3e7ca16b2064701d741d9cb3ac83a82723b7e9b2f52a4e"
 }
