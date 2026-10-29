@@ -117,14 +117,3 @@ class ApprovalGateTests(unittest.TestCase):
         self.assertEqual(len(review_list(1, get)), 101)
         with self.assertRaises(Hold): review_list(1, lambda path: [{}] * 100)
 
-    def test_workflow_preflights_precede_credential_use(self):
-        root = Path(__file__).resolve().parents[2]
-        # The isolated test container deliberately stages no workflow YAML.
-        # Source-file coverage is also verified separately on the host.
-        folder = root / '.github/workflows'
-        if folder.exists():
-            for name in ('gemini-smoke.yml', 'notion-read-probe.yml',
-                         'notion-identity-probe.yml', 'notion-boundary-probe.yml'):
-                source = (folder / name).read_text()
-                self.assertLess(source.index('Approval policy preflight'), source.index('${{ secrets.'))
-

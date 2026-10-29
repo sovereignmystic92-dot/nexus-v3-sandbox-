@@ -6,7 +6,7 @@ completion, or provider-side fencing. No permission or credential changes are ma
 
 ## Coverage
 
-All six existing workflows receive a preflight before their work or credential use.
+All nine current work workflows receive a preflight before their work or credential use.
 The reviewed policy classifies offline validation, read-only probes, and the existing
 manually confirmed synthetic Gemini pilot as exempt from two-AI approval. Existing
 confirmation inputs, environment controls, and secret restrictions remain in force.
@@ -114,3 +114,36 @@ policy or separately directed by the owner. Existing checkpoint scores are uncha
 
 The final PR observation now rejects changes to the base SHA/ref/repository, head SHA/repository, author or open state, including missing/malformed context. This closes an observed hole where a base change during the approval check could still return accepted receipts. Four new regression tests include the actual CLI path with a changed base after initial authorization; the original returned exit 0 and the repaired version returns HOLD/exit 2. Twelve existing guard tests also pass locally. These are mocked observations, not authenticated live-provider assurance. Review receipts can still change after their observation; there is no atomic provider-side approval/dispatch boundary or remote fencing. Empty trusted-reviewer configuration, bootstrap and all previously documented activation blockers remain. No workflow, policy identity or permission changes accompany this repair; security-control proposal remains draft.
 
+
+## Current-main integration — 2026-10-29 draft
+PR84 main637404eb9cf67988e4f743acc837e214525407f4 supplies the hardened verifier,
+23 approval regressions and unchanged empty trust. This proposal preserves those
+files/fixes. No reviewer account is inferred from the author, Chat or Gemini labels.
+The trusted-base missing-file prerequisite is resolved on main, but an approval
+attempt must now HOLD on empty trust rather than report approval.
+
+The three newer Notion workflows now have proposed preflights before credential
+use. Audit access and saved-checkpoint resume-plan remain read-only classifications.
+Checkpoint write is classified routine_write, not exempt; its preflight
+deliberately HOLDs because no authenticated operation-specific receipt handoff
+is provisioned. Adopting this entire PR would therefore block that manual write
+probe until separately reviewed authorization wiring exists. Existing confirmation
+inputs, protected environment, concurrency and exact-source restrictions remain.
+
+The schema permits consequential workflow classifications, but preflight only
+exempts SAFE classifications. It cannot grant approval to routine_write or
+production_deployment. No policy trust identities or live authority collector
+are added; no model calls, credentials, protections, scheduler changes or automatic
+merge are installed. The added coverage is a draft security change, not enforced
+protection on current main. This proposal remains unmerged.
+
+Next bounded integration gates:
+1. Directly validate final head/current-base code, tests, decoded logs and saved files.
+2. Independently review workflow coverage and explicit checkpoint-write HOLD behavior.
+3. Establish authentic distinct reviewer accounts and attributable submission paths
+   before populating trusted_reviewers; test identities are not enrollment.
+4. Review and specifically authorize protected approval enforcement; candidate YAML
+   and a required check name do not themselves authenticate an implementation.
+5. Wire operation-bound approvals into one permitted adapter with checkpoint intent,
+   independent readback and no replay after uncertainty. No blanket connector
+   interception, live execution, CP09 resumption or production activation follows.

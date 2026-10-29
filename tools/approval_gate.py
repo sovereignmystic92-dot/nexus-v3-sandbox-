@@ -38,8 +38,54 @@ def unique_object(pairs):
     return value
 
 
+def reject_constant(value):
+    raise Hold('Nonstandard JSON constant')
+
+
 def load_json(value):
-    return json.loads(value, object_pairs_hook=unique_object)
+    return json.loads(value, object_pairs_hook=unique_object, parse_constant=reject_constant)
+
+
+def validate_policy(policy):
+    if (type(policy) is not dict or
+            set(policy) != {'policy_version', 'trusted_reviewers', 'destinations', 'workflows'} or
+            type(policy['policy_version']) is not str or not policy['policy_version'].strip()):
+        raise Hold('Invalid policy schema')
+    trusted = policy['trusted_reviewers']
+    if type(trusted) is not dict:
+        raise Hold('Invalid trusted reviewers')
+    for actor, identity in trusted.items():
+        if (type(actor) is not str or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9-]{0,38}', actor) or
+                type(identity) is not dict or set(identity) != {'provider'} or
+                type(identity['provider']) is not str or not identity['provider'].strip()):
+            raise Hold('Invalid reviewer identity')
+    destinations = policy['destinations']
+    if type(destinations) is not dict or any(k not in DELEGATED for k in destinations):
+        raise Hold('Invalid destination policy')
+    for values in destinations.values():
+        if (type(values) is not list or any(type(v) is not str or not v.strip() for v in values) or
+                len(values) != len(set(values))):
+            raise Hold('Destination list required')
+    workflows = policy['workflows']
+    if (type(workflows) is not dict or
+            any(type(k) is not str or not k or v not in SAFE | DELEGATED for k, v in workflows.items())):
+        raise Hold('Invalid workflow policy')
+    return policy
+
+
+def valid_evidence_url(url, revision):
+    prefix = f'https://github.com/{REPOSITORY}/'
+    if type(url) is not str or len(url) > 500:
+        return False
+    if re.fullmatch(re.escape(prefix) + r'actions/runs/[1-9][0-9]*', url):
+        return True
+    blob_prefix = prefix + 'blob/' + revision + '/'
+    if not url.startswith(blob_prefix):
+        return False
+    parts = url[len(blob_prefix):].split('/')
+    return all(part not in {'', '.', '..'} and
+               re.fullmatch(r'[A-Za-z0-9_.-]+', part) for part in parts)
+
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -72,6 +118,7 @@ def review_list(pr_number, get=public_get):
 
 
 def preflight(policy, workflow, revision):
+    validate_policy(policy)
     exact_sha(revision)
     operation = policy['workflows'].get(workflow)
     if operation not in SAFE:
@@ -82,6 +129,7 @@ def preflight(policy, workflow, revision):
 
 
 def authorize(policy, pr, reviews, revision, operation, destination, request_sha256=None):
+    validate_policy(policy)
     exact_sha(revision)
     if request_sha256 is None:
         request_sha256 = hashlib.sha256(json.dumps(
@@ -133,16 +181,12 @@ def authorize(policy, pr, reviews, revision, operation, destination, request_sha
                 receipt['provider'] != trusted[actor]['provider'] or
                 receipt['prior_conclusions_seen'] is not False or receipt['findings'] != []):
             raise Hold('Approval receipt does not satisfy requested operation')
-        if any(not isinstance(receipt[k], str) or not receipt[k].strip()
+        if any(not isinstance(receipt[k], str) or not receipt[k].strip() or receipt[k] != receipt[k].strip()
                or len(receipt[k]) > 200 for k in ('session_id', 'model', 'provider')):
             raise Hold('Reviewer identity missing or oversized')
         evidence = receipt['evidence']
-        prefix = f'https://github.com/{REPOSITORY}/'
         if (not isinstance(evidence, list) or not 1 <= len(evidence) <= 20 or
-                any(not isinstance(url, str) or len(url) > 500 or
-                    not (re.fullmatch(re.escape(prefix) + r'actions/runs/[0-9]+', url) or
-                         url.startswith(prefix + 'blob/' + revision + '/'))
-                    for url in evidence)):
+                any(not valid_evidence_url(url, revision) for url in evidence)):
             raise Hold('Evidence must identify repository runs or exact-revision files')
         if (not isinstance(receipt['limitations'], list) or
                 any(not isinstance(item, str) or len(item) > 1000
@@ -191,7 +235,7 @@ def main():
     parser.add_argument('--request-sha256')
     args = parser.parse_args()
     try:
-        policy = load_json(args.policy.read_text())
+        policy = validate_policy(load_json(args.policy.read_text()))
         exact_sha(args.revision)
         if args.workflow:
             if args.pr is not None:

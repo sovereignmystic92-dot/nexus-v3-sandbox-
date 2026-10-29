@@ -44,14 +44,15 @@ class ContextRecheckTests(unittest.TestCase):
     def test_entrypoint_rejects_base_change_after_initial_approval(self):
         after=copy.deepcopy(self.before);after['base']['sha']='c'*40
         argv=['guard','--revision','a'*40,'--pr','57']
-        policy={'trusted_reviewers':{'one':{},'two':{}}}
+        policy={'policy_version':'test','trusted_reviewers':{'one':{'provider':'a'},'two':{'provider':'b'}},'destinations':{'routine_write':['github:main']},'workflows':{}}
         with patch.object(sys,'argv',argv),patch.object(gate.Path,'read_text',return_value='{}'), \
              patch.object(gate,'load_json',return_value=policy), \
              patch.object(gate,'public_get',side_effect=[self.before,after]), \
              patch.object(gate,'review_list',return_value=[]), \
-             patch.object(gate,'authorize',return_value={'verdict':'REVIEW_RECEIPTS_ACCEPTED'}), \
+             patch.object(gate,'authorize',return_value={'verdict':'REVIEW_RECEIPTS_ACCEPTED'}) as authorize, \
              patch('builtins.print') as output:
             self.assertEqual(gate.main(),2)
+            authorize.assert_called_once()
             self.assertIn('HOLD',output.call_args.args[0])
 
 
