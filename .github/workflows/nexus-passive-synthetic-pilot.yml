@@ -1,0 +1,61 @@
+name: Nexus passive synthetic pilot (manual only)
+# Schedule deliberately NOT registered. To activate after acceptance, add
+# schedule: [{cron: '17 9 * * *'}] in a separately reviewed change on default branch.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexus-passive-synthetic-pilot
+  cancel-in-progress: false
+
+jobs:
+  synthetic-passive-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify synthetic runner recovery contract
+        run: |
+          set -eu
+          python3 -m unittest discover -s tests/unit -p 'test_github_cortex_runner.py' -v
+          python3 -m unittest discover -s tests/unit -p 'test_cortex_host_transport.py' -v
+      - name: Write non-authoritative checkpoint
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p /tmp/nexus-passive
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          checkpoint = {
+              "schema": "nexus.passive.synthetic-checkpoint.v1",
+              "authority": "NON_CANONICAL",
+              "mode": "PASSIVE",
+              "fixture_only": True,
+              "live_cortex_calls": False,
+              "journal_persistent": False,
+              "workflow_run": os.environ["GITHUB_RUN_ID"],
+              "commit_sha": os.environ["GITHUB_SHA"],
+              "job_status": os.environ["JOB_STATUS"],
+              "next_action": "Review evidence; no autonomous continuation",
+          }
+          Path("/tmp/nexus-passive/checkpoint.json").write_text(
+              json.dumps(checkpoint, sort_keys=True, indent=2) + "\n")
+          PY
+      - name: Publish synthetic checkpoint artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-passive-synthetic-checkpoint
+          path: /tmp/nexus-passive/checkpoint.json
+          retention-days: 7
+          if-no-files-found: error
