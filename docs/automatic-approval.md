@@ -147,3 +147,15 @@ Next bounded integration gates:
 5. Wire operation-bound approvals into one permitted adapter with checkpoint intent,
    independent readback and no replay after uncertainty. No blanket connector
    interception, live execution, CP09 resumption or production activation follows.
+
+## Hosted coverage regression and repair
+Initial integrated head b023f49194b29ea8fab48bca93b3ad9f33806a86 failed synthetic
+run40930557474/job123647533810: 498 cases, one SKIPPED YAML coverage test, fault
+checks not attempted. Local host validation had passed because YAML was present.
+The no-skip runner requirement is retained. Source coverage now runs explicitly
+on exact checkout in a host-only verifier before isolated tests; isolated unit
+cases cover policy semantics without skipping. This is source-order evidence,
+not proof of environment approval timing or every external operation.
+Initial approval run40930557384/job123647532609 fetched trusted base successfully
+then returned HOLD/exit2 with empty trust. That is expected refusal, not an
+approved review or a repaired approval result.

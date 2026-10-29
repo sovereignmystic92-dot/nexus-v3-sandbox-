@@ -22,13 +22,3 @@ class WorkflowCoverageTests(unittest.TestCase):
         with self.assertRaises(gate.Hold):
             gate.preflight(policy,'notion-checkpoint-write-probe.yml','a'*40)
 
-    def test_all_manual_provider_routes_preflight_before_secrets(self):
-        folder=gate.ROOT/'.github/workflows'
-        if not folder.exists():
-            self.skipTest('Isolated suite omits workflow YAML; host validates exact files')
-        for name in ('gemini-smoke.yml','notion-read-probe.yml','notion-identity-probe.yml',
-                     'notion-boundary-probe.yml','notion-audit-access-probe.yml',
-                     'notion-checkpoint-write-probe.yml','notion-checkpoint-reconcile-probe.yml'):
-            source=(folder/name).read_text()
-            self.assertLess(source.index('Approval policy preflight'),source.index('${{ secrets.'))
-            self.assertIn('--workflow '+name,source)
