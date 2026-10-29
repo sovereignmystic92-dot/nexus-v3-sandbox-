@@ -25,13 +25,27 @@ def digest_ok(value):
     return type(value) is str and len(value)==64 and all(c in '0123456789abcdef' for c in value)
 
 
-def sha256(value):
+def utf8(value, limit=None):
     if type(value) is not str:
         raise Hold('Exact text required')
     try:
-        return hashlib.sha256(value.encode('utf-8')).hexdigest()
+        encoded=value.encode('utf-8')
     except UnicodeError:
         raise Hold('UTF-8 required') from None
+    if limit is not None and len(encoded)>limit:
+        raise Hold('UTF-8 input exceeds size limit')
+    return encoded
+
+
+def sha256(value):
+    return hashlib.sha256(utf8(value)).hexdigest()
+
+
+def review_body_ok(value):
+    utf8(value,65536)
+    if not value.strip():
+        raise Hold('Nonempty review required')
+    return value
 
 
 def context_ok(c):
@@ -84,8 +98,7 @@ def validate(packet):
 
 def bind(context, source, claimed_agent, session_id, review_body, evidence):
     """Return wire text and content digest, never an authenticated receipt."""
-    if type(review_body) is not str or not review_body.strip() or len(review_body.encode('utf-8'))>65536:
-        raise Hold('Bounded nonempty review required')
+    review_body_ok(review_body)
     packet=dict(schema_version=1,context=context,source=source,
                 claimed_agent=claimed_agent,session_id=session_id,
                 review_sha256=sha256(review_body),evidence=evidence)
@@ -101,10 +114,12 @@ def verify(wire, *, expected_context, expected_source, expected_digest,
     by the host. This function does not fetch them, authenticate them or attest
     their relevance, completeness, truth, temporal freshness or independence.
     """
+    review_body_ok(review_body)
     context_ok(expected_context)
     source_ok(expected_source)
     evidence_ok(evidence)
-    if type(wire) is not str or len(wire.encode('utf-8'))>MAX_BYTES or not digest_ok(expected_digest):
+    utf8(wire,MAX_BYTES)
+    if not digest_ok(expected_digest):
         raise Hold('Bounded wire and independently retained digest required')
     packet=validate(load_json(wire))
     canonical_wire=canonical(packet)
