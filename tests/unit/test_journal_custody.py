@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -26,6 +28,23 @@ class CustodyTests(unittest.TestCase):
         result = inspect_journal(self.path, "fixture")
         self.assertEqual(result["pending_or_held"], 1)
         self.assertEqual(result["verified"], 1)
+        self.assertEqual(self.path.read_bytes(), before)
+
+    def test_separate_process_observes_same_journal_without_mutation(self):
+        before = self.path.read_bytes()
+        script = (
+            "import json,sys;"
+            "from nexus_sandbox.journal_custody import inspect_journal;"
+            "print(json.dumps(inspect_journal(sys.argv[1], 'fixture'),sort_keys=True))"
+        )
+        root = Path(__file__).resolve().parents[2]
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(self.path)],
+            cwd=root, env=dict(os.environ, PYTHONPATH=str(root / "src")),
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn('"pending_or_held": 1', completed.stdout)
         self.assertEqual(self.path.read_bytes(), before)
 
     def test_missing_journal_never_recreated(self):
