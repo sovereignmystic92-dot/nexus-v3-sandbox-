@@ -46,6 +46,31 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(projection.publish(self.checkpoint), "HOLD")
         self.assertEqual(self.creates, [])
 
+    def test_digest_only_is_not_independent_readback(self):
+        def lookup(key):
+            original = self.records.get(key)
+            return {"digest": original["digest"]} if original else None
+        projection = NotionCheckpointProjection(find_exact=lookup,
+                                                create=self.create, enabled=True)
+        self.assertEqual(projection.publish(self.checkpoint), "HOLD")
+        self.assertEqual(self.creates, ["event-1"])
+
+    def test_replayed_digest_without_body_holds(self):
+        self.records["event-1"] = {"digest": "known", "body": "tampered"}
+        projection = NotionCheckpointProjection(find_exact=self.lookup,
+                                                create=self.create, enabled=True)
+        self.assertEqual(projection.publish(self.checkpoint), "HOLD")
+        self.assertEqual(self.creates, [])
+
+    def test_restart_with_same_remote_record_is_idempotent(self):
+        first = NotionCheckpointProjection(find_exact=self.lookup,
+                                           create=self.create, enabled=True)
+        self.assertEqual(first.publish(self.checkpoint), "VERIFIED")
+        restarted = NotionCheckpointProjection(find_exact=self.lookup,
+                                               create=self.create, enabled=True)
+        self.assertEqual(restarted.publish(self.checkpoint), "VERIFIED")
+        self.assertEqual(len(self.creates), 1)
+
     def test_outage_raises_instead_of_treating_as_absence(self):
         def outage(key):
             raise ConnectionError("Notion unavailable")
