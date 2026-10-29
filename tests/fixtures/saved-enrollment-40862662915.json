@@ -1,0 +1,8 @@
+{
+  "checkpoint": "{\"binding\":{\"code_revision\":\"d55ecbe22b9a34ab0c9498cc5f7014aac20e77b2\",\"destination_id\":\"4018c067daa48122b82ec2ae8067d021\",\"policy_revision\":\"bounded-live-checkpoint-test-20261028-v1\",\"run_id\":\"NXS-LIVE-CHECKPOINT-40862662915\",\"schema_version\":1,\"source_id\":\"github-actions:40862662915\",\"source_sha256\":\"6b37b6d9a8baec84d75185fe19a18ff8977f54df1bb9cd0b358a5c3bc375ddae\"},\"pending\":null,\"receipts\":[]}",
+  "event_type": "NXS_CHECKPOINT_V1",
+  "page_id": "4018c067daa48122b82ec2ae8067d021",
+  "previous": null,
+  "run_id": "NXS-LIVE-CHECKPOINT-40862662915",
+  "sequence": 0
+}
