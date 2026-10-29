@@ -125,3 +125,47 @@ cannot establish evidence quality, independent review or live autonomous researc
 
 No new listener, schedule, live provider write or research worker is activated by
 this contract. Existing handoff/activation deferrals remain in force.
+
+## Implemented research controller — draft, opt-in
+
+The research controller is now implemented in `research_loop.py`, independently
+of the observer router. It calls an injected, trusted read-only research function
+for each question and accepts a structured assessment, evidence, connection
+candidates and new followups. It continues those followups within the same mission.
+It does not automatically dispatch from the queue: that integration is still absent.
+
+`initial_state` creates a bounded explicit frontier. The host must persist it
+before calling `run_research`. Every attempt saves and independently reads back
+pending intent before callback invocation, then saves and verifies the assessed
+result. A later invocation skips confirmed findings. Pending work after an
+interruption holds for reconciliation; `apply_assessment` can apply an already
+obtained result to that pending item, but the host must verify and persist it.
+
+Results distinguish FRONTIER_EXHAUSTED, BLOCKED, PAUSED_BUDGET,
+BLOCKED_RECONCILE and BLOCKED_CHECKPOINT_OR_RESEARCH. Other unblocked questions
+continue even when one finding is blocked. Repeated evidence with the same ID
+must match exactly, and duplicate questions/connection entries are not added.
+Connections must reference retained evidence and label analogies/hypotheses.
+Contradictions and attempted queries are retained. No confidence score is
+automatically increased by repetition.
+
+Trust limits: a callback's source assessment, scope judgment and exhaustion
+rationale are inputs, not independently evaluated facts. This controller cannot
+prove a query was executed, a source read, or a conclusion justified. It preserves
+an assessment rather than authenticating it. It uses FIFO frontier order, not an
+implemented semantic priority model. Reopening a resolved/blocked question after
+new evidence requires an explicitly reviewed host state update. It is not a
+complete research agent, and a zero-evidence assessment is structurally possible;
+the host must enforce evidence sufficiency for each actual claim.
+
+Save/read callbacks must supply honest durable copies; no storage backend,
+authentication, tamper/rollback protection, real-search transport, scheduler or
+provider write authority is installed. Time, cost and tool calls inside one
+callback require separate host enforcement: max_steps bounds callback count only.
+The controller does not grant analytical completion, knowledge promotion or
+audit passage. Existing live handoff/activation deferrals remain in force.
+
+Twelve targeted scripted tests cover same-mission continuation, duplicate
+suppression, contradiction/connection preservation, blocking, budget pause/resume,
+pending-intent reconciliation, invalid assessment and failed readback. They do
+not establish live autonomous research or evaluate historical source quality.
