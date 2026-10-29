@@ -36,3 +36,9 @@ production or the whole foundation audit.
 No credentials, accounts, permissions, protections, scheduler or workflow changes.
 No provider invocation, Cortex write, production or CP09 activation. Keep draft
 pending independent security review and applicable exact-revision checks.
+
+Independent-review repair: AUTH-DECLARED-DUPLICATE-RECORD. Earlier deduplication
+included the record revision, allowing two versions of one mutable record to count
+as two records. Require distinct (store,record_id); each revision remains separately
+bound. A targeted regression rejects the same record at two revisions. Historical
+514-case pass did not cover this defect; renew validation/reviews after repair.
