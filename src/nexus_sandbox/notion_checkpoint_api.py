@@ -9,7 +9,28 @@ import re
 from urllib.parse import urlencode
 from uuid import UUID
 import urllib.request
+import urllib.error
 from .notion_inventory import observe, enrolled_table_id, unique_pairs
+
+
+class RequestFailure(RuntimeError):
+    """Only validated HTTP status and fixed category; never provider text."""
+    def __init__(self,category,status=None):
+        super().__init__('Notion request unavailable; reconcile uncertain writes')
+        self.category=category
+        self.status=status
+
+
+def request_error_evidence(error):
+    category='UNKNOWN';status=None
+    if type(error) is RequestFailure:
+        if type(error.category) is str and error.category in {'HTTP_ERROR','TIMEOUT','REQUEST_UNAVAILABLE'}:
+            category=error.category
+        if category=='HTTP_ERROR' and type(error.status) is int and 400<=error.status<=599:
+            status=error.status
+    elif type(error) is TimeoutError:category='TIMEOUT'
+    elif type(error) is ValueError:category='VALIDATION_FAILED'
+    return dict(category=category,http_status=status)
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -59,8 +80,12 @@ class NotionRequest:
                         if type(block) is dict and block.get('type')=='table':
                             self._tables.add(enrolled_table_id(block,self.page_id))
                 return value
+        except urllib.error.HTTPError as error:
+            raise RequestFailure('HTTP_ERROR',error.code) from None
+        except TimeoutError:
+            raise RequestFailure('TIMEOUT') from None
         except Exception:
-            raise RuntimeError('Notion request unavailable; reconcile uncertain writes') from None
+            raise RequestFailure('REQUEST_UNAVAILABLE') from None
 
 
 class NotionCheckpointAPI:
@@ -122,3 +147,4 @@ class NotionCheckpointAPI:
                     'rich_text':[{'type':'text','text':{'content':s}} for s in chunks]}}]}
         # Exactly one attempt. The higher-level transport must freshly observe.
         return self.request('PATCH','/v1/blocks/'+self.page_id+'/children',payload)
+
