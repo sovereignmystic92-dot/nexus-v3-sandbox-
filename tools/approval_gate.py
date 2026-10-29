@@ -68,7 +68,7 @@ def validate_policy(policy):
             raise Hold('Destination list required')
     workflows = policy['workflows']
     if (type(workflows) is not dict or
-            any(type(k) is not str or not k or v not in SAFE for k, v in workflows.items())):
+            any(type(k) is not str or not k or v not in SAFE | DELEGATED for k, v in workflows.items())):
         raise Hold('Invalid workflow policy')
     return policy
 

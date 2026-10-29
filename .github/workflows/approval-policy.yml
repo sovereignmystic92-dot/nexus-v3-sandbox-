@@ -1,0 +1,46 @@
+name: Independent AI approval evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions: {}
+
+concurrency:
+  group: nexus-approval-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  approval-evidence:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Fetch trusted base policy without candidate code or credentials
+        env:
+          POLICY_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$POLICY_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir guard
+          for file in approval_gate.py approval_policy.json; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/$POLICY_SHA/tools/$file" \
+              -o "guard/$file"
+          done
+      - name: Verify current-revision independent review receipts
+        env:
+          REVIEW_SHA: ${{ github.event.pull_request.head.sha }}
+          REVIEW_PR: ${{ github.event.pull_request.number }}
+        run: |
+          python3 -I guard/approval_gate.py --policy guard/approval_policy.json \
+            --revision "$REVIEW_SHA" --pr "$REVIEW_PR" \
+            --operation routine_write --destination github:main
+
+# No secrets, elevated permissions, model calls, auto-merge, or deployment.
+# Required-check configuration is an external repository setting, not asserted here.
+

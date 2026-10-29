@@ -41,6 +41,12 @@ jobs:
           git checkout --detach --quiet FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           python3 tools/verify_ci_source.py
+      - name: Approval policy preflight
+        env:
+          APPROVAL_REVISION: ${{ github.sha }}
+        run: python3 -I checkout/tools/approval_gate.py --workflow synthetic-acceptance.yml --revision "$APPROVAL_REVISION"
+      - name: Verify proposed provider preflight coverage on exact source
+        run: python3 -I checkout/tools/verify_approval_workflow_coverage.py
       - name: Check container boundary and run synthetic suite
         working-directory: checkout
         shell: bash
@@ -52,4 +58,7 @@ jobs:
 
 # No schedule, production deployment, external adapters, uploaded artifacts,
 # paid runner label, repository merge, or secret-dependent action is included.
+
+
+
 

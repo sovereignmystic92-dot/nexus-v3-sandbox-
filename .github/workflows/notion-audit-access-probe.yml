@@ -23,6 +23,22 @@ jobs:
     environment: notion-sandbox
     timeout-minutes: 2
     steps:
+      - name: Approval policy preflight before credential use
+        env:
+          APPROVAL_REVISION: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$APPROVAL_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          guard_dir=$(mktemp -d "$RUNNER_TEMP/nexus-approval.XXXXXX")
+          trap 'rm -rf -- "$guard_dir"' EXIT
+          for file in approval_gate.py approval_policy.json; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/$APPROVAL_REVISION/tools/$file" \
+              -o "$guard_dir/$file"
+          done
+          python3 -I "$guard_dir/approval_gate.py" --policy "$guard_dir/approval_policy.json" \
+            --workflow notion-audit-access-probe.yml --revision "$APPROVAL_REVISION"
       - name: Fetch exact public script without credentials
         env:
           SOURCE_SHA: ${{ github.sha }}
