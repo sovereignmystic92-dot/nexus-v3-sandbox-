@@ -1,12 +1,23 @@
-# Existing checkpoint read-only reconciliation
+# Verified Notion readback -> read-only resume plan
 
-Purpose: observe only NXS-LIVE-CHECKPOINT-40781386183 on the canonical Foundation Audit. No append, new checkpoint, deletion, permission change or bridge activation is permitted.
+Current manual entrypoint: **Notion saved checkpoint resume plan (read-only)**, file notion-checkpoint-reconcile-probe.yml. Run on main with checkpoint_reconcile_confirmed=true and the existing Notion-sandbox native gate. Adoption never dispatches the workflow. The original reconciliation script remains available as historical code; old runs preserve their exact original source and target.
 
-The original binding source is fixed to 1ff5dbffbcd900687b4477490ded37827b0cc892. The current execution source is reported separately as execution_source_revision. The expected original checkpoint SHA-256 is also fixed; codec drift blocks rather than being interpreted as historical absence. The earlier omitted write error cannot be recovered; this workflow can only report a fresh observation of the exact old record.
+## Fixed checkpoint and observation
+The current handoff targets successful run40862662915 on canonical Foundation Audit4018c067daa48122b82ec2ae8067d021. Its binding source is d55ecbe22b9a34ab0c9498cc5f7014aac20e77b2 and checkpoint digest is7409a0f2aae701d8d1c4cbce51426d96f455ec989f8e966ea3243696bdca17a8. Execution source is reported separately.
 
-Manual workflow: Notion existing checkpoint read-only reconciliation. Run on main with checkpoint_reconcile_confirmed=true, then pass the existing notion-sandbox native gate. Defaults false, repository/main restriction, empty GitHub permissions, same checkpoint-test concurrency group. All public code comes from the exact workflow SHA. No workflow is launched by adoption.
+The adopted NotionCheckpointAPI and AuditCheckpointTransport perform bounded exact-page/table inventory and checkpoint-chain observation. An independent expected binding and digest must match before the adopted decoder/classifier is invoked. Root/table reads share the existing limits; wrapper caps11GETs. No checkpoint text or provider messages are printed, only fixed stages, binding metadata and sanitized diagnostics. Missing, malformed, incomplete or changed observations block rather than becoming a resume plan.
 
-Every execution, including attempt1, constructs the HTTP client with write_enabled=False and calls the existing probe with allow_write=False. An additional request guard refuses non-GET methods/payloads before forwarding and caps reads at11. Output retains current safe diagnostics. An exact old event yields VERIFIED_ALREADY_PRESENT; bounded absence remains BLOCKED_OBSERVE_ONLY_ABSENT; malformed or unavailable observations remain unknown/blocked. No outcome permits an append retry.
+## Two separate judgments
+A successful observation returns VERIFIED_OBSERVATION_EXECUTION_BLOCKED. It emits observed completed/pending/next stage fields, then passes the exact verified checkpoint to decide_resume with inventory_complete=True because the adapter/transport observation completed.
 
-Ten mocked tests cover exact binding versus wrong source, bounded absence, independent mutation guard, read cap, sanitized HTTP status, first-attempt write exclusion, confirmation and invalid execution revision. No live read/write performed in preparation. Atomic snapshot, long-term retention, worker fencing, bridge activation and original write success remain unproved. Rollback is normal reviewed revert preserving prior run evidence.
+Execution authority remains hardcoded False, not a user flag. The resume decision is BLOCKED / VERIFY_CURRENT_AUTHORITY. The current enrollment has zero receipts, so observed_next_stage is SOURCE_PRESERVED; it is not permission to invoke that stage. Exit0 means observation and decision output succeeded, never that execution is authorized or processing is complete.
+
+Every attempt constructs write_enabled=False, provides no append capability, rejects non-GET/payload requests before the callback, and has no executor wiring. provider_writes=0, executor_callbacks_invoked=0 and automatic_execution=False describe the actual connected path; callback/provider internals still require trusted host custody. Complete effective grants, current worker authority and ownership/fencing are not authenticated by a successful GET.
+
+## Validation and history
+Nine new synthetic tests cover actual classifier handoff, missing authority, absent/misbound/digest-mismatched/incomplete records, defense-in-depth mutation exclusion, read budget, HTTP diagnostic sanitization and first-attempt write-disabled configuration. No live provider call was performed during preparation. Actual provider execution must be checked from its later run logs.
+
+The historical PR80 workflow targeted failed run40781386183; its absence results did not test the later successful record. The successful record was independently observed across attempts of run40862662915 without a second append. Neither that result nor this handoff proves host-loss recovery, future retention, live job completion or CP09 fencing.
+
+No live processing, append, new enrollment, permissions, credentials, scheduler or broad bridge activation. Production remains paused; CP09 unproven; no checkpoint score promotion. Rollback is normal reviewed revert preserving prior run evidence.
 
