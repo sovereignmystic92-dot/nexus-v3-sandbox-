@@ -59,3 +59,8 @@ class DeclaredTests(unittest.TestCase):
         with self.assertRaises(gate.Hold):self.check()
         c=dict(self.context,destination='production')
         with self.assertRaises(gate.Hold):self.check(context=c)
+
+    def test_two_versions_of_one_record_cannot_count_as_two_reviews(self):
+        self.rows[1]['source']=dict(self.rows[0]['source'],record_revision='2')
+        self.rebind(self.rows[1])
+        with self.assertRaises(gate.Hold):self.check()
