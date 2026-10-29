@@ -88,6 +88,25 @@ class ReviewBindingTests(unittest.TestCase):
                 self.check(expected_digest=binding.sha256(wire))
             self.wire=old
 
+    def test_verify_enforces_same_body_constraints_as_bind(self):
+        for body in ('','   ','x'*65537):
+            packet=json.loads(self.wire);packet['review_sha256']=binding.sha256(body)
+            wire=binding.canonical(packet)
+            with self.subTest(length=len(body)),self.assertRaises(binding.Hold):
+                binding.verify(wire,expected_context=self.context,expected_source=self.source,
+                    expected_digest=binding.sha256(wire),expected_agent='Gemini',
+                    expected_session='session-one',review_body=body,evidence=self.evidence)
+
+    def test_invalid_utf8_is_a_hold_in_both_entrypoints(self):
+        bad=chr(0xd800)
+        with self.assertRaises(binding.Hold):
+            binding.bind(self.context,self.source,'Gemini','session-one',bad,self.evidence)
+        with self.assertRaises(binding.Hold):
+            binding.verify(bad,expected_context=self.context,expected_source=self.source,
+                expected_digest=self.digest,expected_agent='Gemini',expected_session='session-one',
+                review_body=self.body,evidence=self.evidence)
+        with self.assertRaises(binding.Hold):self.check(review_body=bad)
+
     def test_fresh_process_can_verify_saved_snapshot_without_provider(self):
         with tempfile.TemporaryDirectory() as folder:
             path=Path(folder)/'snapshot.json'
