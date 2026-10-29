@@ -1,13 +1,18 @@
 """Offline host-readiness probe tests; no live destination or workflow activation."""
 import contextlib
 import io
+import importlib.util
 import json
 from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
 
-from tools.journal_readiness_probe import evaluate, main
+PROBE_PATH = Path(__file__).resolve().parents[2] / 'tools' / 'journal_readiness_probe.py'
+spec = importlib.util.spec_from_file_location('journal_readiness_probe', PROBE_PATH)
+probe = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(probe)
+evaluate, main = probe.evaluate, probe.main
 
 
 class ReadinessTests(unittest.TestCase):
