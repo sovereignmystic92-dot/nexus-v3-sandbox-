@@ -1,0 +1,18 @@
+{
+  "policy_version": "owner-two-ai-production-2026-10-28",
+  "trusted_reviewers": {},
+  "destinations": {
+    "routine_write": ["github:main"],
+    "production_deployment": []
+  },
+  "workflows": {
+    "synthetic-acceptance.yml": "offline_validation",
+    "gemini-offline.yml": "offline_validation",
+    "gemini-smoke.yml": "confirmed_synthetic_pilot",
+    "notion-read-probe.yml": "read_only_probe",
+    "notion-identity-probe.yml": "read_only_probe",
+    "notion-boundary-probe.yml": "read_only_probe",
+    "approval-policy.yml": "offline_validation"
+  }
+}
+
