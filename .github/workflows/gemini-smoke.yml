@@ -63,3 +63,5 @@ jobs:
           NEXUS_SYNTHETIC_CONFIRMED: ${{ inputs.synthetic_confirmed }}
         run: python3 -I "$RUNNER_TEMP/nexus-gemini-smoke.py"
 
+
+

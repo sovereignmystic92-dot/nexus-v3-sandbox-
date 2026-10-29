@@ -1,0 +1,47 @@
+name: Notion saved checkpoint resume plan (read-only)
+on:
+  workflow_dispatch:
+    inputs:
+      checkpoint_reconcile_confirmed:
+        description: Read saved checkpoint 40862662915 and emit a plan; no execution or writes
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-sandbox-checkpoint-write-test
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.checkpoint_reconcile_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 5
+    steps:
+      - name: Fetch exact reviewed public code without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir -p "$RUNNER_TEMP/checkpoint-probe/tools" "$RUNNER_TEMP/checkpoint-probe/src/nexus_sandbox"
+          for file in __init__.py notion_checkpoint_api.py notion_inventory.py audit_checkpoint_transport.py checkpoint_json.py processing_pipeline.py resume_decision.py; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/src/nexus_sandbox/${file}" \
+              -o "$RUNNER_TEMP/checkpoint-probe/src/nexus_sandbox/${file}"
+          done
+          for file in notion_checkpoint_resume_plan.py; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/${file}" \
+              -o "$RUNNER_TEMP/checkpoint-probe/tools/${file}"
+          done
+      - name: Observe saved checkpoint and emit blocked-execution plan; no writes
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_CHECKPOINT_RECONCILE_CONFIRMED: 'true'
+        run: python3 -I "$RUNNER_TEMP/checkpoint-probe/tools/notion_checkpoint_resume_plan.py"
+      - name: Remove staged probe code
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/checkpoint-probe"
+
+

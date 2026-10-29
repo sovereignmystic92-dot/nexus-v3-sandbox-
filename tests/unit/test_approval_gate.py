@@ -127,3 +127,4 @@ class ApprovalGateTests(unittest.TestCase):
                          'notion-identity-probe.yml', 'notion-boundary-probe.yml'):
                 source = (folder / name).read_text()
                 self.assertLess(source.index('Approval policy preflight'), source.index('${{ secrets.'))
+

@@ -78,3 +78,4 @@ class ApprovedWriteBoundary:
             db.execute('UPDATE approved_writes SET state=? WHERE request_id=?',
                        ('VERIFIED', request_id))
         return {'state': 'VERIFIED', 'write_attempted': True, 'request_id': request_id}
+

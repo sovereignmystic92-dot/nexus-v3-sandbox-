@@ -99,3 +99,4 @@ class ApprovedWriteTests(unittest.TestCase):
         self.assertEqual(intent['before_sha256'], self.before)
         self.assertEqual(intent['payload_sha256'], content_hash(self.target))
         self.assertEqual(digest, content_hash(intent))
+

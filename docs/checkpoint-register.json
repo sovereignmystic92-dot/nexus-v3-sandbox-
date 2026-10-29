@@ -529,16 +529,16 @@
     },
     {
       "id": "CP08",
-      "title": "Stop, cleanup and retention",
+      "title": "Sandbox stop and disposable-resource cleanup",
       "source_mapping": "C8",
       "definition_state": "ACCEPTED",
-      "status": "PARTIALLY_VERIFIED",
-      "status_reason": "Ordinary container/staging cleanup and killed-child staging cleanup passed. Forced host-stop cleanup and future deletion remain unverified.",
-      "pass_requirement": "Ordinary and forced-stop lifecycles prevent further writes and remove disposable data; retained evidence has an explicit retention policy and observed deletion where required.",
-      "required_evidence": "Ordinary cleanup, host-stop recovery/teardown evidence, before/after inventory and retention/deletion observations.",
+      "status": "PASSED",
+      "status_reason": "Owner selected sandbox-only closure conditional on passing tests. Fresh current-main integration passed ordinary cleanup, real-Docker SIGTERM and SIGKILL/surviving-supervisor removal; 90-day evidence-retention runtime setting observed. No broader host-loss/expiry claim.",
+      "pass_requirement": "Within the single-worker synthetic hosted sandbox on a surviving Docker host: ordinary execution and catchable runner stop remove the owned container and staging; abrupt runner loss is detected and the exact owned resources are removed by a surviving foreground supervisor, with independent before/after observations. Retained test evidence has an explicit bounded retention setting. Future expiry and total host loss are outside this owner-revised criterion.",
+      "required_evidence": "Exact-revision hosted run, ordinary cleanup report, REAL-DOCKER-RUNNER-SIGTERM and REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR passing observations with container/staging absence, explicit retained-log policy and read-back of persisted assessment.",
       "dependencies": [],
-      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
-      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "assessed_revision": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+      "scope": "Owner-selected single-worker synthetic sandbox; real Docker with surviving host and explicit foreground supervisor only.",
       "evidence": [
         {
           "evidence_id": "main-40135860508-CP08",
@@ -552,14 +552,77 @@
             "Author evidence mapping, not independent human review.",
             "Proposed mapping not adopted; historical 8/19 identities unresolved."
           ]
+        },
+        {
+          "evidence_id": "cp08-sandbox-40638902063",
+          "definition_version": "owner-cp08-sandbox-2026-10-28",
+          "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+          "head_sha": "847bb3df87ec256bc2d0f075542cea00242f6cb6",
+          "base_sha": "96f7545599751a0f0b0008087c1775ce39c160b3",
+          "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40638902063",
+          "job_id": 122652171244,
+          "observed_at": "2026-10-28T05:37:17.938Z",
+          "operator": "GitHub-hosted runner; ChatGPT decoded-log inspection",
+          "case_ids": [
+            "REAL-DOCKER-RUNNER-SIGTERM",
+            "REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR"
+          ],
+          "expected": "Ordinary and stopped-runner owned resources removed; abrupt runner orphan observed then removed by surviving supervisor; retained logs explicitly bounded.",
+          "actual": {
+            "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+            "ordinary": {
+              "status": "PASSED",
+              "container_removed": true,
+              "source_staging_removed": true,
+              "retention_policy_status": "RUNTIME_SETTING_CONFIRMED",
+              "github_log_retention_days": "90",
+              "tests": 277,
+              "fault_status": "PASSED"
+            },
+            "cases": [
+              {
+                "case_id": "REAL-DOCKER-RUNNER-SIGTERM",
+                "container_absent": true,
+                "limits": [
+                  "Catchable runner stop on surviving host; not SIGKILL or host/power loss",
+                  "Synthetic waiting workload replaces the suite inside the normal real runner container",
+                  "No retention deletion evidence or checkpoint closure"
+                ],
+                "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+                "staging_absent": true,
+                "status": "PASSED"
+              },
+              {
+                "case_id": "REAL-DOCKER-RUNNER-SIGKILL-SUPERVISOR",
+                "container_absent_after_cleanup": true,
+                "limits": [
+                  "Supervisor and Docker host survive; not total host loss",
+                  "Explicit foreground test supervisor, not an installed crash-recovery service",
+                  "No retention expiry or checkpoint closure"
+                ],
+                "orphan_running_before_cleanup": true,
+                "runner_report_absent": true,
+                "signal_observed": true,
+                "source_sha": "ca06264ddd79717f704051b5b9afee7bd01fac1e",
+                "staging_absent_after_cleanup": true,
+                "staging_present_before_cleanup": true,
+                "status": "PASSED"
+              }
+            ]
+          },
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED_WITHIN_OWNER_REVISED_SANDBOX_SCOPE",
+          "artifact_reference": "docs/cp08-sandbox-closure-20261028.json",
+          "limitations": [
+            "Total host/power loss and cleanup after loss of the supervisor or Docker host are unverified.",
+            "Provider/backend erasure and future log-retention expiry are unverified; Cortex deletion rejection remains preserved.",
+            "Foreground test supervisor is not an installed recovery service; no production or multi-worker assurance."
+          ]
         }
       ],
-      "blockers": [
-        "Host-loss cleanup and future retention deletion remain unverified.",
-        "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
-      ],
-      "accepted_by": null,
-      "accepted_at": null,
+      "blockers": [],
+      "accepted_by": "Repository owner via explicit conditional sandbox-closure instruction; ChatGPT verifies test evidence and records disposition",
+      "accepted_at": "2026-10-28T05:37:17.938Z",
       "history": [
         {
           "previous_status": "NOT_TESTED",
@@ -589,6 +652,15 @@
           "assessor": "ChatGPT author",
           "evidence_reference": "docs/cp08-provider-deletion-result.md",
           "reason": "One authorized disposable Cortex module created and exactly read back; delete rejected by provider durability policy; fresh read confirms it remains unarchived. No deletion pass claimed."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PASSED",
+          "definition_version": "owner-cp08-sandbox-2026-10-28",
+          "assessor": "ChatGPT under explicit owner conditional sandbox-closure instruction",
+          "observed_at": "2026-10-28T05:37:17.938Z",
+          "evidence_reference": "docs/cp08-sandbox-closure-20261028.json",
+          "reason": "Scope explicitly revised to sandbox and actual fresh integrated tests passed. Original broader requirement and negative provider deletion result preserved; CP09 untouched."
         }
       ],
       "dependency_assessment": {
@@ -597,15 +669,37 @@
         "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
       },
       "final_disposition": {
-        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
-        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
-        "remaining_requirement": [
-          "Host-loss cleanup and future retention deletion remain unverified.",
-          "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
+        "assessment": "PASSED_OWNER_REVISED_SANDBOX_REQUIREMENT",
+        "remaining_requirement": [],
+        "excluded_assurance": [
+          "Total host/power loss and cleanup after loss of the supervisor or Docker host are unverified.",
+          "Provider/backend erasure and future log-retention expiry are unverified; Cortex deletion rejection remains preserved.",
+          "Foreground test supervisor is not an installed recovery service; no production or multi-worker assurance."
         ],
-        "reopen_when": "Selecting replacement storage, requiring expiry/erasure, deploying a surviving supervisor, or gaining host-loss/provider-deletion evidence.",
-        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
-      }
+        "reopen_when": "Relevant sandbox retest fails, evidence is lost, implementation/host/scope changes, or broader host-loss/provider-retention assurance is requested.",
+        "constraint": "Definition-dependent sandbox pass only; original broader requirement not passed. CP09 unchanged; no production-readiness claim."
+      },
+      "requirement_history": [
+        {
+          "definition_version": "proposal-1",
+          "title": "Stop, cleanup and retention",
+          "pass_requirement": "Ordinary and forced-stop lifecycles prevent further writes and remove disposable data; retained evidence has an explicit retention policy and observed deletion where required.",
+          "required_evidence": "Ordinary cleanup, host-stop recovery/teardown evidence, before/after inventory and retention/deletion observations.",
+          "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+          "status": "PARTIALLY_VERIFIED",
+          "blockers": [
+            "Host-loss cleanup and future retention deletion remain unverified.",
+            "Cortex context_delete rejects module deletion as durable knowledge; archive-only behavior is not deletion evidence."
+          ],
+          "disposition": "Original broader requirement preserved as PARTIALLY_VERIFIED; prospectively superseded only for owner-selected sandbox acceptance. Broader assurance remains unestablished."
+        }
+      ],
+      "definition_version": "owner-cp08-sandbox-2026-10-28",
+      "deferred_broader_assurance": [
+        "Total host/power loss and cleanup after loss of the supervisor or Docker host are unverified.",
+        "Provider/backend erasure and future log-retention expiry are unverified; Cortex deletion rejection remains preserved.",
+        "Foreground test supervisor is not an installed recovery service; no production or multi-worker assurance."
+      ]
     },
     {
       "id": "CP09",
@@ -1524,7 +1618,7 @@
   "assessment_summary": {
     "definition_acceptance": "ACCEPTED",
     "historical_reconciliation": "Historical aggregate preserved but superseded for scoring; original identities remain UNRESOLVED",
-    "accepted_pass_count": 11,
+    "accepted_pass_count": 12,
     "total_count": 19,
     "passed_checkpoint_ids": [
       "CP07",
@@ -1537,12 +1631,13 @@
       "CP17",
       "CP19",
       "CP18",
-      "CP06"
+      "CP06",
+      "CP08"
     ],
-    "partially_verified_count": 5,
+    "partially_verified_count": 4,
     "blocked_count": 3,
-    "status_adjudication": "Eleven bounded itemized passes proposed on CP06 adjudication branch until merged; owner standing approval applies to verified sandbox changes.",
-    "warning": "Mixed-scope synthetic acceptance only. Full foundation acceptance remains BLOCKED; no gate requirement or denominator changed."
+    "status_adjudication": "12/19 includes owner-revised CP08 sandbox-only acceptance; no CP10 adoption or CP09 change.",
+    "warning": "Mixed-scope acceptance. CP08 requirement narrowed explicitly; not directly comparable to prior full-scope CP08 assessment. Full foundation acceptance remains BLOCKED."
   },
   "definition_acceptance": {
     "accepted_by": "Repository owner via current conversation",
@@ -1564,9 +1659,20 @@
     "full_foundation_acceptance": "BLOCKED",
     "production_activation": "NOT_AUTHORIZED",
     "owner_decision": "Owner agreed to closing the assessment with documented exceptions in the current conversation.",
-    "checkpoint_score": "11/19 passed; eight requirements remain unpassed",
+    "checkpoint_score": "12/19 under owner-revised CP08 sandbox definition; four partial and three blocked",
     "interim_information_policy": "Preserve old information as archived/superseded artifacts with source provenance and explicit noncurrent status; do not describe preservation as deletion. Production Notion processing remains paused; no bulk changes authorized.",
     "future_work": "Reopen only affected checkpoints when listed triggers occur. New feature work must respect existing single-worker synthetic sandbox limits.",
     "closure_record": "docs/foundation-audit-closure.md"
-  }
+  },
+  "requirement_amendments": [
+    {
+      "id": "CP08-SANDBOX-20261028",
+      "checkpoint": "CP08",
+      "definition_version": "owner-cp08-sandbox-2026-10-28",
+      "authorization": "Owner: leave nine alone for right now and, if eight can pass its test in sandbox ... let that gate close.",
+      "scope": "Owner-selected single-worker synthetic sandbox; real Docker with surviving host and explicit foreground supervisor only.",
+      "prior_requirement_preserved": true,
+      "score_change": 1
+    }
+  ]
 }
