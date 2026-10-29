@@ -158,6 +158,28 @@ def authorize(policy, pr, reviews, revision, operation, destination, request_sha
             'scope': 'Authenticated reviewer attestations; technical readiness remains separate'}
 
 
+def recheck_pr_context(before, after, revision):
+    """Reject material PR drift across observation; no approval or dispatch here."""
+    exact_sha(revision)
+    def context(pr):
+        try:
+            head, base, author = pr['head'], pr['base'], pr['user']['login']
+            exact_sha(head['sha'])
+            exact_sha(base['sha'])
+            if (pr['state'] != 'open' or head['sha'] != revision or
+                    base['ref'] != 'main' or
+                    head['repo']['full_name'] != REPOSITORY or
+                    base['repo']['full_name'] != REPOSITORY or
+                    type(author) is not str or not author.strip()):
+                raise Hold('Invalid PR context')
+            return (head['sha'], base['sha'], base['ref'],
+                    head['repo']['full_name'], base['repo']['full_name'], author)
+        except (KeyError, TypeError, AttributeError):
+            raise Hold('PR context unavailable') from None
+    if context(before) != context(after):
+        raise Hold('PR context changed during approval check')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--policy', type=Path, default=ROOT / 'tools/approval_policy.json')
@@ -185,8 +207,7 @@ def main():
             result = authorize(policy, before, review_list(args.pr), args.revision,
                                args.operation, args.destination, args.request_sha256)
             after = public_get(f'/pulls/{args.pr}')
-            if after.get('head', {}).get('sha') != args.revision or after.get('state') != 'open':
-                raise Hold('PR changed during approval check')
+            recheck_pr_context(before, after, args.revision)
         print(json.dumps(result, sort_keys=True))
         return 0
     except Exception:
