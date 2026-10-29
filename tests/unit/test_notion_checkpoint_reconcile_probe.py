@@ -21,6 +21,7 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(result['result'],'BLOCKED_OBSERVE_ONLY_ABSENT')
         self.assertEqual(result['writes_attempted'],0)
         self.assertEqual(result['target_run_id'],'40781386183')
+        self.assertEqual(result['checkpoint_sha256'],m.TARGET_CHECKPOINT_SHA256)
         self.assertEqual(result['target_binding_source_revision'],m.TARGET_SOURCE)
         self.assertEqual(result['execution_source_revision'],'b'*40)
         self.assertEqual(result['readback_result'],'BOUNDED_ABSENCE')
@@ -77,5 +78,9 @@ class ReconcileTests(unittest.TestCase):
     def test_invalid_execution_revision_makes_no_requests(self):
         for revision in ('bad',None,'b'*39):
             with self.assertRaises(ValueError):m.reconcile(self.fixture.request,revision)
+        self.assertEqual(self.fixture.calls,[])
+    def test_changed_codec_digest_cannot_be_reported_as_historical_absence(self):
+        with patch.object(m,'probe',return_value=dict(writes_attempted=0,checkpoint_sha256='a'*64)),self.assertRaises(ValueError):
+            m.reconcile(self.fixture.request,'b'*40)
         self.assertEqual(self.fixture.calls,[])
 
