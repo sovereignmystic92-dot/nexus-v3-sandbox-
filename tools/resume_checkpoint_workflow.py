@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from nexus_sandbox.resume_decision import decide_resume
+from nexus_sandbox.checkpoint_json import unique_pairs
 
 
 def evaluate(binding, checkpoint, inventory_complete, authority_verified):
@@ -37,7 +38,8 @@ def main(argv=None):
         # No filename, host configuration, or untrusted checkpoint data appears in errors.
         if args.binding.stat().st_size > 65536 or args.checkpoint.stat().st_size > 1048576:
             raise ValueError('oversized input')
-        binding = json.loads(args.binding.read_text(encoding='utf-8'))
+        binding = json.loads(args.binding.read_text(encoding='utf-8'),object_pairs_hook=unique_pairs,
+                             parse_constant=lambda _: (_ for _ in ()).throw(ValueError('Nonfinite JSON')))
         checkpoint = args.checkpoint.read_text(encoding='utf-8')
         result = evaluate(binding, checkpoint, args.inventory_complete,
                           args.authority_verified)
@@ -54,3 +56,4 @@ def main(argv=None):
 
 if __name__ == '__main__':
     raise SystemExit(main())
+

@@ -30,6 +30,16 @@ def cp(n=0, pending=None):
 
 
 class WorkflowEntryTests(unittest.TestCase):
+    def test_duplicate_host_binding_keys_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);b=root/'binding.json';c=root/'checkpoint.json'
+            b.write_text(json.dumps(BINDING).replace('"run_id":','"run_id":"private-wrong-job","run_id":',1))
+            c.write_text(cp(7));output=StringIO()
+            with redirect_stdout(output):
+                code=module.main(['--binding',str(b),'--checkpoint',str(c),'--inventory-complete','--authority-verified'])
+            self.assertEqual(code,2)
+            self.assertEqual(json.loads(output.getvalue())['status'],'BLOCKED')
+            self.assertNotIn('private-wrong-job',output.getvalue())
     def invoke(self, checkpoint, *, inventory=True, authority=True, binding=None):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -86,3 +96,4 @@ class WorkflowEntryTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
