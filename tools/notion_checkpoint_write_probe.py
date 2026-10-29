@@ -10,7 +10,7 @@ import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from nexus_sandbox.audit_checkpoint_transport import AuditCheckpointTransport, canonical
 from nexus_sandbox.checkpoint_json import encode
-from nexus_sandbox.notion_checkpoint_api import NotionCheckpointAPI, NotionRequest
+from nexus_sandbox.notion_checkpoint_api import NotionCheckpointAPI, NotionRequest, request_error_evidence
 
 AUDIT_ID = '4018c067daa48122b82ec2ae8067d021'
 POLICY = 'bounded-live-checkpoint-test-20261028-v1'
@@ -48,9 +48,11 @@ def probe(request, run_id, source_sha, *, allow_write=False):
     transport = AuditCheckpointTransport(AUDIT_ID, binding, api.fetch_page, api.append_text)
     summary = dict(marker=job, destination=AUDIT_ID, source_revision=source_sha,
         checkpoint_sha256=hashlib.sha256(checkpoint.encode()).hexdigest(),
+        execution_mode='FIRST_ATTEMPT_WRITE_ELIGIBLE' if allow_write else 'RERUN_OBSERVE_ONLY',
+        checkpoint_state='UNKNOWN', write_outcome='NOT_ATTEMPTED',
         bridge_activation='INACTIVE', cp09='NOT_PROVEN', cleanup='RETAIN_MARKED_EVIDENCE')
-    stage = 'PREWRITE_OBSERVATION'
-    write_ack = 'NOT_ATTEMPTED'
+    stage='PREWRITE_OBSERVATION'
+    summary.update(failure_stage=None,write_ack='NOT_ATTEMPTED',write_error=None,observation_error=None,readback_result='NOT_ATTEMPTED')
     try:
         # Only the exact missing-enrollment disposition permits creating this test record.
         # Malformed JSON, unknown content, incomplete inventory and wrong bindings hold.
@@ -63,28 +65,48 @@ def probe(request, run_id, source_sha, *, allow_write=False):
         if before:
             if before != [event]:
                 raise ValueError('Existing test checkpoint mismatch')
+            summary['checkpoint_state'] = 'CHECKPOINT_ALREADY_PRESENT'
+            summary['readback_result']='EXACT_MATCH'
             return dict(summary, result='VERIFIED_ALREADY_PRESENT', reads=reads, writes_attempted=writes)
+        summary['checkpoint_state'] = 'CHECKPOINT_ABSENT'
+        summary['readback_result']='BOUNDED_ABSENCE'
         if not allow_write:
             return dict(summary, result='BLOCKED_OBSERVE_ONLY_ABSENT', reads=reads, writes_attempted=writes)
         uncertain = False
-        stage = 'APPEND'
+        stage='APPEND'
         try:
             api.append_text(AUDIT_ID, text)
-            write_ack = 'RECEIVED'
-        except Exception:
+            summary['write_outcome'] = 'ACKNOWLEDGED'
+            summary['write_ack']='RECEIVED'
+        except Exception as error:
             uncertain = True
-            write_ack = 'UNCERTAIN'
+            summary['write_ack']='UNCERTAIN'
+            summary['write_error']=request_error_evidence(error)
+            if writes:
+                summary['write_outcome'] = 'WRITE_OUTCOME_UNCERTAIN'
         # A fresh complete observation is mandatory even after success or lost ack.
-        stage = 'READBACK'
-        observed = transport._events()
+        stage='READBACK'
+        summary['checkpoint_state'] = 'UNKNOWN'
+        summary['readback_result']='UNKNOWN'
+        try:
+            observed = transport._events()
+        except ValueError as error:
+            if str(error) == 'Explicit enrollment missing; no write permitted':
+                summary['checkpoint_state'] = 'CHECKPOINT_ABSENT'
+                summary['readback_result']='BOUNDED_ABSENCE'
+            raise
         if observed != [event]:
+            summary['readback_result']='MISMATCH'
             raise ValueError('Independent readback mismatch')
+        summary['checkpoint_state'] = 'CHECKPOINT_ALREADY_PRESENT'
+        summary['readback_result']='EXACT_MATCH'
         return dict(summary, result='VERIFIED_AFTER_UNCERTAIN_ACK' if uncertain else 'VERIFIED',
-            reads=reads, writes_attempted=writes, write_ack=write_ack)
-    except Exception:
+            reads=reads, writes_attempted=writes)
+    except Exception as error:
+        summary['failure_stage']=stage
+        summary['observation_error']=request_error_evidence(error)
         return dict(summary, result='BLOCKED_UNCERTAIN' if writes else 'BLOCKED_BEFORE_WRITE',
-            reads=reads, writes_attempted=writes, failure_stage=stage, write_ack=write_ack,
-            next_action='OBSERVE_ONLY_NO_BLIND_RETRY')
+            reads=reads, writes_attempted=writes, next_action='OBSERVE_ONLY_NO_BLIND_RETRY')
 
 
 def main():

@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
-from tools.notion_checkpoint_write_probe import probe
+from test_notion_checkpoint_write_probe import probe as module
+probe=module.probe
 
 SHA = 'a' * 40
 
@@ -23,8 +24,8 @@ class ProbeDiagnostics(unittest.TestCase):
                 if isinstance(value, Exception):
                     raise value
                 return value
-        with patch('tools.notion_checkpoint_write_probe.NotionCheckpointAPI', API), \
-             patch('tools.notion_checkpoint_write_probe.AuditCheckpointTransport', Transport):
+        with patch.object(module, 'NotionCheckpointAPI', API), \
+             patch.object(module, 'AuditCheckpointTransport', Transport):
             return probe(lambda *args: {}, '123', SHA, allow_write=True)
 
     def test_failed_readback_after_ack_is_uncertain(self):
@@ -50,3 +51,4 @@ class ProbeDiagnostics(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
