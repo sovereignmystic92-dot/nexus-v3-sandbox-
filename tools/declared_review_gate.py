@@ -38,7 +38,7 @@ def authorize_declared(records, *, context, author_session, owner_decision):
                 or not binding.text(body['exposure_disclosure'],4096)
                 or row['session']==author_session):
             raise Hold('Incomplete, unresolved or self-reviewed attribution')
-        source=tuple(row['source'][k] for k in ('store','record_id','record_revision'))
+        source=tuple(row['source'][k] for k in ('store','record_id'))
         if row['session'] in sessions or source in sources:
             raise Hold('Distinct review sessions and records required')
         sessions.add(row['session']);sources.add(source);evidence.append(row['digest'])
