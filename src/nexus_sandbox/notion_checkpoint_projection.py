@@ -57,7 +57,7 @@ class NotionCheckpointProjection:
         digest = hashlib.sha256(serialized.encode()).hexdigest()
         existing = self.find_exact(payload["event_key"])
         if existing is not None:
-            if type(existing) is not dict or existing.get("digest") != digest:
+            if (type(existing) is not dict or existing.get("digest") != digest\n                    or existing.get("body") != serialized):
                 return "HOLD"
             return "VERIFIED"
         try:
@@ -66,6 +66,6 @@ class NotionCheckpointProjection:
             # A write may have succeeded despite a lost acknowledgement.
             return "HOLD"
         observed = self.find_exact(payload["event_key"])
-        if type(observed) is not dict or observed.get("digest") != digest:
+        if (type(observed) is not dict or observed.get("digest") != digest\n                or observed.get("body") != serialized):
             return "HOLD"
         return "VERIFIED"
