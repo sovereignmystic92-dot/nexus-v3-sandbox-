@@ -48,6 +48,8 @@ def probe(request, run_id, source_sha, *, allow_write=False):
     transport = AuditCheckpointTransport(AUDIT_ID, binding, api.fetch_page, api.append_text)
     summary = dict(marker=job, destination=AUDIT_ID, source_revision=source_sha,
         checkpoint_sha256=hashlib.sha256(checkpoint.encode()).hexdigest(),
+        execution_mode='FIRST_ATTEMPT_WRITE_ELIGIBLE' if allow_write else 'RERUN_OBSERVE_ONLY',
+        checkpoint_state='UNKNOWN', write_outcome='NOT_ATTEMPTED',
         bridge_activation='INACTIVE', cp09='NOT_PROVEN', cleanup='RETAIN_MARKED_EVIDENCE')
     try:
         # Only the exact missing-enrollment disposition permits creating this test record.
@@ -61,18 +63,30 @@ def probe(request, run_id, source_sha, *, allow_write=False):
         if before:
             if before != [event]:
                 raise ValueError('Existing test checkpoint mismatch')
+            summary['checkpoint_state'] = 'CHECKPOINT_ALREADY_PRESENT'
             return dict(summary, result='VERIFIED_ALREADY_PRESENT', reads=reads, writes_attempted=writes)
+        summary['checkpoint_state'] = 'CHECKPOINT_ABSENT'
         if not allow_write:
             return dict(summary, result='BLOCKED_OBSERVE_ONLY_ABSENT', reads=reads, writes_attempted=writes)
         uncertain = False
         try:
             api.append_text(AUDIT_ID, text)
+            summary['write_outcome'] = 'ACKNOWLEDGED'
         except Exception:
             uncertain = True
+            if writes:
+                summary['write_outcome'] = 'WRITE_OUTCOME_UNCERTAIN'
         # A fresh complete observation is mandatory even after success or lost ack.
-        observed = transport._events()
+        summary['checkpoint_state'] = 'UNKNOWN'
+        try:
+            observed = transport._events()
+        except ValueError as error:
+            if str(error) == 'Explicit enrollment missing; no write permitted':
+                summary['checkpoint_state'] = 'CHECKPOINT_ABSENT'
+            raise
         if observed != [event]:
             raise ValueError('Independent readback mismatch')
+        summary['checkpoint_state'] = 'CHECKPOINT_ALREADY_PRESENT'
         return dict(summary, result='VERIFIED_AFTER_UNCERTAIN_ACK' if uncertain else 'VERIFIED',
             reads=reads, writes_attempted=writes, write_ack='UNCERTAIN' if uncertain else 'RECEIVED')
     except Exception:
