@@ -11,7 +11,7 @@ import stat
 
 def inspect_journal(path, expected_identity):
     """Fail closed without initializing, replacing, or repairing the journal."""
-    if type(path) not in (str, Path) or type(expected_identity) is not str or not expected_identity:
+    if not isinstance(path, (str, Path)) or type(expected_identity) is not str or not expected_identity:
         raise ValueError("Explicit journal and identity required")
     path = Path(path)
     if not path.is_absolute() or path.name in (".", "..") or path.parent == path:
