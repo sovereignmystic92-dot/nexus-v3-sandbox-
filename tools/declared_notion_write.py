@@ -12,7 +12,8 @@ from nexus_sandbox.approved_writes import ApprovedWriteBoundary, WriteHold
 
 
 def execute(journal, *, request_id, context, author_session, owner_decision,
-            enrolled_destination, before_hash, payload, observe, read, write):
+            enrolled_destination, before_hash, payload, observe, read, write,
+            custody=None):
     """Execute only this operation after rechecking host-observed bindings.
 
     observe() returns (current_context, current_review_records). Review digests
@@ -53,6 +54,8 @@ def execute(journal, *, request_id, context, author_session, owner_decision,
                     request_sha256=digest, evidence_class=receipt['evidence_class'])
 
     def dispatch(target, value):
+        if custody is not None:
+            custody.save_verified(journal, request_id, expected)
         # Reobserve after the baseline read and immediately before the callback.
         approve(dict(revision=expected['head_sha'], operation=expected['operation'],
                      destination=destination), expected['request_sha256'])
@@ -61,6 +64,13 @@ def execute(journal, *, request_id, context, author_session, owner_decision,
     boundary = ApprovedWriteBoundary(journal, approve, read, dispatch)
     result = boundary.execute(request_id, expected['head_sha'], destination,
                               before_hash, payload)
+    if custody is not None:
+        try:
+            result['journal_custody'] = custody.save_verified(journal, request_id, expected)
+        except Exception:
+            # Mutation may already be verified; saved DISPATCHING custody is the
+            # reconciliation anchor. Never report overall durable completion.
+            raise WriteHold('Result custody uncertain; reconcile saved intent without replay') from None
     result.update(evidence_class=accepted['evidence_class'],
                   identity_status=accepted['identity_status'],
                   review_digests=accepted['review_digests'])
