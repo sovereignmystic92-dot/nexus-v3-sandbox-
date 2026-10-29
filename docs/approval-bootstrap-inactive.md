@@ -3,8 +3,9 @@
 Implements Stage A of PR83 only. Source PR57 revision: 76eeb264281e50b9d85ed31ccc7bff2cbb8a0db3.
 Base main: 515141f30ca57ad79800a6be386f4889e639484f.
 
-The verifier and policy are copied unchanged from that source. The context tests are
-unchanged. The guard unit tests omit only the workflow-preflight ordering test:
+The initial verifier and policy were copied from that source. Independent review
+identified latent defects; the verifier is now hardened as recorded below. Policy
+remains unchanged and empty-trust. The context test uses a schema-valid fixture. The guard unit tests omit only the workflow-preflight ordering test:
 this inactive package deliberately installs no workflow changes, so that assertion
 belongs to PR57 activation validation. Three bootstrap regressions verify empty
 trust and missing policy hold before network calls, and production remains denied.
@@ -21,11 +22,11 @@ An installed file is not an enforced approval control.
 - tests/unit/test_approval_context_recheck.py: 3242ec9713379b5a18cadc0468be6dccf36e43b4
 
 ## Validation and limits
-18 focused offline tests passed locally: 11 guard, 4 context drift, 3 inactive
-bootstrap. This is primary-author validation, not independent review or hosted
-current-base validation. Source behavior has not been hardened by this extraction.
-API proxy behavior, full policy schema/type checks, adversarial receipt parsing,
-trusted base provenance and actual reviewer enrollment need security review.
+23 focused offline tests passed locally: 11 guard, 4 context drift, 3 inactive
+bootstrap, 5 security hardening regressions. This is primary-author validation, not independent review or hosted
+current-base validation. Policy containers/types, session whitespace, evidence path traversal and nonstandard
+JSON constants are hardened. API proxy behavior, further adversarial receipt parsing,
+trusted base provenance and actual reviewer enrollment still need activation review.
 Synthetic account names in tests are not enrolled identities.
 Model/session/independence remain reviewer attestations, not provider signatures.
 No provider-side atomic approval/dispatch or worker fencing is supplied.
@@ -44,3 +45,30 @@ No provider-side atomic approval/dispatch or worker fencing is supplied.
 
 Rollback: normal reviewed revert of the exact bootstrap merge, preserving evidence.
 No score promotion, live-provider probe, CP09 resumption or production activation.
+
+## Independent review findings and draft repairs
+Reviewers A/B independently approved initial inactive scope only, then separately
+reproduced latent activation weaknesses. Stable findings:
+- AUTH84-POLICY-TYPE: destination string substring match and malformed trust reaching
+  observation. Strict policy schema/container/identity validation now precedes network
+  and authorization; malformed policy holds.
+- AUTH84-SESSION-SPACE: whitespace variants could count as distinct sessions.
+  Identity/session strings with surrounding whitespace are rejected.
+- AUTH84-EVIDENCE-PATH: prefix-only blob paths allowed traversal or ambiguous URLs.
+  Evidence permits exact run URLs or conservative nonempty file segments under the
+  exact revision; dot segments, encoded paths, queries and fragments hold.
+- AUTH84-JSON-CONSTANT: NaN/Infinity accepted by default JSON parser. Explicit
+  parse_constant rejection now holds.
+
+New regression cases failed against the initial verifier, then passed after repair.
+The initial malformed-trust test mocked public_get but overlooked review_list's
+definition-bound default callback; it attempted unauthenticated public API reads
+before that harness path was corrected. No credentials or mutation were involved;
+response/access outcome was not retained, so no provider assurance is inferred.
+Final harness mocks review_list as well. The context CLI regression asserts the
+authorization callback was reached before the final drift hold, avoiding a false
+positive caused by an invalid policy fixture.
+
+Initial review approvals do not approve these changed files. Renew independent
+review and exact current-base hosted validation before readiness/adoption. No
+activation or trust-policy changes are included.
