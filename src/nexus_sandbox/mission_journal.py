@@ -124,8 +124,8 @@ class MissionJournal:
             raise ValueError("Explicit mission contract required")
         if type(expected_revision) is not int or expected_revision < 0:
             raise ValueError("Expected revision required")
-        evidence = _evidence(observed_triggers, satisfied_dependencies,
-                             verified_steps, blocked_steps, authorized_active)
+        evidence = json.loads(_canonical(_evidence(observed_triggers, satisfied_dependencies,
+                             verified_steps, blocked_steps, authorized_active)))
         decision = dispatch(mission, observed_triggers=observed_triggers,
                             satisfied_dependencies=satisfied_dependencies,
                             verified_steps=verified_steps,
@@ -162,6 +162,6 @@ class MissionJournal:
                        (mission.mission_id, revision + 1, payload, prior_hash, _hash(prior_hash, item)))
             db.commit()
         saved = self.observe(mission.mission_id)
-        if saved != item:
+        if saved != json.loads(payload):
             raise ValueError("Independent local journal readback mismatch")
         return saved
