@@ -1,6 +1,7 @@
 """Owner-accepted declared attribution, sandbox-only; no provider identity claim."""
 from approval_gate import Hold, load_json
 import review_binding as binding
+from uuid import UUID
 
 OWNER_DECISION = 'NXS-OWNER-DECLARED-ATTRIBUTION-20261029'
 FIELDS = {'author_session','reviewer_agent','reviewer_session','verdict','findings',
@@ -8,14 +9,24 @@ FIELDS = {'author_session','reviewer_agent','reviewer_session','verdict','findin
 ROW = {'wire','digest','source','agent','session','body','evidence'}
 
 
-def authorize_declared(records, *, context, author_session, owner_decision):
+def authorize_declared(records, *, context, author_session, owner_decision,
+                       enrolled_destination=None):
     """Validate host-observed bound records, not their writer authentication.
 
     Host supplies current context and independently retained snapshots. No network,
     provider write, credential, automatic dispatch or self-enrollment occurs.
     """
     binding.context_ok(context)
-    if (owner_decision != OWNER_DECISION or context['destination'] != 'github:main'
+    destination = context['destination']
+    if destination != 'github:main':
+        try:
+            page_id = destination.removeprefix('notion:')
+            if (not destination.startswith('notion:') or str(UUID(page_id)) != page_id
+                    or enrolled_destination != destination):
+                raise ValueError()
+        except (ValueError, AttributeError):
+            raise Hold('Exact host-enrolled Notion page required') from None
+    if (owner_decision != OWNER_DECISION
             or not binding.text(author_session,200)
             or type(records) is not list or len(records)!=2):
         raise Hold('Explicit bounded owner mode and two reviews required')
@@ -48,3 +59,4 @@ def authorize_declared(records, *, context, author_session, owner_decision):
         request_sha256=context['request_sha256'],operation=context['operation'],
         destination=context['destination'],review_digests=evidence,
         dispatch_authorized=False)
+
