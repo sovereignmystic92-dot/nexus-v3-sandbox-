@@ -65,7 +65,7 @@ alternative approval identity source requires a separate reviewed proposal and
 specific authorization, not merely this content-binding utility.
 
 ## Validation and adoption
-10 focused local offline tests pass, including tamper/recomputed-digest rejection
+12 focused local offline tests pass, including tamper/recomputed-digest rejection
 against an external expected snapshot, context/source/evidence/session drift,
 malformed inputs, old research-handoff rejection and fresh-process saved readback.
 The first fresh-process harness failed because the socket stub preceded urllib/ssl
@@ -78,3 +78,16 @@ No merge, credentials/permissions/protection/settings/schedule change, workflow
 activation, production activation, CP09 resumption or checkpoint promotion.
 Rollback after any separately authorized adoption: normal reviewed revert,
 preserving review/failure evidence. No destructive cleanup.
+
+## Independent review repairs
+AUTH85-BODY-CONTRACT: both reviewers reproduced verify accepting an empty,
+whitespace-only or over-limit body in a manually constructed, digest-matching
+packet even though bind rejected it. Both now call the same strict UTF-8,
+nonempty, 65,536-byte validator.
+AUTH85-UTF8-HOLD: malformed surrogate bodies/wire previously escaped as raw
+UnicodeEncodeError. Shared UTF-8 conversion now maps these to Hold.
+Two regression methods failed against the original code (three subcase failures
+and one error), then all12 focused cases passed after repair. Initial496-case
+hosted success did not cover these findings; new hosted validation and renewed
+exact-revision independent reviews are required. Content matches still never
+grant approval or authenticate a writer.
