@@ -89,10 +89,13 @@ class JournalCustody:
 
     def save_verified(self, path, request_id, context):
         envelope = snapshot(path, request_id, context)
+        expected = canonical(envelope)
         digest = content_hash(envelope)
-        identity = self.publish(envelope, digest)
+        # Do not let a callback mutate the retained comparison baseline.
+        identity = self.publish(json.loads(expected), digest)
         # The host must also verify artifact placement under the enrolled audit.
-        if not isinstance(identity, str) or not identity or self.fetch(identity) != envelope:
+        if (not isinstance(identity, str) or not identity
+                or canonical(self.fetch(identity)) != expected):
             raise WriteHold('External journal custody readback failed')
         self.last = dict(record_id=identity, sha256=digest)
         return dict(self.last)

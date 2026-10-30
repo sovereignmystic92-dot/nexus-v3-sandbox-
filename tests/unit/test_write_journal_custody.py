@@ -35,6 +35,14 @@ class CustodyTests(unittest.TestCase):
             self.run_adapter(custody=self.custody(lambda key: {}))
         self.assertEqual(self.calls, [])
 
+    def test_publisher_cannot_mutate_the_readback_comparison_baseline(self):
+        def changed(envelope, digest):
+            envelope['request_id'] = 'other'
+            return self.publish(envelope, digest)
+        custody = JournalCustody(changed, lambda key:self.store[key])
+        with self.assertRaises(WriteHold): self.run_adapter(custody=custody)
+        self.assertEqual(self.calls, [])
+
     def test_external_dispatching_snapshot_restores_and_reconciles_in_fresh_process(self):
         custody = self.custody()
         def lost(target, value):
@@ -49,6 +57,8 @@ class CustodyTests(unittest.TestCase):
         source.write_text(json.dumps(manifest))
         restored = str(Path(self.temp.name) / 'restored.sqlite')
         code = '''import json,sys
+from pathlib import Path
+root=Path(sys.argv[3]); sys.path[:0]=[str(root/'src'),str(root/'tools')]
 from write_journal_custody import restore
 from declared_notion_write import execute
 from declared_review_gate import OWNER_DECISION
@@ -61,7 +71,7 @@ payload=m['target'],observe=lambda:(c,m['rows']),read=lambda d:m['target'],write
 assert r['state']=='VERIFIED' and r['write_attempted'] is False
 print('FRESH_PROCESS_RECONCILED_NO_WRITE')
 '''
-        run = subprocess.run([sys.executable, '-c', code, str(source), restored],
+        run = subprocess.run([sys.executable, '-I', '-c', code, str(source), restored, str(ROOT)],
                              capture_output=True, text=True)
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertIn('FRESH_PROCESS_RECONCILED_NO_WRITE', run.stdout)
@@ -158,6 +168,17 @@ print('FRESH_PROCESS_RECONCILED_NO_WRITE')
         config = self.host_config(); host.run(config, self.tool)
         with self.assertRaises(fixture.gate.Hold): host.run(config, self.tool)
         self.assertEqual(len(self.calls), 1)
+
+    def test_jsonline_host_rejects_boolean_response_identity(self):
+        config = self.host_config()
+        code = "import sys; from pathlib import Path; r=Path(sys.argv[1]); sys.path[:0]=[str(r/'src'),str(r/'tools')]; import notion_tool_handoff; raise SystemExit(notion_tool_handoff.main())"
+        result = subprocess.run([sys.executable, '-I', '-c', code, str(ROOT)],
+            input=json.dumps(config)+'\n'+json.dumps(dict(id=True, result=True))+'\n',
+            capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        lines = [json.loads(line) for line in result.stdout.splitlines()]
+        self.assertEqual(sum('method' in row for row in lines), 1)
+        self.assertIn('error', lines[-1])
 
 
 if __name__ == '__main__':

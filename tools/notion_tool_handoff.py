@@ -74,7 +74,7 @@ def main():
         print(json.dumps(dict(id=sequence, method=method, params=params)), flush=True)
         response = json.loads(sys.stdin.readline())
         if (type(response) is not dict or set(response) != {'id', 'result'}
-                or response['id'] != sequence):
+                or type(response['id']) is not int or response['id'] != sequence):
             raise Hold('Missing or misbound host response; reconcile without replay')
         return response['result']
 

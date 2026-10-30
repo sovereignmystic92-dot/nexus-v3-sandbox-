@@ -43,13 +43,22 @@ pause and production restrictions remain. Snapshot replacement and independent
 writers are outside this trust model. Snapshots themselves do not authenticate
 reviewer statements or external facts.
 
-Validation: 33 distinct focused tests (23 earlier plus 10 new custody/host cases)
+Validation: 35 distinct focused tests (23 earlier plus 12 new custody/host cases)
 passed locally, including a separate Python process that restores a saved
 DISPATCHING journal and reconciles an already-applied target without invoking
 the mutation callback. Wrong/missing custody, enrollment, context drift during
 custody, incomplete receipt reads, and result-custody failure are covered.
 All host/provider/custody callbacks in these tests are synthetic. No live
 connector execution is inferred.
+
+Review retained two failures from the initial 82d9047 revision: callback mutation
+could change the custody comparison baseline, and the fresh-process test relied
+on inherited PYTHONPATH. The corrected implementation freezes the expected
+canonical envelope before publish and compares separately fetched content to it.
+A new negative regression prevents callback mutation from permitting dispatch.
+The subprocess now uses isolated Python (-I) and explicit repository import
+paths. The initial hosted failure is not erased by subsequent validation.
+JSON-line response IDs also require exact integers; a boolean cannot alias ID 1.
 
 Coherence disposition REFINE: retain the existing SQLite journal and write
 boundary, adding verified external custody and a narrow tool handoff. No parallel
