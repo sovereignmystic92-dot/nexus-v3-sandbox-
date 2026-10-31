@@ -2,6 +2,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 SOURCE = Path(__file__).resolve().parents[2] / "tools" / "check_cp01_cp03_boundaries.py"
 spec = importlib.util.spec_from_file_location("cp01_cp03", SOURCE)
@@ -11,7 +12,13 @@ spec.loader.exec_module(audit)
 
 class BoundaryEvidenceTests(unittest.TestCase):
     def test_tracked_workflows_have_no_explicit_secret_references(self):
-        report = audit.inspect()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / ".github" / "workflows"
+            folder.mkdir(parents=True)
+            for name in audit.NO_CREDENTIAL_WORKFLOWS:
+                (folder / name).write_text("name: synthetic\\npermissions: {}\\n")
+            report = audit.inspect(root)
         self.assertTrue(report["source_checks_passed"])
         self.assertFalse(report["host_secret_exclusion_proven"])
         self.assertFalse(report["host_trust_independently_assessed"])
