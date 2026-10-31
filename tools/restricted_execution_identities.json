@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "status": "DESIGN_ONLY_NOT_PROVISIONED",
+  "default": "deny",
+  "roles": {
+    "owner": {
+      "purpose": "human approval and recovery; never inject owner credentials into automation",
+      "credentials": "owner_only",
+      "allowed": [
+        "review",
+        "approve",
+        "recover"
+      ],
+      "forbidden_in_unattended_runs": true
+    },
+    "synthetic_ci": {
+      "purpose": "offline acceptance, no provider operations",
+      "credentials": "none",
+      "allowed": [
+        "read_public_pinned_source",
+        "run_mock_tests"
+      ],
+      "denied": [
+        "notion_read",
+        "notion_write",
+        "cortex_read",
+        "cortex_write",
+        "github_repo_write",
+        "gemini_api",
+        "browser_session",
+        "cloud_shell"
+      ]
+    },
+    "notion_reader": {
+      "purpose": "read approved transcript/source pages",
+      "credentials": "dedicated_scoped_identity_required",
+      "allowed": [
+        "notion_read_approved"
+      ],
+      "denied": [
+        "notion_write",
+        "cortex_write",
+        "github_repo_write",
+        "admin",
+        "delete"
+      ]
+    },
+    "notion_writer": {
+      "purpose": "approved bounded archival append only",
+      "credentials": "dedicated_scoped_identity_required",
+      "allowed": [
+        "notion_append_approved_destination"
+      ],
+      "denied": [
+        "notion_workspace_admin",
+        "delete",
+        "other_destination_write",
+        "github_repo_write"
+      ]
+    },
+    "cortex_analyst": {
+      "purpose": "read and analyze approved Nexus modules",
+      "credentials": "dedicated_scoped_identity_required",
+      "allowed": [
+        "cortex_view_approved",
+        "cortex_comment_approved"
+      ],
+      "denied": [
+        "cortex_module_admin",
+        "cortex_module_delete",
+        "cortex_module_transfer",
+        "github_repo_write"
+      ]
+    },
+    "github_maintainer": {
+      "purpose": "bounded repo PR creation",
+      "credentials": "selected_repo_scoped_identity_required",
+      "allowed": [
+        "create_branch",
+        "create_pr",
+        "read_checks"
+      ],
+      "denied": [
+        "bypass_branch_protection",
+        "admin_secrets",
+        "force_push_main",
+        "merge_without_required_checks"
+      ]
+    },
+    "gemini_reviewer": {
+      "purpose": "independent evidence review",
+      "credentials": "dedicated_scoped_identity_required",
+      "allowed": [
+        "read_review_packet",
+        "publish_non_authoritative_review"
+      ],
+      "denied": [
+        "modify_evidence",
+        "approve_own_review",
+        "github_repo_admin",
+        "notion_write",
+        "cortex_admin"
+      ]
+    },
+    "browser_researcher": {
+      "purpose": "public research only",
+      "credentials": "none_by_default",
+      "allowed": [
+        "read_public_pages"
+      ],
+      "denied": [
+        "reuse_owner_session",
+        "access_private_connector_data",
+        "publish_private_data"
+      ]
+    }
+  },
+  "cross_service_rules": [
+    "no_owner_credentials_in_unattended_execution",
+    "no_implicit_cross_connector_credential_forwarding",
+    "each_provider_requires_separate_grant_inventory",
+    "each_role_requires_independent_negative_access_test",
+    "no_promotion_without_provider_readback",
+    "no_secret_values_in_logs_or_public_repo",
+    "no_live_provisioning_from_policy_file"
+  ],
+  "pending_surfaces": [
+    "chatgpt_automations",
+    "browser_use",
+    "codex",
+    "gemini_cli_cloud_shell",
+    "notion_connector",
+    "cortex_connector",
+    "github_app",
+    "github_actions"
+  ]
+}
