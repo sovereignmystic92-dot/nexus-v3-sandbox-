@@ -1,0 +1,39 @@
+name: CP04 host outbound reachability observation (no credentials)
+
+# Manual only. This is an OBSERVATION, not a host firewall enforcement test.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: cp04-host-reachability-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Record harmless host HTTPS reachability
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "CP04_PROBE_KIND=HOST_REACHABILITY_ONLY"
+          echo "CP04_NO_CREDENTIALS=true"
+          echo "CP04_HOST_POLICY_ENFORCEMENT=NOT_TESTED"
+          # No secrets, no tokens, no repository checkout, no writes.
+          # Public documentation endpoints are only connectivity indicators.
+          for target in https://example.com/ https://example.org/; do
+            case "$target" in
+              https://example.com/|https://example.org/) ;;
+              *) exit 2 ;;
+            esac
+            code="$(curl --head --silent --show-error --location-trusted=false --max-redirs 0 --connect-timeout 4 --max-time 8 --output /dev/null --write-out '%{http_code}' "$target" || true)"
+            case "$target" in
+              https://example.com/) echo "CP04_EXAMPLE_COM_HTTP_STATUS=$code" ;;
+              https://example.org/) echo "CP04_EXAMPLE_ORG_HTTP_STATUS=$code" ;;
+            esac
+          done
+          echo "CP04_VERDICT=OBSERVATION_ONLY"
