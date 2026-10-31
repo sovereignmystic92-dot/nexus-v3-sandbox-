@@ -22,5 +22,10 @@ def verify(root, policy):
 if __name__=='__main__':
     root=Path(__file__).resolve().parents[1]
     names=verify(root,json.loads((root/'tools/workflow_policy.json').read_text()))
+    from check_cp01_cp03_boundaries import inspect
+    boundary = inspect(root)
+    if not boundary['source_checks_passed']:
+        raise ValueError('No-credential workflow source guard failed')
     print(json.dumps({'workflow_inventory':'MATCHED','files':names,
+                      'cp01_cp03_no_credential_source_checks':'PASSED',
                       'scope':'committed workflow bytes only; settings/hooks not inspected'}))
