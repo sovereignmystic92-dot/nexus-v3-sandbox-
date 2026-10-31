@@ -30,7 +30,7 @@ jobs:
               https://example.com/|https://example.org/) ;;
               *) exit 2 ;;
             esac
-            code="$(curl --head --silent --show-error --location-trusted=false --max-redirs 0 --connect-timeout 4 --max-time 8 --output /dev/null --write-out '%{http_code}' "$target" || true)"
+            code="$(curl --head --silent --show-error --proto '=https' --max-redirs 0 --connect-timeout 4 --max-time 8 --output /dev/null --write-out '%{http_code}' "$target" || true)"
             case "$target" in
               https://example.com/) echo "CP04_EXAMPLE_COM_HTTP_STATUS=$code" ;;
               https://example.org/) echo "CP04_EXAMPLE_ORG_HTTP_STATUS=$code" ;;
