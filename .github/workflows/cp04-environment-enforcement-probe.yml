@@ -1,0 +1,32 @@
+name: Nexus CP04 approval and branch enforcement probe
+
+# Manual only. No source checkout, secrets, network calls, or provider writes.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: cp04-environment-evidence-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  approval_boundary:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 2
+    steps:
+      - name: Record non-sensitive evidence after environment authorization
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          printf 'CP04_PROBE_APPROVED=true\n'
+          printf 'CP04_REF=%s\n' "$REF_NAME"
+          printf 'CP04_PROVIDER_WRITES=0\n'
+
+# The job intentionally has no branch-specific if: condition.
+# A non-main dispatch MUST be denied by GitHub environment policy, not skipped.
+# No secrets contexts or tokens are passed to the script.
