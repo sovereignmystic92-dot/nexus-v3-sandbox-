@@ -1,0 +1,46 @@
+name: ChatGPT Nexus synthetic two-stage handshake
+
+on:
+  issues:
+    types: [opened]
+
+permissions: {}
+
+concurrency:
+  group: nexus-chat-handshake-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: >-
+      github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' &&
+      github.event.sender.login == 'sovereignmystic92-dot' &&
+      github.event.issue.user.login == 'sovereignmystic92-dot' &&
+      github.event.issue.title == '[Nexus synthetic adapter handshake]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Fetch exact public source without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir checkout
+          cd checkout
+          git init --quiet
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Validate synthetic evidence only
+        working-directory: checkout
+        env:
+          PYTHONPATH: src
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          set -euo pipefail
+          python3 tools/chat_github_handshake_issue_gate.py
+
+# No GitHub token, secrets, provider APIs or writes.
+# This does NOT grant permission to write to Notion or Cortex.
