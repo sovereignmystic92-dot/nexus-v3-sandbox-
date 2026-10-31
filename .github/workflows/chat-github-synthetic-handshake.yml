@@ -1,0 +1,24 @@
+name: ChatGPT Nexus synthetic two-stage handshake
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+  issues: read
+jobs:
+  validate:
+    if: ${{ github.event.issue.title == '[Nexus synthetic adapter handshake]' && github.actor == 'sovereignmystic92-dot' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout trusted main
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: main
+      - name: Validate synthetic issue with read-only Nexus gate
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euo pipefail
+          python3 tools/chat_github_handshake_issue_gate.py
