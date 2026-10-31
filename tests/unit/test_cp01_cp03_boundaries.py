@@ -17,7 +17,7 @@ class BoundaryEvidenceTests(unittest.TestCase):
             folder = root / ".github" / "workflows"
             folder.mkdir(parents=True)
             for name in audit.NO_CREDENTIAL_WORKFLOWS:
-                (folder / name).write_text("name: synthetic\\npermissions: {}\\n")
+                (folder / name).write_text("name: synthetic\npermissions: {}\n")
             report = audit.inspect(root)
         self.assertTrue(report["source_checks_passed"])
         self.assertFalse(report["host_secret_exclusion_proven"])
