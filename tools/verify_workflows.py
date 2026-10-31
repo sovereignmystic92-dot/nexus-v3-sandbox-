@@ -34,6 +34,34 @@ def verify_credential_routing(root):
             raise ValueError('Explicit github.token reference: ' + path.name)
     return True
 
+
+def observe_host_credential_names():
+    """Negative check on this one no-environment CI host, not a secret inventory."""
+    import os
+    protected = (
+        'NOTION_SANDBOX_TOKEN',
+        'NOTION_SANDBOX_ROOT_ID',
+        'NOTION_SANDBOX_DENIED_PAGE_ID',
+        'GEMINI_PILOT_API_KEY',
+        'GEMINI_API_KEY',
+        'GH_TOKEN',
+        'GITHUB_TOKEN',
+    )
+    unexpected = [name for name in protected if name in os.environ]
+    # Emit only boolean status and a fixed count, never names/values of observed keys.
+    report = {
+        'observation': 'NO_ENVIRONMENT_GEMINI_OFFLINE_HOST_JOB',
+        'fixed_credential_name_count': len(protected),
+        'protected_names_absent': not bool(unexpected),
+        'all_host_secrets_excluded_proven': False,
+        'external_connector_secrets_excluded_proven': False,
+        'host_mount_exclusion_proven': False,
+        'provider_effective_grants_proven': False,
+    }
+    if unexpected:
+        raise ValueError('Protected credential name present in no-environment CI host')
+    return report
+
 import json
 from pathlib import Path
 
@@ -53,5 +81,6 @@ if __name__=='__main__':
     root=Path(__file__).resolve().parents[1]
     names=verify(root,json.loads((root/'tools/workflow_policy.json').read_text()))
     verify_credential_routing(root)
-    print(json.dumps({'workflow_inventory':'MATCHED','files':names,
+    host_observation=observe_host_credential_names()
+    print(json.dumps({'host_credential_observation':host_observation,'workflow_inventory':'MATCHED','files':names,
                       'scope':'committed workflow bytes only; settings/hooks not inspected'}))
