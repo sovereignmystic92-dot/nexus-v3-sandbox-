@@ -14,7 +14,7 @@ class CortexConnectorReadHost:
             raise ValueError("Authenticated invoke and identity reader required")
         if (type(module_names) is not dict or not module_names or
                 any(type(k) is not str or not k.startswith("synthetic:") or
-                    type(v) is not str or not v.startswith("Nexus Sandbox ")
+                    type(v) is not tuple or len(v) != 2 or\n                    type(v[0]) is not str or not v[0].startswith("Nexus Sandbox ") or\n                    type(v[1]) is not str or not v[1].startswith("module_")
                     for k, v in module_names.items()) or
                 len(set(module_names.values())) != len(module_names)):
             raise ValueError("Pinned synthetic Cortex module names required")
@@ -25,7 +25,7 @@ class CortexConnectorReadHost:
     def _name(self, target):
         if type(target) is not str or target not in self._names:
             raise ValueError("Read outside pinned synthetic module scope")
-        return self._names[target]
+        return self._names[target][0]
 
     def _call(self, method, target):
         # No write or other tool method is accepted.
@@ -78,15 +78,25 @@ class CortexConnectorReadHost:
         self._name(target)
         principal = self.identity_exact()["principal"]
         data = self._call("context_get", target)
-        # The public connector context_get may omit authoritative version,
-        # completeness and truncation indicators. Never synthesize those.
-        required = {"name", "revision", "complete", "truncated"}
-        if not required.issubset(data) or data["name"] != self._name(target):
-            raise ValueError("Incomplete provider readback metadata")
-        if (type(data["revision"]) is not str or not data["revision"] or
-                type(data["complete"]) is not bool or
-                type(data["truncated"]) is not bool):
-            raise ValueError("Invalid provider readback metadata")
+        # Match the documented Cortex GET /v1/modules/{name} representation.
+        # Never manufacture a version or assume a missing field means complete.
+        required = {"id", "name", "content", "version", "archived",
+                    "dependencies", "owner", "default_assignee", "parent",
+                    "inherit_permissions", "created_at", "updated_at"}
+        if set(data) != required:
+            raise ValueError("Incomplete provider module representation")
+        if (data["id"] != self._names[target][1] or
+                data["name"] != self._name(target) or
+                type(data["version"]) is not int or data["version"] < 1 or
+                type(data["content"]) is not str or
+                type(data["archived"]) is not bool or data["archived"] or
+                type(data["dependencies"]) is not list or
+                any(type(item) is not str for item in data["dependencies"]) or
+                type(data["owner"]) is not str or not data["owner"] or
+                type(data["inherit_permissions"]) is not bool or
+                any(type(data[k]) is not str or not data[k]
+                    for k in ("created_at", "updated_at"))):
+            raise ValueError("Mismatched or incomplete provider module")
         return {"provider": "CORTEX", "principal": principal, "target": target,
-                "revision": data["revision"], "complete": data["complete"],
-                "truncated": data["truncated"]}
+                "revision": str(data["version"]), "complete": True,
+                "truncated": False}
