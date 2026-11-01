@@ -58,6 +58,11 @@ class GateBoundAdapterTests(unittest.TestCase):
         bad.pop("CP09")
         self.assertEqual(self.decide(register=bad).status, "HOLD")
 
+    def test_unhashable_checkpoint_status_fails_closed(self):
+        bad = dict(self.register)
+        bad["CP02"] = {"unexpected": "object"}
+        self.assertEqual(self.decide(register=bad).status, "HOLD")
+
     def test_unscoped_evidence_rejected(self):
         self.assertEqual(self.decide(evidence={"CP09": True}).status, "HOLD")
 
