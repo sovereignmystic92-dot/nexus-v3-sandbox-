@@ -14,7 +14,9 @@ class CortexConnectorReadHost:
             raise ValueError("Authenticated invoke and identity reader required")
         if (type(module_names) is not dict or not module_names or
                 any(type(k) is not str or not k.startswith("synthetic:") or
-                    type(v) is not tuple or len(v) != 2 or\n                    type(v[0]) is not str or not v[0].startswith("Nexus Sandbox ") or\n                    type(v[1]) is not str or not v[1].startswith("module_")
+                    type(v) is not tuple or len(v) != 2 or
+                    type(v[0]) is not str or not v[0].startswith("Nexus Sandbox ") or
+                    type(v[1]) is not str or not v[1].startswith("module_")
                     for k, v in module_names.items()) or
                 len(set(module_names.values())) != len(module_names)):
             raise ValueError("Pinned synthetic Cortex module names required")
