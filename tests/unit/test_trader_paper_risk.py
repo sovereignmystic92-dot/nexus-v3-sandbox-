@@ -1,5 +1,8 @@
 """Offline checks only: no broker calls."""
 import unittest
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from dataclasses import replace
 from decimal import Decimal
 from tools.trader_paper_risk import Snapshot, RiskRejected, authorize
