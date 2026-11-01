@@ -50,7 +50,8 @@ def assess_operation(*, operation, checkpoint_statuses, applicable_gates,
         return hold("UNRECOGNIZED_ACTION")
     if (type(checkpoint_statuses) is not dict or
             set(checkpoint_statuses) != GATE_IDS or
-            any(v not in STATUSES for v in checkpoint_statuses.values())):
+            any(type(v) is not str or v not in STATUSES
+                for v in checkpoint_statuses.values())):
         return hold("INVALID_CHECKPOINT_REGISTER")
     if type(applicable_gates) not in (tuple, list, set, frozenset):
         return hold("INVALID_GATE_SCOPE")
