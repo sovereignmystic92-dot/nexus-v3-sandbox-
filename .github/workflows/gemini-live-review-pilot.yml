@@ -47,8 +47,34 @@ jobs:
                   with urllib.request.urlopen(req, timeout=25) as response:
                       return response.read(250000), response.status
               except urllib.error.HTTPError as exc:
-                  # Never log response bodies, URLs, request headers, or API keys.
-                  print("HTTP_ERROR", exc.code, "stage:", stage, flush=True)
+                  # Inspect only a bounded structured Google error; never print raw
+                  # response bodies, request URLs, headers, or credentials.
+                  category = "UNKNOWN"
+                  status_name = "UNAVAILABLE"
+                  try:
+                      payload = json.loads(exc.read(4096))
+                      error = payload.get("error", {})
+                      if isinstance(error, dict):
+                          candidate = error.get("status", "")
+                          if isinstance(candidate, str) and re.fullmatch(r"[A-Z_]{1,40}", candidate):
+                              status_name = candidate
+                          message = error.get("message", "")
+                          if isinstance(message, str):
+                              low = message.lower()
+                              if "not found" in low or "not supported" in low:
+                                  category = "MODEL_OR_METHOD_NOT_FOUND"
+                              elif "permission" in low or "access" in low:
+                                  category = "ACCESS_RESTRICTED"
+                              elif "api key" in low or "credential" in low:
+                                  category = "CREDENTIAL_ERROR"
+                              elif "quota" in low or "rate limit" in low:
+                                  category = "QUOTA_OR_RATE_LIMIT"
+                              elif "invalid" in low or "malformed" in low:
+                                  category = "INVALID_REQUEST"
+                  except (ValueError, TypeError, UnicodeError):
+                      pass
+                  print("HTTP_ERROR", exc.code, "stage:", stage,
+                        "google_status:", status_name, "category:", category, flush=True)
                   if allow_not_found and exc.code == 404:
                       return None, 404
                   sys.exit(1)
