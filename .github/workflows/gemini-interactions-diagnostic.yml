@@ -1,0 +1,72 @@
+name: Gemini bounded newer-model generation diagnostic
+
+on:
+  workflow_dispatch:
+    inputs:
+      free_tier_confirmed:
+        description: Confirm free-tier project and authorize one small Gemini generation
+        type: boolean
+        required: true
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: gemini-generation-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Install Gemini SDK
+        run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
+      - name: Verify discovered Gemini 3.5 Flash-Lite and generate once
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          from google import genai
+
+          key = os.getenv("GEMINI_API_KEY", "")
+          if not key:
+              sys.exit("FAIL: missing GEMINI_API_KEY")
+          client = genai.Client(api_key=key)
+          try:
+              matches = []
+              total = 0
+              for model in client.models.list():
+                  total += 1
+                  name = str(getattr(model, "name", "")).removeprefix("models/")
+                  actions = getattr(model, "supported_actions", None) or []
+                  if re.fullmatch(r"gemini-[a-zA-Z0-9._-]{1,70}", name) and "generateContent" in actions:
+                      matches.append(name)
+              target = "gemini-3.5-flash-lite"
+              print("MODEL_DISCOVERY_COMPLETE", "models_seen:", total, "generation_models:", len(matches), "target_advertised:", target in matches)
+              if target not in matches:
+                  sys.exit("FAIL: target not advertised for generateContent; no generation attempted")
+              response = client.models.generate_content(
+                  model=target,
+                  contents="Reply with exactly: NEXUS_OK",
+              )
+              candidates = getattr(response, "candidates", None) or []
+              print("GENERATION_RESPONSE_RECEIVED", "has_candidates:", bool(candidates))
+              if not candidates:
+                  sys.exit("FAIL: no generation candidates")
+          except Exception as exc:
+              code = getattr(exc, "code", None)
+              if not isinstance(code, int):
+                  code = getattr(exc, "status_code", None)
+              if not isinstance(code, int):
+                  code = "UNAVAILABLE"
+              category = ("AUTH_OR_PERMISSION" if code in (401, 403) else
+                          "QUOTA_OR_RATE_LIMIT" if code == 429 else
+                          "SERVICE_UNAVAILABLE" if code == 503 else
+                          "OTHER_API_ERROR")
+              print("GENERATION_DIAGNOSTIC_FAILED", "http_status:", code, "category:", category)
+              sys.exit(1)
+          PY
