@@ -1,0 +1,62 @@
+name: Gemini Interactions authentication diagnostic
+
+on:
+  workflow_dispatch:
+    inputs:
+      free_tier_confirmed:
+        description: Confirm key belongs to a free-tier project and authorize one small live API call
+        type: boolean
+        required: true
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: gemini-interactions-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Install Gemini SDK
+        run: python3 -m pip install --disable-pip-version-check 'google-genai>=1.0,<2'
+      - name: Verify one Interactions API request
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          from google import genai
+
+          key = os.getenv("GEMINI_API_KEY", "")
+          if not key:
+              sys.exit("FAIL: missing GEMINI_API_KEY")
+          client = genai.Client(api_key=key)
+          try:
+              result = client.interactions.create(
+                  model="models/gemini-3.8-flash",
+                  input="Reply with exactly: NEXUS_OK",
+                  generation_config={"max_output_tokens": 64},
+              )
+          except Exception as exc:
+              # Never emit exception text, headers, request data, or the key.
+              code = getattr(exc, "code", None)
+              if not isinstance(code, int):
+                  code = getattr(exc, "status_code", None)
+              if not isinstance(code, int):
+                  code = "UNAVAILABLE"
+              name = type(exc).__name__
+              if not re.fullmatch(r"[A-Za-z_]{1,80}", name):
+                  name = "Exception"
+              print("INTERACTIONS_FAILED", "http_status:", code, "exception_type:", name)
+              sys.exit(1)
+          steps = getattr(result, "steps", None) or []
+          if not steps:
+              sys.exit("FAIL: no interaction steps returned")
+          print("INTERACTIONS_RESPONSE_RECEIVED", "steps:", len(steps))
+          # Do not print model output; successful transport alone is diagnostic.
+          PY
