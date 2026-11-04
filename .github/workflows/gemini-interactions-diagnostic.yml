@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install Gemini SDK
         run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
-      - name: Verify one Interactions API request
+      - name: Verify advertised model and one GenerateContent request
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         shell: bash
@@ -37,9 +37,9 @@ jobs:
               sys.exit("FAIL: missing GEMINI_API_KEY")
           client = genai.Client(api_key=key)
           try:
-              result = client.interactions.create(
-                  model="gemini-3.8-flash",
-                  input="Reply with exactly: NEXUS_OK",
+              result = client.models.generate_content(
+                  model="gemini-2.5-flash",
+                  contents="Reply with exactly: NEXUS_OK",
               )
           except Exception as exc:
               # Never emit exception text, headers, request data, or the key.
@@ -67,11 +67,11 @@ jobs:
               else:
                   category = "OTHER_API_ERROR"
               # Only fixed allowlisted labels are emitted, never provider text.
-              print("INTERACTIONS_FAILED", "http_status:", code, "exception_type:", name, "category:", category)
+              print("GENERATE_CONTENT_FAILED", "http_status:", code, "exception_type:", name, "category:", category)
               sys.exit(1)
-          steps = getattr(result, "steps", None) or []
-          if not steps:
-              sys.exit("FAIL: no interaction steps returned")
-          print("INTERACTIONS_RESPONSE_RECEIVED", "steps:", len(steps))
+          candidates = getattr(result, "candidates", None) or []
+          if not candidates:
+              sys.exit("FAIL: no candidates returned")
+          print("GENERATE_CONTENT_RESPONSE_RECEIVED", "candidates:", len(candidates))
           # Do not print model output; successful transport alone is diagnostic.
           PY
