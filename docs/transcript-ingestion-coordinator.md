@@ -16,7 +16,7 @@ This change adds an **offline durable state machine**, not a deployed integratio
 
 - `youtube:<11-character-id>` is the idempotency key.
 - A duplicate ID with different raw text is rejected, not overwritten.
-- Earlier verified stages cannot be downgraded or silently replaced by a later retry.
+- Earlier verified stages cannot be downgraded or silently replaced by a later retry. Identical verified-evidence retries are idempotent; contradictory evidence is rejected with an error, leaving the original checkpoint unchanged.
 - Completed downstream checkpoints require verified upstream completion.
 - Durable SQLite allows restart recovery on the same volume.
 - `PARTIAL` and `BLOCKED` are journaled but never treated as success.
