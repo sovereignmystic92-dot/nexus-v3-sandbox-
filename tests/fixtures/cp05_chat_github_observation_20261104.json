@@ -1,0 +1,21 @@
+{
+  "schema": "nexus.cp05.chat-github-bridge.v1",
+  "execution_mode": "supervised_read_only",
+  "checkpoint_status": "NOT_ATTESTED",
+  "notion": {
+    "page_id": "40e8c067-daa4-8199-9f12-c9b6486de444",
+    "fixture_id": "NEXUS-CP05-NOTION-20261104-A",
+    "payload": "The copper lantern stays lit at dawn."
+  },
+  "cortex": {
+    "module_id": "module_01m6kzebbfdk4ptbsg88gsf0ja",
+    "source_page_id": "40e8c067-daa4-8199-9f12-c9b6486de444",
+    "payload": "The copper lantern stays lit at dawn.",
+    "version": 1
+  },
+  "evidence_scope": "ChatGPT connector observations only; Notion verification unverified; no runtime host identity or complete provider inventory attested",
+  "sources": {
+    "notion_page": "https://app.notion.com/p/40e8c067daa481999f12c9b6486de444",
+    "cortex_module_id": "module_01m6kzebbfdk4ptbsg88gsf0ja"
+  }
+}
