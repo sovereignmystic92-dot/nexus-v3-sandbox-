@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'cp05-authenticated-notion-fixture-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-interactions-diagnostic.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-live-review-pilot.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-smoke.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
