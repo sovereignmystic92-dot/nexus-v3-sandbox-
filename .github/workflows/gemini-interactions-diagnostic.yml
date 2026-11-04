@@ -1,10 +1,10 @@
-name: Gemini read-only model discovery
+name: Gemini bounded newer-model generation diagnostic
 
 on:
   workflow_dispatch:
     inputs:
       free_tier_confirmed:
-        description: Confirm free-tier project for read-only model discovery
+        description: Confirm free-tier project and authorize one small Gemini generation
         type: boolean
         required: true
         default: false
@@ -12,7 +12,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: gemini-model-discovery
+  group: gemini-generation-diagnostic
   cancel-in-progress: false
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install Gemini SDK
         run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
-      - name: Discover available Gemini generation models
+      - name: Verify discovered Gemini 3.5 Flash-Lite and generate once
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         shell: bash
@@ -45,9 +45,18 @@ jobs:
                   actions = getattr(model, "supported_actions", None) or []
                   if re.fullmatch(r"gemini-[a-zA-Z0-9._-]{1,70}", name) and "generateContent" in actions:
                       matches.append(name)
-              print("MODEL_DISCOVERY_COMPLETE", "models_seen:", total, "generation_models:", len(matches))
-              for name in sorted(set(matches)):
-                  print("AVAILABLE_GENERATION_MODEL", name)
+              target = "gemini-3.5-flash-lite"
+              print("MODEL_DISCOVERY_COMPLETE", "models_seen:", total, "generation_models:", len(matches), "target_advertised:", target in matches)
+              if target not in matches:
+                  sys.exit("FAIL: target not advertised for generateContent; no generation attempted")
+              response = client.models.generate_content(
+                  model=target,
+                  contents="Reply with exactly: NEXUS_OK",
+              )
+              candidates = getattr(response, "candidates", None) or []
+              print("GENERATION_RESPONSE_RECEIVED", "has_candidates:", bool(candidates))
+              if not candidates:
+                  sys.exit("FAIL: no generation candidates")
           except Exception as exc:
               code = getattr(exc, "code", None)
               if not isinstance(code, int):
@@ -58,6 +67,6 @@ jobs:
                           "QUOTA_OR_RATE_LIMIT" if code == 429 else
                           "SERVICE_UNAVAILABLE" if code == 503 else
                           "OTHER_API_ERROR")
-              print("MODEL_DISCOVERY_FAILED", "http_status:", code, "category:", category)
+              print("GENERATION_DIAGNOSTIC_FAILED", "http_status:", code, "category:", category)
               sys.exit(1)
           PY
