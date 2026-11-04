@@ -1,10 +1,10 @@
-name: Gemini Interactions authentication diagnostic
+name: Gemini read-only model discovery
 
 on:
   workflow_dispatch:
     inputs:
       free_tier_confirmed:
-        description: Confirm key belongs to a free-tier project and authorize one small live API call
+        description: Confirm free-tier project for read-only model discovery
         type: boolean
         required: true
         default: false
@@ -12,7 +12,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: gemini-interactions-diagnostic
+  group: gemini-model-discovery
   cancel-in-progress: false
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Install Gemini SDK
         run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
-      - name: Verify advertised model and one GenerateContent request
+      - name: Discover available Gemini generation models
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         shell: bash
@@ -37,41 +37,27 @@ jobs:
               sys.exit("FAIL: missing GEMINI_API_KEY")
           client = genai.Client(api_key=key)
           try:
-              result = client.models.generate_content(
-                  model="gemini-2.5-flash",
-                  contents="Reply with exactly: NEXUS_OK",
-              )
+              matches = []
+              total = 0
+              for model in client.models.list():
+                  total += 1
+                  name = str(getattr(model, "name", "")).removeprefix("models/")
+                  actions = getattr(model, "supported_actions", None) or []
+                  if re.fullmatch(r"gemini-[a-zA-Z0-9._-]{1,70}", name) and "generateContent" in actions:
+                      matches.append(name)
+              print("MODEL_DISCOVERY_COMPLETE", "models_seen:", total, "generation_models:", len(matches))
+              for name in sorted(set(matches)):
+                  print("AVAILABLE_GENERATION_MODEL", name)
           except Exception as exc:
-              # Never emit exception text, headers, request data, or the key.
               code = getattr(exc, "code", None)
               if not isinstance(code, int):
                   code = getattr(exc, "status_code", None)
               if not isinstance(code, int):
                   code = "UNAVAILABLE"
-              name = type(exc).__name__
-              if not re.fullmatch(r"[A-Za-z_]{1,80}", name):
-                  name = "Exception"
-              detail = str(exc).lower()
-              if code in (401, 403):
-                  category = "AUTH_OR_PERMISSION"
-              elif code == 429:
-                  category = "QUOTA_OR_RATE_LIMIT"
-              elif code == 404:
-                  category = "MODEL_OR_ENDPOINT_NOT_FOUND"
-              elif code == 400 and any(term in detail for term in ("model", "not supported", "unsupported")):
-                  category = "MODEL_OR_FEATURE_UNSUPPORTED"
-              elif code == 400 and any(term in detail for term in ("generation_config", "input", "invalid argument", "field")):
-                  category = "REQUEST_SCHEMA_REJECTED"
-              elif code == 400:
-                  category = "BAD_REQUEST_UNCLASSIFIED"
-              else:
-                  category = "OTHER_API_ERROR"
-              # Only fixed allowlisted labels are emitted, never provider text.
-              print("GENERATE_CONTENT_FAILED", "http_status:", code, "exception_type:", name, "category:", category)
+              category = ("AUTH_OR_PERMISSION" if code in (401, 403) else
+                          "QUOTA_OR_RATE_LIMIT" if code == 429 else
+                          "SERVICE_UNAVAILABLE" if code == 503 else
+                          "OTHER_API_ERROR")
+              print("MODEL_DISCOVERY_FAILED", "http_status:", code, "category:", category)
               sys.exit(1)
-          candidates = getattr(result, "candidates", None) or []
-          if not candidates:
-              sys.exit("FAIL: no candidates returned")
-          print("GENERATE_CONTENT_RESPONSE_RECEIVED", "candidates:", len(candidates))
-          # Do not print model output; successful transport alone is diagnostic.
           PY
