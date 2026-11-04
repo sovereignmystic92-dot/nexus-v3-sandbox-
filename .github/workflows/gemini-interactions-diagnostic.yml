@@ -52,7 +52,23 @@ jobs:
               name = type(exc).__name__
               if not re.fullmatch(r"[A-Za-z_]{1,80}", name):
                   name = "Exception"
-              print("INTERACTIONS_FAILED", "http_status:", code, "exception_type:", name)
+              detail = str(exc).lower()
+              if code in (401, 403):
+                  category = "AUTH_OR_PERMISSION"
+              elif code == 429:
+                  category = "QUOTA_OR_RATE_LIMIT"
+              elif code == 404:
+                  category = "MODEL_OR_ENDPOINT_NOT_FOUND"
+              elif code == 400 and any(term in detail for term in ("model", "not supported", "unsupported")):
+                  category = "MODEL_OR_FEATURE_UNSUPPORTED"
+              elif code == 400 and any(term in detail for term in ("generation_config", "input", "invalid argument", "field")):
+                  category = "REQUEST_SCHEMA_REJECTED"
+              elif code == 400:
+                  category = "BAD_REQUEST_UNCLASSIFIED"
+              else:
+                  category = "OTHER_API_ERROR"
+              # Only fixed allowlisted labels are emitted, never provider text.
+              print("INTERACTIONS_FAILED", "http_status:", code, "exception_type:", name, "category:", category)
               sys.exit(1)
           steps = getattr(result, "steps", None) or []
           if not steps:
