@@ -1,0 +1,27 @@
+{
+  "schema": "nexus.cp05.cortex-connector-observation.v1",
+  "scope": "connector-side-read-only; not authenticated Nexus runtime",
+  "observed_on": "2026-11-04",
+  "source": "Socra Cortex connected context_search",
+  "module": {
+    "id": "module_01m6kzebbfdk4ptbsg88gsf0ja",
+    "name": "NEXUS CP05 SYNTHETIC CORTEX READBACK 2026-11-04 A",
+    "version": 1,
+    "fixture_id": "NEXUS-CP05-CORTEX-20261104-A",
+    "source_notion_page_id": "40e8c067-daa4-8199-9f12-c9b6486de444",
+    "expected_payload": "The copper lantern stays lit at dawn."
+  },
+  "observed": {
+    "connector_search_found": true,
+    "context_get_returned_empty_object": true,
+    "writes": 0
+  },
+  "trust": {
+    "github_actions_to_cortex_authenticated": false,
+    "independent_runtime_identity_attested": false,
+    "complete_host_readback_attested": false,
+    "durable_checkpoint_attested": false,
+    "cp05_closed": false
+  },
+  "next_action": "Establish supported Cortex runtime client and verify authenticated independent readback; do not infer host authority from connector search."
+}
