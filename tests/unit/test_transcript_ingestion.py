@@ -77,10 +77,17 @@ class IngestionTests(unittest.TestCase):
         self.c.record(self.key, STAGES[1], "COMPLETE",
                       {"destination": "notion:original", "readback": "fetched"},
                       independently_read_back=True)
+        original = self.c.get(self.key, STAGES[1])
         item = self.c.record(self.key, STAGES[1], "COMPLETE",
-                             {"destination": "notion:different", "readback": "other"},
+                             {"destination": "notion:original", "readback": "fetched"},
                              independently_read_back=True)
-        self.assertEqual(item.evidence["destination"], "notion:original")
+        self.assertEqual(item, original)
+        with self.assertRaisesRegex(ValueError, "Conflicting verified evidence"):
+            self.c.record(self.key, STAGES[1], "COMPLETE",
+                          {"destination": "notion:different", "readback": "other"},
+                          independently_read_back=True)
+        self.assertEqual(self.c.get(self.key, STAGES[1]), original)
+        self.assertEqual(self.c.next_stage(self.key), STAGES[2])
 
     def test_invalid_noncomplete_readback_and_oversize(self):
         with self.assertRaises(ValueError):
