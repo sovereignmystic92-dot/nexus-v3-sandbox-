@@ -66,4 +66,4 @@ def record_verified_cortex_output(
                 "source_sha256": route["source_sha256"]}
     coordinator.record(source_key, "CORTEX_OUTPUT_VERIFIED", "COMPLETE",
                        evidence, independently_read_back=True)
-    return CortexCheckpointResult("RECORDED", "VERIFY_FINAL_RECEIPT", source_key)
+    return CortexCheckpointResult("RECORDED", "VERIFY_FINAL_RECEIPT", source_key=source_key)
