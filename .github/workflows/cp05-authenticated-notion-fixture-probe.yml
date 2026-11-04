@@ -1,0 +1,74 @@
+name: CP05 authenticated Notion fixture read-only probe
+on:
+  workflow_dispatch:
+    inputs:
+      read_confirmed:
+        description: "Authorize one read-only Notion fixture retrieval; no Cortex or writes"
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: cp05-authenticated-notion-read
+  cancel-in-progress: false
+jobs:
+  notion-fixture:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && inputs.read_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 3
+    steps:
+      - name: Verify restricted credential can read exact synthetic page
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          FIXTURE_ID: 40e8c067-daa4-8199-9f12-c9b6486de444
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error, hashlib, sys
+          token = os.environ.get("NOTION_SANDBOX_TOKEN", "")
+          page_id = os.environ["FIXTURE_ID"]
+          if not token: sys.exit("BLOCKED: sandbox token unavailable")
+          headers = {"Authorization":"Bearer "+token,"Notion-Version":"2022-06-28","Accept":"application/json"}
+          def read(path):
+              req = urllib.request.Request("https://api.notion.com/v1/"+path,headers=headers,method="GET")
+              with urllib.request.urlopen(req,timeout=15) as r:
+                  if r.status != 200: raise ValueError("Non-200 response")
+                  return json.load(r)
+          try:
+              page = read("pages/"+page_id)
+              if page.get("id","").replace("-","") != page_id.replace("-",""):
+                  raise ValueError("Page identity mismatch")
+              blocks, cursor = [], None
+              for _ in range(100):
+                  path = "blocks/"+page_id+"/children?page_size=100"
+                  if cursor:
+                      from urllib.parse import quote
+                      path += "&start_cursor="+quote(cursor,safe="")
+                  result = read(path)
+                  if not isinstance(result.get("results"),list): raise ValueError("Incomplete inventory")
+                  blocks += result["results"]
+                  if any(b.get("has_children") for b in result["results"]):
+                      raise ValueError("Nested inventory unsupported")
+                  if not result.get("has_more"): break
+                  cursor = result.get("next_cursor")
+                  if not cursor: raise ValueError("Missing cursor")
+              else: raise ValueError("Pagination bound exceeded")
+              fragments = []
+              for b in blocks:
+                  data = b.get(b.get("type"),{})
+                  if not isinstance(data,dict): raise ValueError("Unsupported block data")
+                  fragments += [x.get("plain_text","") for x in data.get("rich_text",[])]
+              content = "\\n".join(fragments)
+              expected = "The copper lantern stays lit at dawn."
+              if expected not in content: raise ValueError("Fixture text mismatch")
+              digest = hashlib.sha256(content.encode()).hexdigest()
+              print(json.dumps({"result":"MATCHED_READ_ONLY","page_id":page_id,
+                "last_edited_at":page.get("last_edited_time"),"block_count":len(blocks),
+                "sha256_of_extracted_text":digest,"writes":0,"checkpoint":"NOT_ATTESTED",
+                "cortex_host_auth":"NOT_ATTESTED"},sort_keys=True))
+          except Exception as exc:
+              print("BLOCKED: authenticated fixture read failed ("+type(exc).__name__+")")
+              sys.exit(1)
+          PY
