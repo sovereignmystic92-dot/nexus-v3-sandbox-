@@ -1,0 +1,28 @@
+{
+  "schema": "nexus.cp05.notion-host-read-observation.v1",
+  "source": "github-actions-job-log",
+  "workflow_run_id": 41918014644,
+  "workflow_job_id": 126882758186,
+  "workflow_run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/41918014644",
+  "workflow_commit": "267bc5a88284f32c877ca3e10fef98dbb0b2f66a",
+  "workflow_result": "success",
+  "notion": {
+    "page_id": "40e8c067-daa4-8199-9f12-c9b6486de444",
+    "last_edited_at": "2026-11-04T21:14:00.000Z",
+    "block_count": 7,
+    "extracted_text_sha256": "64f6f31a71dc882bfb7116e3344e070c4978423b677d296df9a563760aab7e9f",
+    "result": "MATCHED_READ_ONLY",
+    "writes": 0
+  },
+  "limitations": {
+    "log_attests_authenticated_http_read_for_fixture": true,
+    "full_fidelity_canonical_transcript_attested": false,
+    "notion_checkpoint_attested": false,
+    "cortex_runtime_host_authenticated": false,
+    "cortex_checkpoint_attested": false,
+    "independent_principal_or_effective_grants_attested": false,
+    "cp05_closed": false,
+    "cp02_closed": false
+  },
+  "policy": "Evidence snapshot only. Never elevate trust flags from a checked-in fixture. Verify source freshness and independent host readback at runtime."
+}
