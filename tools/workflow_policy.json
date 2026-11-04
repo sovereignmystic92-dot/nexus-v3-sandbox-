@@ -3,7 +3,7 @@
   "cortex-transcript-synthetic-handoff.yml": "3be50061ba48f931873a303134fe6e107723645a718ab77174bbf33be8906406",
   "cp04-environment-enforcement-probe.yml": "be54e74c1be59694c14a2918bb10363f9787990aa43ee17038d7640bf5df603a",
   "cp04-host-reachability-observation.yml": "40f1cfeda3e3b34dd063656de2b17e5eee1041f8352c907c30f3d3a0476ffa63",
-  "cp05-authenticated-notion-fixture-probe.yml": "983b3feb5f34a4dab3bc9a58ed7f80c7ab8b8f0b74bf9dd21eb5c6875d96dd3e",
+  "cp05-authenticated-notion-fixture-probe.yml": "5fe1eec8335540d57bae2f0b03cc96fbb86d9a9f0fd7117b38fb66130b09d376",
   "gemini-interactions-diagnostic.yml": "fbb778c63aca7419b0196f5cc170ddc499174886aba5184f65124cfbf098e63f",
   "gemini-live-review-pilot.yml": "5c985aacd334fd2a7718a3e0674716adb56c210865c3facf052a971d17d978a1",
   "gemini-offline.yml": "854c08ecda333bf2d712380798a3a954773fa3dcbc22a33347b79f005d4db5a2",
