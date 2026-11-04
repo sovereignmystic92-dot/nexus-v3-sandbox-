@@ -38,9 +38,8 @@ jobs:
           client = genai.Client(api_key=key)
           try:
               result = client.interactions.create(
-                  model="models/gemini-3.8-flash",
+                  model="gemini-3.8-flash",
                   input="Reply with exactly: NEXUS_OK",
-                  generation_config={"max_output_tokens": 64},
               )
           except Exception as exc:
               # Never emit exception text, headers, request data, or the key.
