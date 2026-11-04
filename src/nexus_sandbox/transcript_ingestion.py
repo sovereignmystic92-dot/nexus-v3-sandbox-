@@ -134,6 +134,8 @@ class TranscriptCoordinator:
                 if status != "COMPLETE":
                     raise ValueError("Verified stage cannot be downgraded")
                 existing = self.get(key, stage)
+                if existing.evidence != evidence:
+                    raise ValueError("Conflicting verified evidence: no silent replacement")
                 self.db.execute("COMMIT")
                 return existing
             if status == "COMPLETE":
