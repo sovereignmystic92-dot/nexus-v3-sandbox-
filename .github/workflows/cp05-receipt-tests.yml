@@ -1,0 +1,18 @@
+name: CP05 receipt contract tests
+on:
+  pull_request:
+    paths:
+      - 'tools/cp05_supervised_receipt_verify.py'
+      - 'tests/test_cp05_supervised_receipt_verify.py'
+      - '.github/workflows/cp05-receipt-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-receipt-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run isolated receipt validation tests
+        run: python3 -m unittest discover -s tests -p 'test_cp05_supervised_receipt_verify.py' -v
