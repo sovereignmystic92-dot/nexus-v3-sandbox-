@@ -1,20 +1,33 @@
 name: CP05 Socra host read-only preflight
 on:
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {}
 jobs:
   socra-cortex-read:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Fetch exact public revision without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+          GIT_CONFIG_NOSYSTEM: '1'
+          GIT_CONFIG_GLOBAL: /dev/null
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir checkout
+          cd checkout
+          git init --quiet
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
       - name: Read exact Cortex synthetic fixture (zero writes)
         env:
           SOCRA_CLIENT_ID: ${{ secrets.SOCRA_CLIENT_ID }}
           SOCRA_CLIENT_SECRET: ${{ secrets.SOCRA_CLIENT_SECRET }}
           SOCRA_PRINCIPAL_ID: ${{ secrets.SOCRA_PRINCIPAL_ID }}
-        run: python3 tools/cp05_socra_host_preflight.py
+        run: python3 checkout/tools/cp05_socra_host_preflight.py
       - name: Preserve sanitized preflight receipt
         if: always()
         uses: actions/upload-artifact@v4

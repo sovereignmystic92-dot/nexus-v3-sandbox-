@@ -10,6 +10,8 @@ import re
 
 PROVIDER_SECRETS = {
     'cp05-authenticated-notion-fixture-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
+    'cp05-socra-host-readonly.yml': (
+        None, {'SOCRA_CLIENT_ID', 'SOCRA_CLIENT_SECRET', 'SOCRA_PRINCIPAL_ID'}),
     'gemini-interactions-diagnostic.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-live-review-pilot.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-smoke.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
@@ -47,6 +49,9 @@ def observe_host_credential_names():
         'NOTION_SANDBOX_DENIED_PAGE_ID',
         'GEMINI_PILOT_API_KEY',
         'GEMINI_API_KEY',
+        'SOCRA_CLIENT_ID',
+        'SOCRA_CLIENT_SECRET',
+        'SOCRA_PRINCIPAL_ID',
         'GH_TOKEN',
         'GITHUB_TOKEN',
     )
@@ -87,3 +92,4 @@ if __name__=='__main__':
     host_observation=observe_host_credential_names()
     print(json.dumps({'host_credential_observation':host_observation,'workflow_inventory':'MATCHED','files':names,
                       'scope':'committed workflow bytes only; settings/hooks not inspected'}))
+
