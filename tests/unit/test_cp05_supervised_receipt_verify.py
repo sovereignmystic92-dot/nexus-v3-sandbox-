@@ -1,9 +1,12 @@
 """Adversarial checks for the draft CP05 supervised receipt validator."""
-import copy
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'tools'))
 import hashlib
 import unittest
 
-from tools.cp05_supervised_receipt_verify import validate, MODULE, PAGE, PAYLOAD
+from cp05_supervised_receipt_verify import validate, MODULE, PAGE, PAYLOAD
 
 
 def valid_receipt():
