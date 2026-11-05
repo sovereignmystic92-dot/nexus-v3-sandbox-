@@ -1,0 +1,25 @@
+name: CP05 Socra host read-only preflight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  socra-cortex-read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read exact Cortex synthetic fixture (zero writes)
+        env:
+          SOCRA_CLIENT_ID: ${{ secrets.SOCRA_CLIENT_ID }}
+          SOCRA_CLIENT_SECRET: ${{ secrets.SOCRA_CLIENT_SECRET }}
+          SOCRA_PRINCIPAL_ID: ${{ secrets.SOCRA_PRINCIPAL_ID }}
+        run: python3 tools/cp05_socra_host_preflight.py
+      - name: Preserve sanitized preflight receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp05-socra-host-preflight
+          path: cp05-socra-host-receipt.json
+          if-no-files-found: warn
+          retention-days: 14
