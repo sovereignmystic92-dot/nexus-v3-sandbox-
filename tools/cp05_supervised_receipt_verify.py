@@ -4,6 +4,7 @@ This validates shape and fixture bindings, not host authentication or Notion
 revision locking. An independent reviewer must verify run provenance separately.
 """
 import hashlib
+from datetime import datetime
 import json
 import sys
 
@@ -23,7 +24,7 @@ def validate(receipt):
         raise ValueError("missing required receipt field")
     if receipt["schema"] != "NEXUS_CP05_SUPERVISED_READ_V1":
         raise ValueError("unexpected schema")
-    if receipt["mode"] != "READ_ONLY" or receipt["provider_writes"] != 0:
+    if receipt["mode"] != "READ_ONLY" or type(receipt["provider_writes"]) is not int or receipt["provider_writes"] != 0:
         raise ValueError("not a zero-write observation")
     if receipt["attestation"] not in ALLOWED:
         raise ValueError("unearned authentication claim")
@@ -32,10 +33,14 @@ def validate(receipt):
     if receipt["fixture_payload_sha256"] != hashlib.sha256(PAYLOAD.encode()).hexdigest():
         raise ValueError("fixture digest mismatch")
     for key in ("github_run_id", "github_job_id"):
-        if not isinstance(receipt[key], int) or receipt[key] <= 0:
+        if type(receipt[key]) is not int or receipt[key] <= 0:
             raise ValueError("missing host run identity")
     if not isinstance(receipt["source_last_edited_at"], str) or not receipt["source_last_edited_at"].endswith("Z"):
         raise ValueError("source revision timestamp missing")
+    try:
+        datetime.fromisoformat(receipt["source_last_edited_at"].replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("source revision timestamp malformed") from exc
     return True
 
 
