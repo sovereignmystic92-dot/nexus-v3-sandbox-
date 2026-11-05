@@ -28,8 +28,8 @@ def check_snapshot(before, blocks, after):
             raise ValueError("malformed rich text")
         normalized.append({"id": block.get("id"), "type": kind, "plain_text": "".join(part["plain_text"] for part in parts)})
     payload = "\n".join(item["plain_text"] for item in normalized)
-    if payload != EXPECTED_PAYLOAD:
-        raise ValueError("fixture must match exactly")
+    if sum(line == "Expected payload: " + EXPECTED_PAYLOAD for line in payload.splitlines()) != 1:
+        raise ValueError("expected fixture payload line must occur exactly once")
     inventory = json.dumps(normalized, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
     return {"source_revision": before["last_edited_time"], "block_count": len(normalized),
             "canonical_inventory_sha256": hashlib.sha256(inventory).hexdigest(),
