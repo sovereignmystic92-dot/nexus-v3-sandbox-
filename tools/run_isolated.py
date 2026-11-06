@@ -65,7 +65,7 @@ def stage_sources(stage):
     stage.mkdir()
     stage.chmod(0o755)
     manifest = {}
-    for directory in ("src", "tests", "tools"):
+    for directory in ("src", "tests", "tools", "schemas"):
         for source in sorted((ROOT / directory).rglob("*")):
             if "__pycache__" in source.parts:
                 continue
