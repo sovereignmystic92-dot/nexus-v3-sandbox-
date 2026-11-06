@@ -6,8 +6,7 @@ on:
       - 'tests/test_gemini_notion_bridge.py'
       - '.github/workflows/gemini-notion-bridge-*.yml'
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {}
 jobs:
   unit-tests:
     runs-on: ubuntu-24.04
