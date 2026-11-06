@@ -59,3 +59,12 @@ def build_handoff(root, source_commit):
         "status": "PREPARED_NOT_EXECUTED",
         "review_request": "Independent schema parity, provenance, identity collision and evidence-link audit; preserve disagreements.",
     }
+
+
+def require_exact_checkout(source_commit, observed_head):
+    """Pure validation shared by the CLI and isolated tests."""
+    if not isinstance(source_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise HandoffError("exact source SHA required")
+    if observed_head != source_commit:
+        raise HandoffError("checkout HEAD differs from requested source commit")
+    return True
