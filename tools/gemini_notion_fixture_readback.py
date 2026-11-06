@@ -10,7 +10,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from nexus_sandbox.notion_checkpoint_api import NotionRequest, NotionCheckpointAPI
+from urllib.parse import urlencode
+from uuid import UUID
+from nexus_sandbox.notion_checkpoint_api import NotionRequest
+from nexus_sandbox.notion_inventory import observe
 
 FIXTURE_ID = "40e8c067daa481999f12c9b6486de444"
 
@@ -25,12 +28,30 @@ def observe_fixture(request):
         if reads > 22:
             raise ValueError("Read budget exceeded")
         return request(method, path, payload)
-    page = NotionCheckpointAPI(FIXTURE_ID, bounded, write_enabled=False).fetch_page(FIXTURE_ID)
-    if page["id"] != FIXTURE_ID or page["truncated"] or page["unknown_block_count"]:
-        raise ValueError("Incomplete fixture inventory")
-    return {"result": "FIXTURE_READ_ONLY_OBSERVED",
+    page = bounded("GET", "/v1/pages/" + FIXTURE_ID, None)
+    if (type(page) is not dict or page.get("object") != "page"
+            or UUID(page["id"]).hex != FIXTURE_ID
+            or page.get("archived") is not False or page.get("in_trash") is not False):
+        raise ValueError("Unavailable or mismatched fixture page")
+    def children(parent_id, query):
+        return bounded("GET", "/v1/blocks/" + parent_id + "/children?" + urlencode(query), None)
+    root, inventory = observe(FIXTURE_ID, children, max_pages=10)
+    fragments = []
+    for block in root:
+        kind = block["type"]
+        if kind in {"paragraph", "heading_1", "heading_2", "heading_3",
+                    "bulleted_list_item", "numbered_list_item", "quote",
+                    "callout", "to_do", "toggle", "code"}:
+            for item in block[kind]["rich_text"]:
+                if item["type"] == "text":
+                    fragments.append(item["plain_text"])
+    content = "\\n".join(fragments)
+    if "The copper lantern stays lit at dawn." not in content:
+        raise ValueError("Expected synthetic fixture phrase absent")
+    return {"result": "FIXTURE_CONTENT_MATCHED_READ_ONLY",
             "fixture_id": FIXTURE_ID,
-            "inventory_sha256": hashlib.sha256(page["text"].encode("utf-8")).hexdigest(),
+            "content_sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
+            "blocks_observed": inventory["blocks_observed"],
             "read_requests": reads, "writes_attempted": 0}
 
 
