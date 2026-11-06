@@ -52,7 +52,10 @@ def main():
                 for folder in ("src", "tests", "tools") for p in sorted((ROOT / folder).rglob("*"))
                 if p.is_file() and p.suffix in (".py", ".sql", ".json")}
     stream = io.StringIO()
-    suite = unittest.defaultTestLoader.discover(str(ROOT / "tests/unit"))
+    unit_suite = unittest.defaultTestLoader.discover(str(ROOT / "tests/unit"))
+    cortex_suite = unittest.defaultTestLoader.discover(
+        str(ROOT / "tests"), pattern="test_cortex*.py")
+    suite = unittest.TestSuite((unit_suite, cortex_suite))
     # Detailed failures stay in the operator's process; report stores statuses only.
     with redirect_stdout(stream), redirect_stderr(stream):
         result = unittest.TextTestRunner(stream=stream, verbosity=2, resultclass=Results).run(suite)
