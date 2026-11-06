@@ -42,9 +42,19 @@ class WarFrontsSourceTransferTests(unittest.TestCase):
             self.assertFalse(result["identical"])
             self.assertEqual(result["original_utf16_units"], len(original_text.encode("utf-16-le")) // 2)
             self.assertEqual(result["candidate_utf16_units"], len(candidate_text.encode("utf-16-le")) // 2)
-            self.assertEqual(result["original_provenance"], "notion:4088c067-daa4-813b-b1f0-e1f1993120fb")
+            self.assertEqual(result["original_provenance"], "local-file:unverified")
+            self.assertEqual(result["original_provenance_status"], "UNVERIFIED_LOCAL_FILE")
             self.assertEqual(result["candidate_provenance"], "manual:reviewed-export")
             self.assertEqual(result["status"], "REVIEW_REQUIRED_NOT_AUTHORIZED")
+
+            with patch.object(sys, "argv", ["probe", "--notion-raw-file", str(original),
+                    "--original-provenance", "notion:claimed-archive",
+                    "--candidate-file", str(candidate), "--candidate-provenance", "manual:reviewed-export",
+                    "--report", str(report)]):
+                main()
+            declared = json.loads(report.read_bytes().decode("utf-8"))
+            self.assertEqual(declared["original_provenance"], "notion:claimed-archive")
+            self.assertEqual(declared["original_provenance_status"], "CALLER_DECLARED_UNVERIFIED")
 
     def test_manual_export_rejects_trailing_podcast_promotion(self):
         episode = START + " " + ("analysis " * 220) + END
