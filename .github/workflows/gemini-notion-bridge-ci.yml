@@ -1,0 +1,23 @@
+name: Gemini Notion bridge validation CI
+on:
+  pull_request:
+    paths:
+      - 'tools/gemini_notion_bridge.py'
+      - 'tests/test_gemini_notion_bridge.py'
+      - '.github/workflows/gemini-notion-bridge-*.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate Python syntax
+        run: python3 -m py_compile tools/gemini_notion_bridge.py tests/test_gemini_notion_bridge.py
+      - name: Run synthetic bridge unit tests
+        run: python3 -m unittest discover -s tests -p test_gemini_notion_bridge.py -v
+# No provider secrets, API requests, or writes.
