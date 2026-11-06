@@ -113,5 +113,50 @@ class WarFrontsArchiveHandoffTests(unittest.TestCase):
         self.assertEqual(verify_archive_handoff(**self.args).status, "BLOCKED")
 
 
+
+from nexus_sandbox.warfronts_snapshot_bridge import bind_warfronts_snapshot
+from nexus_sandbox.transcript_completion import source_digest
+
+
+class WarFrontsSnapshotBridgeTests(unittest.TestCase):
+    def setUp(self):
+        self.plan = prepare_warfronts_source(
+            video_id="RAXLnCNA4w8",
+            expected_channel_id="UCabcdefghijklmnopqrstuv",
+            observed_channel_id="UCabcdefghijklmnopqrstuv",
+            segments=(CaptionSegment(0, 0, 500, " Exact\\n"), CaptionSegment(1, 500, 500, "text")),
+            channel_verified=True, captions_complete=True, caption_provenance_verified=True)
+        self.args = dict(
+            plan=self.plan, page_id="notion-source-1", parent_id="notion-parent-1",
+            archive_video_id=self.plan.video_id, archive_channel_id=self.plan.channel_id,
+            archive_text=" Exact\\ntext", archive_source_url=self.plan.source_url,
+            archive_revision="revision-1", archive_complete=True, independent_readback=True)
+
+    def test_exact_snapshot_digest(self):
+        result = bind_warfronts_snapshot(**self.args)
+        self.assertEqual(source_digest(result.source), self.plan.transcript_sha256)
+        self.assertEqual(result.provider_writes, 0)
+        self.assertEqual(result.status, "SOURCE_SNAPSHOT_READY_NOT_AUTHORIZED")
+
+    def test_unverified_readback_holds(self):
+        self.args["independent_readback"] = False
+        with self.assertRaises(ValueError):
+            bind_warfronts_snapshot(**self.args)
+
+    def test_wrong_archive_text_holds(self):
+        self.args["archive_text"] += " "
+        with self.assertRaises(ValueError):
+            bind_warfronts_snapshot(**self.args)
+
+    def test_missing_page_holds(self):
+        self.args["page_id"] = ""
+        with self.assertRaises(ValueError):
+            bind_warfronts_snapshot(**self.args)
+
+    def test_same_parent_and_page_holds(self):
+        self.args["parent_id"] = self.args["page_id"]
+        with self.assertRaises(ValueError):
+            bind_warfronts_snapshot(**self.args)
+
 if __name__ == "__main__":
     unittest.main()
