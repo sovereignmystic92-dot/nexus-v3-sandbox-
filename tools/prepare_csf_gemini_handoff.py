@@ -12,7 +12,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from nexus_sandbox.csf_gemini_handoff import HandoffError, build_handoff
+from nexus_sandbox.csf_gemini_handoff import HandoffError, build_handoff, require_exact_checkout
 
 
 def prepare(root, source_commit):
@@ -25,8 +25,7 @@ def prepare(root, source_commit):
         )
     except (OSError, subprocess.SubprocessError) as error:
         raise HandoffError("checkout identity unavailable") from error
-    if result.stdout.strip() != source_commit:
-        raise HandoffError("checkout HEAD differs from requested source commit")
+    require_exact_checkout(source_commit, result.stdout.strip())
     return build_handoff(root, source_commit)
 
 
