@@ -1,5 +1,10 @@
 import unittest
-from nexus_sandbox.warfronts_source_transfer import extract_episode, fetch_episode, START, END
+import json
+import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+from nexus_sandbox.warfronts_source_transfer import extract_episode, fetch_episode, START, END, main
 
 class WarFrontsSourceTransferTests(unittest.TestCase):
     def test_extracts_main_and_excludes_promotion(self):
@@ -18,3 +23,27 @@ class WarFrontsSourceTransferTests(unittest.TestCase):
     def test_disallows_arbitrary_url(self):
         with self.assertRaises(ValueError):
             fetch_episode("https://example.com")
+
+    def test_offline_file_comparison_preserves_crlf_and_provenance(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            original = root / "original.txt"
+            candidate = root / "candidate.txt"
+            report = root / "report.json"
+            original.write_bytes(b"alpha\\r\\nbeta\\r\\n")
+            candidate.write_bytes(b"alpha\\nbeta\\n")
+            with patch.object(sys, "argv", ["probe", "--notion-raw-file", str(original),
+                    "--candidate-file", str(candidate), "--candidate-provenance", "manual:reviewed-export",
+                    "--report", str(report)]):
+                main()
+            result = json.loads(report.read_bytes().decode("utf-8"))
+            self.assertFalse(result["identical"])
+            self.assertEqual(result["original_utf16_units"], 13)
+            self.assertEqual(result["candidate_utf16_units"], 11)
+            self.assertEqual(result["status"], "REVIEW_REQUIRED_NOT_AUTHORIZED")
+
+    def test_candidate_file_requires_explicit_provenance(self):
+        with patch.object(sys, "argv", ["probe", "--notion-raw-file", "x",
+                "--candidate-file", "y", "--report", "z"]):
+            with self.assertRaises(SystemExit):
+                main()
