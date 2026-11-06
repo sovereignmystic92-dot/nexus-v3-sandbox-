@@ -8,6 +8,16 @@ on:
         required: true
         default: '122'
         type: string
+      csf_prepare_only:
+        description: Prepare a pinned CSF review packet without calling Gemini
+        required: true
+        default: false
+        type: boolean
+      csf_source_commit:
+        description: Exact 40-character source SHA for CSF preparation
+        required: false
+        default: ''
+        type: string
       free_tier_confirmed:
         description: I confirm the Gemini key belongs to a free-tier project and authorize one live API review
         required: true
@@ -22,7 +32,7 @@ concurrency:
 
 jobs:
   review:
-    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
+    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true && inputs.csf_prepare_only != true
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:
@@ -129,3 +139,44 @@ jobs:
               print("GEMINI_REVIEW_FAILED", "http_status:", code, "category:", category)
               sys.exit(1)
           PY
+
+  csf_prepare:
+    if: github.ref == 'refs/heads/main' && inputs.csf_prepare_only == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - name: Validate pinned SHA
+        env:
+          CSF_SOURCE_COMMIT: ${{ inputs.csf_source_commit }}
+        shell: bash
+        run: |
+          if [[ ! "$CSF_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "BLOCKED: exact 40-character source SHA required"
+            exit 2
+          fi
+      - name: Checkout exact CSF source without credentials
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.csf_source_commit }}
+          persist-credentials: false
+      - name: Prepare full source-bound request (no Gemini key)
+        env:
+          CSF_SOURCE_COMMIT: ${{ inputs.csf_source_commit }}
+        shell: bash
+        run: |
+          python3 tools/prepare_csf_gemini_handoff.py --source-commit "$CSF_SOURCE_COMMIT" --include-review-request > csf-review-request.json
+          python3 - <<'PY'
+          import json
+          with open("csf-review-request.json", encoding="utf-8") as source:
+              packet = json.load(source)
+          if packet.get("status") != "REQUEST_PREPARED_NOT_EXECUTED":
+              raise SystemExit("BLOCKED: review request not prepared")
+          print("CSF_PREPARED_NOT_EXECUTED", packet["source_commit"])
+          PY
+      - name: Upload bounded request for independent review
+        uses: actions/upload-artifact@v4
+        with:
+          name: csf-review-request
+          path: csf-review-request.json
+          if-no-files-found: error
+          retention-days: 7
