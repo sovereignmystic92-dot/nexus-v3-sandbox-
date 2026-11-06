@@ -10,6 +10,8 @@ class WarFrontsSourceTests(unittest.TestCase):
     def setUp(self):
         self.args = dict(
             video_id="RAXLnCNA4w8",
+            expected_channel_id="UCabcdefghijklmnopqrstuv",
+            observed_channel_id="UCabcdefghijklmnopqrstuv",
             segments=(CaptionSegment(0, 0, 500, "  Exact text.\n"),
                       CaptionSegment(1, 500, 600, "Next line.")),
             channel_verified=True,
@@ -41,6 +43,16 @@ class WarFrontsSourceTests(unittest.TestCase):
 
     def test_bad_sequence_is_blocked(self):
         self.args["segments"] = (CaptionSegment(1, 0, 500, "text"),)
+        with self.assertRaises(ValueError):
+            prepare_warfronts_source(**self.args)
+
+    def test_mismatched_channel_id_is_blocked(self):
+        self.args["observed_channel_id"] = "UCzyxwvutsrqponmlkjihgfe"
+        with self.assertRaises(ValueError):
+            prepare_warfronts_source(**self.args)
+
+    def test_missing_channel_id_is_blocked(self):
+        self.args["observed_channel_id"] = ""
         with self.assertRaises(ValueError):
             prepare_warfronts_source(**self.args)
 
