@@ -6,7 +6,7 @@ from nexus_sandbox.cp05_readonly_probe import probe, SOURCE_ID, MODULE_ID, SOURC
 class Fake:
     def __init__(self):
         self.calls = []
-        self.source = {"id": SOURCE_ID, "video_id": "kokDVXUGdes", "verbatim": False}
+        self.source = {"id": SOURCE_ID, "video_id": "kokDVXUGdes", "verbatim": False, "url": SOURCE_URL + "?pvs=204"}
         self.module = {"id": MODULE_ID, "version": 1, "content": SOURCE_URL + "\n" + VIDEO_URL}
     def read_notion_page(self, key):
         self.calls.append(("notion", key))
@@ -49,6 +49,15 @@ class ProbeTests(unittest.TestCase):
     def test_fidelity_must_be_explicitly_non_verbatim(self):
         t = Fake(); t.source["verbatim"] = True
         self.assertEqual(self.run_probe(t).status, "BLOCKED_FIDELITY_UNVERIFIED")
+
+    def test_wrong_notion_url_blocks_cortex_read(self):
+        t = Fake(); t.source["url"] = SOURCE_URL.replace("app.notion.com", "app.notion.com.evil.test")
+        self.assertEqual(self.run_probe(t).status, "BLOCKED_NOTION_URL_IDENTITY")
+        self.assertEqual(len(t.calls), 1)
+
+    def test_missing_notion_url_blocks(self):
+        t = Fake(); del t.source["url"]
+        self.assertEqual(self.run_probe(t).status, "BLOCKED_NOTION_URL_IDENTITY")
 
     def test_revision_drift(self):
         t = Fake(); t.module["version"] = 2

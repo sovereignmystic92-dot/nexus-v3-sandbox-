@@ -5,6 +5,7 @@ The caller must supply a separately reviewed authenticated host transport.
 """
 from dataclasses import dataclass
 from typing import Protocol
+from nexus_sandbox.cp05_notion_identity import notion_page_matches
 
 SOURCE_ID = "40b8c067daa481a3bc7ee289c8f7f050"
 VIDEO_ID = "kokDVXUGdes"
@@ -50,6 +51,8 @@ def probe(transport: ReadOnlyTransport, *, principal_ref: str,
         return receipt("BLOCKED_NOTION_UNAVAILABLE")
     if type(source) is not dict or source.get("id") != SOURCE_ID or source.get("video_id") != VIDEO_ID:
         return receipt("BLOCKED_SOURCE_IDENTITY")
+    if not notion_page_matches(source.get("url"), SOURCE_ID):
+        return receipt("BLOCKED_NOTION_URL_IDENTITY")
     if source.get("verbatim") is not False:
         return receipt("BLOCKED_FIDELITY_UNVERIFIED")
     try:
