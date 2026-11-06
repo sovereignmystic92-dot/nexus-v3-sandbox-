@@ -8,6 +8,14 @@ on:
         required: true
         default: '122'
         type: string
+      expected_head:
+        description: Full PR head SHA to review
+        required: true
+        type: string
+      expected_base:
+        description: Full PR base SHA to review
+        required: true
+        type: string
       free_tier_confirmed:
         description: I confirm the Gemini key belongs to a free-tier project and authorize one live API review
         required: true
@@ -32,10 +40,12 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PR_NUMBER: ${{ inputs.pr_number }}
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+          EXPECTED_BASE: ${{ inputs.expected_base }}
         shell: bash
         run: |
           python3 - <<'PY'
-          import json, os, re, sys, urllib.request, urllib.error
+          import hashlib, json, os, re, sys, urllib.request, urllib.error
           from google import genai
           key = os.getenv("GEMINI_API_KEY", "")
           number = os.getenv("PR_NUMBER", "")
@@ -43,12 +53,15 @@ jobs:
               sys.exit("FAIL: GEMINI_API_KEY is missing; no API request made")
           if not re.fullmatch(r"[1-9][0-9]{0,5}", number):
               sys.exit("FAIL: invalid PR number")
+          head, parent = os.environ.get("EXPECTED_HEAD", ""), os.environ.get("EXPECTED_BASE", "")
+          if not all(re.fullmatch(r"[0-9a-f]{40}", sha) for sha in (head, parent)) or head == parent:
+              sys.exit("FAIL: distinct full head and base SHAs required")
           base = "https://api.github.com/repos/sovereignmystic92-dot/nexus-v3-sandbox-"
           def request(url, *, headers=None, data=None, stage="unspecified", allow_not_found=False):
               req = urllib.request.Request(url, headers=headers or {}, data=data)
               try:
                   with urllib.request.urlopen(req, timeout=25) as response:
-                      return response.read(250000), response.status
+                      return response.read(250001), response.status
               except urllib.error.HTTPError as exc:
                   # Inspect only a bounded structured Google error; never print raw
                   # response bodies, request URLs, headers, or credentials.
@@ -81,14 +94,20 @@ jobs:
                   if allow_not_found and exc.code == 404:
                       return None, 404
                   sys.exit(1)
-          pr_raw, _ = request(base + "/pulls/" + number, headers={"Accept":"application/vnd.github+json","User-Agent":"nexus-gemini-live-pilot"})
-          pr = json.loads(pr_raw)
-          if pr.get("state") != "open":
-              sys.exit("FAIL: PR must be open")
-          diff_raw, _ = request(base + "/pulls/" + number, headers={"Accept":"application/vnd.github.v3.diff","User-Agent":"nexus-gemini-live-pilot"})
-          diff = diff_raw.decode("utf-8", "replace")[:18000]
-          if not diff.strip() or not diff.startswith("diff --git"):
-              sys.exit("FAIL: no usable PR diff")
+          def check_revision():
+              raw, _ = request(base + "/pulls/" + number,
+                               headers={"Accept":"application/vnd.github+json","User-Agent":"nexus-gemini-live-pilot"})
+              pr = json.loads(raw)
+              if (pr.get("state"), pr["head"]["sha"], pr["base"]["sha"]) != ("open", head, parent):
+                  sys.exit("FAIL: PR closed or revision changed; no review receipt")
+
+          check_revision()
+          diff_raw, _ = request(base + "/compare/" + parent + "..." + head,
+                                headers={"Accept":"application/vnd.github.diff","User-Agent":"nexus-gemini-live-pilot"})
+          if len(diff_raw) > 18000 or not diff_raw.startswith(b"diff --git "):
+              sys.exit("FAIL: empty, unsupported or oversized diff; no partial review")
+          diff = diff_raw.decode("utf-8", "strict")
+          check_revision()
           client = genai.Client(api_key=key)
           target = "gemini-3.5-flash-lite"
           try:
@@ -111,6 +130,17 @@ jobs:
               output = getattr(result, "text", None) or ""
               if not output.strip():
                   sys.exit("FAIL: API responded without review text")
+              check_revision()
+              print("NXS_GEMINI_REVIEW_RECEIPT_V1", json.dumps({
+                  "pr": int(number), "head_sha": head, "base_sha": parent,
+                  "diff_sha256": hashlib.sha256(diff_raw).hexdigest(),
+                  "diff_bytes": len(diff_raw), "model": target,
+                  "run_id": os.environ["GITHUB_RUN_ID"],
+                  "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+                  "workflow_sha": os.environ["GITHUB_SHA"],
+                  "scope": "GITHUB_COMPARE_RESPONSE_BYTES",
+                  "approval": False,
+              }, sort_keys=True))
               print("LIVE_GEMINI_VERIFIED", "MODEL", target, "PR", number)
               print("REVIEW_START")
               print(output[:1800].replace("::", ": :"))
