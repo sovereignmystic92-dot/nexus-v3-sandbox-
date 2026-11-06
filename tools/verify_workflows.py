@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'gemini-notion-combined-readonly.yml': (None, {'GEMINI_PILOT_API_KEY', 'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-fixture-read.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-bridge-synthetic.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
     'cp05-authenticated-notion-fixture-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
@@ -33,7 +34,8 @@ def verify_credential_routing(root):
         actual_secrets = set(re.findall(r'\$\{\{\s*secrets\.([A-Za-z_][A-Za-z0-9_]*)', source))
         actual_environments = set(re.findall(r'(?m)^\s*environment:\s*([A-Za-z0-9_-]+)\s*$', source))
         expected_environment, expected_secrets = PROVIDER_SECRETS.get(path.name, (ENVIRONMENT_ONLY.get(path.name), set()))
-        if actual_secrets != expected_secrets or actual_environments != ({expected_environment} if expected_environment else set()):
+        expected_environments = {'gemini-pilot', 'notion-sandbox'} if path.name == 'gemini-notion-combined-readonly.yml' else ({expected_environment} if expected_environment else set())
+        if actual_secrets != expected_secrets or actual_environments != expected_environments:
             raise ValueError('Credential routing differs from reviewed contract: ' + path.name)
         if re.search(r'\$\{\{\s*github\.token\b', source, re.I):
             raise ValueError('Explicit github.token reference: ' + path.name)
