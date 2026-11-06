@@ -160,5 +160,7 @@ class WarFrontsSnapshotBridgeTests(unittest.TestCase):
 
 from test_warfronts_transcript_diff import WarFrontsTranscriptDiffTests
 
+from test_warfronts_source_transfer import WarFrontsSourceTransferTests
+
 if __name__ == "__main__":
     unittest.main()
