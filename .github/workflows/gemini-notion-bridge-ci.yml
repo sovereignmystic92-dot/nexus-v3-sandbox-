@@ -3,7 +3,9 @@ on:
   pull_request:
     paths:
       - 'tools/gemini_notion_bridge.py'
+      - 'tools/gemini_notion_fixture_readback.py'
       - 'tests/test_gemini_notion_bridge.py'
+      - 'tests/test_gemini_notion_fixture_readback.py'
       - '.github/workflows/gemini-notion-bridge-*.yml'
   workflow_dispatch:
 permissions: {}
@@ -16,7 +18,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate Python syntax
-        run: python3 -m py_compile tools/gemini_notion_bridge.py tests/test_gemini_notion_bridge.py
+        run: python3 -m py_compile tools/gemini_notion_bridge.py tools/gemini_notion_fixture_readback.py tests/test_gemini_notion_bridge.py tests/test_gemini_notion_fixture_readback.py
       - name: Run synthetic bridge unit tests
-        run: python3 -m unittest discover -s tests -p test_gemini_notion_bridge.py -v
+        run: python3 -m unittest discover -s tests -p 'test_gemini_notion_*.py' -v
 # No provider secrets, API requests, or writes.
