@@ -81,6 +81,8 @@ def fetch_episode(url=URL):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--notion-raw-file", required=True, type=Path)
+    ap.add_argument("--original-provenance", default="local-file:unverified",
+                    help="Caller-declared source of the local original; does not verify archive readback")
     ap.add_argument("--candidate-file", type=Path, help="Use exact saved candidate instead of public fetch")
     ap.add_argument("--candidate-provenance", help="Required when supplying a candidate file; identify its real source")
     ap.add_argument("--report", required=True, type=Path)
@@ -95,10 +97,14 @@ def main():
     candidate = validate_candidate_export(candidate)
     result = compare_transcripts(
         original=original, candidate=candidate,
-        original_provenance="notion:4088c067-daa4-813b-b1f0-e1f1993120fb",
+        original_provenance=args.original_provenance,
         candidate_provenance=(args.candidate_provenance if args.candidate_file
                               else "podcastrex:warfronts-haiti-2026"))
     report = dict(result.__dict__)
+    report["original_provenance_status"] = (
+        "UNVERIFIED_LOCAL_FILE" if args.original_provenance == "local-file:unverified"
+        else "CALLER_DECLARED_UNVERIFIED"
+    )
     report["candidate_source"] = str(args.candidate_file) if args.candidate_file else URL
     report["warning"] = "HTML extraction is not verbatim audio proof; human review required."
     args.report.write_bytes((json.dumps(report, indent=2) + "\n").encode("utf-8"))

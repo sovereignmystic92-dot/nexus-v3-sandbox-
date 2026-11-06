@@ -9,6 +9,8 @@ class TranscriptDiff:
     candidate_sha256: str
     original_utf16_units: int
     candidate_utf16_units: int
+    original_provenance: str
+    candidate_provenance: str
     identical: bool
     changes: tuple
     status: str = "REVIEW_REQUIRED_NOT_AUTHORIZED"
@@ -21,4 +23,13 @@ def compare_transcripts(*, original, candidate, original_provenance, candidate_p
         raise ValueError("Distinct source provenance required")
     a, b = original.split(), candidate.split()
     changes = tuple(op for op in SequenceMatcher(None, a, b, autojunk=False).get_opcodes() if op[0] != 'equal')
-    return TranscriptDiff(sha256(original.encode()).hexdigest(), sha256(candidate.encode()).hexdigest(), len(original.encode('utf-16-le'))//2, len(candidate.encode('utf-16-le'))//2, original == candidate, changes)
+    return TranscriptDiff(
+        original_sha256=sha256(original.encode()).hexdigest(),
+        candidate_sha256=sha256(candidate.encode()).hexdigest(),
+        original_utf16_units=len(original.encode('utf-16-le')) // 2,
+        candidate_utf16_units=len(candidate.encode('utf-16-le')) // 2,
+        original_provenance=original_provenance,
+        candidate_provenance=candidate_provenance,
+        identical=original == candidate,
+        changes=changes,
+    )
