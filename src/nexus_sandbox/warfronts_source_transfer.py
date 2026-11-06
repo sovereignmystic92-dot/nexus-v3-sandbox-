@@ -52,6 +52,19 @@ def extract_episode(html):
     return candidate
 
 
+def validate_candidate_export(candidate):
+    """Fail closed on incomplete, duplicated or promotion-contaminated manual exports."""
+    if not isinstance(candidate, str) or not candidate.strip():
+        raise ValueError("candidate export is empty")
+    if not candidate.lstrip().startswith(START):
+        raise ValueError("candidate export does not start at the episode opening")
+    if candidate.count(END) != 1 or not candidate.rstrip().endswith(END):
+        raise ValueError("candidate export must end at the first and only episode closing")
+    if len(candidate) < 1000:
+        raise ValueError("candidate export too short to be a complete episode")
+    return candidate
+
+
 def fetch_episode(url=URL):
     if url != URL:
         raise ValueError("source URL not allowlisted")
@@ -79,6 +92,7 @@ def main():
     original = args.notion_raw_file.read_bytes().decode("utf-8")
     candidate = (args.candidate_file.read_bytes().decode("utf-8")
                  if args.candidate_file else fetch_episode())
+    candidate = validate_candidate_export(candidate)
     result = compare_transcripts(
         original=original, candidate=candidate,
         original_provenance="notion:4088c067-daa4-813b-b1f0-e1f1993120fb",
