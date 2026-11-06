@@ -158,5 +158,7 @@ class WarFrontsSnapshotBridgeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             bind_warfronts_snapshot(**self.args)
 
+from test_warfronts_transcript_diff import WarFrontsTranscriptDiffTests
+
 if __name__ == "__main__":
     unittest.main()
