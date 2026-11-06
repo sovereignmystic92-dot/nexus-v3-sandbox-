@@ -8,8 +8,7 @@ on:
       - '.github/workflows/warfronts-source-tests.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   warfronts-source-tests:
