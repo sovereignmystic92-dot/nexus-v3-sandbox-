@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'cp05-socra-credential-preflight.yml': (None, {'SOCRA_CLIENT_ID', 'SOCRA_CLIENT_SECRET'}),
     'gemini-notion-combined-readonly.yml': (None, {'GEMINI_PILOT_API_KEY', 'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-fixture-read.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-bridge-synthetic.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
