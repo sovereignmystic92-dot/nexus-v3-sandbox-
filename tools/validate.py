@@ -52,7 +52,19 @@ def main():
                 for folder in ("src", "tests", "tools") for p in sorted((ROOT / folder).rglob("*"))
                 if p.is_file() and p.suffix in (".py", ".sql", ".json")}
     stream = io.StringIO()
-    suite = unittest.defaultTestLoader.discover(str(ROOT / "tests/unit"))
+    unit_suite = unittest.defaultTestLoader.discover(str(ROOT / "tests/unit"))
+    # Root-level pytest modules require pytest, which is not in this
+    # isolated unittest runner. Load only the unittest-based handoff modules.
+    cortex_suite = unittest.TestSuite(
+        unittest.defaultTestLoader.discover(str(ROOT / "tests"), pattern=name)
+        for name in (
+            "test_cortex_handoff_journal.py",
+            "test_cortex_host_binding.py",
+            "test_cortex_host_bound_handoff.py",
+            "test_cortex_journaled_handoff.py",
+        )
+    )
+    suite = unittest.TestSuite((unit_suite, cortex_suite))
     # Detailed failures stay in the operator's process; report stores statuses only.
     with redirect_stdout(stream), redirect_stderr(stream):
         result = unittest.TextTestRunner(stream=stream, verbosity=2, resultclass=Results).run(suite)
