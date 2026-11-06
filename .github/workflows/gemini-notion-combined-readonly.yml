@@ -44,8 +44,12 @@ jobs:
                     "characters, letters numbers spaces and basic punctuation only). "
                     "The summary should say this is a fictional metadata bridge test. "
                     "No markdown, no additional fields, no personal data.")
-          response = genai.Client(api_key=key).models.generate_content(
-              model="gemini-3.5-flash-lite", contents=prompt)
+          client = genai.Client(api_key=key)
+          try:
+              response = client.models.generate_content(
+                  model="gemini-3.5-flash-lite", contents=prompt)
+          finally:
+              client.close()
           raw = getattr(response, "text", "") or ""
           result = subprocess.run([sys.executable, "-I", "tools/gemini_notion_bridge.py"],
                                   input=raw, text=True, capture_output=True, timeout=10)
