@@ -1,0 +1,29 @@
+name: Gemini Notion fixture read-only observation
+on:
+  workflow_dispatch:
+    inputs:
+      read_confirmed:
+        description: "Owner confirms read-only access to the exact synthetic fixture"
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: gemini-notion-fixture-read
+  cancel-in-progress: false
+jobs:
+  observe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.read_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Observe bound fixture without writes
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_BRIDGE_READ_CONFIRMED: "true"
+        run: python3 -I tools/gemini_notion_fixture_readback.py
+# No Gemini API calls, Notion writes, or Cortex writes.

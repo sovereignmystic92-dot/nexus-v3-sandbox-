@@ -6,6 +6,8 @@
   "cp05-authenticated-notion-fixture-probe.yml": "5fe1eec8335540d57bae2f0b03cc96fbb86d9a9f0fd7117b38fb66130b09d376",
   "gemini-interactions-diagnostic.yml": "fbb778c63aca7419b0196f5cc170ddc499174886aba5184f65124cfbf098e63f",
   "gemini-live-review-pilot.yml": "5c985aacd334fd2a7718a3e0674716adb56c210865c3facf052a971d17d978a1",
+  "gemini-notion-bridge-ci.yml": "02139b1642bb2ecd678fd52019018be7a2cda5fbe402c944cbf0da2665351b41",
+  "gemini-notion-bridge-synthetic.yml": "3eca82104590507ebfde7de8290b1eda2340a358c5634eaf362c5f523287925d",
   "gemini-offline.yml": "854c08ecda333bf2d712380798a3a954773fa3dcbc22a33347b79f005d4db5a2",
   "gemini-smoke.yml": "b4b42d0e20d64c1126d96dfc8d0bded98abd19560037424efc0f28c16cbb2d9f",
   "notion-audit-access-probe.yml": "0a827d840f592a61e2b6c767e79eb3670ee48a72b94e7072c3a519345584aa70",
@@ -14,5 +16,6 @@
   "notion-checkpoint-write-probe.yml": "68544b1caad034ba63c1bf4c50c787c109e3a218a3fb2c9d753c16a9d6d00048",
   "notion-identity-probe.yml": "804f036c7e0a8920103f536c8ceb109d08b5e6997a24064235edde15d4140c20",
   "notion-read-probe.yml": "ff4613cb35d2f5700b383edf114fd6a326ef7a976f3f26e7f19a574b6a11f3d3",
-  "synthetic-acceptance.yml": "4c45e5bd36c97216584230190fa1922cc25d530ba9222cdeab827d5221d387d8"
+  "synthetic-acceptance.yml": "4c45e5bd36c97216584230190fa1922cc25d530ba9222cdeab827d5221d387d8",
+  "gemini-notion-fixture-read.yml": "4fe5e187d39c2f655cc7f4bf47918704349d8ca7ba9169fa45313b185d3d94e8"
 }

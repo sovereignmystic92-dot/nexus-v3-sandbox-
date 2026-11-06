@@ -1,0 +1,57 @@
+name: Gemini to Notion bridge - synthetic dry run
+on:
+  workflow_dispatch:
+    inputs:
+      synthetic_confirmed:
+        description: "Confirm synthetic-only dry run; no Notion writes"
+        type: boolean
+        required: true
+        default: false
+permissions: {}
+concurrency:
+  group: gemini-notion-bridge-synthetic
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.synthetic_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: gemini-pilot
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate fixture metadata proposal using Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_PILOT_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check 'google-genai>=1,<3'
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+          from google import genai
+          key = os.environ.get("GEMINI_API_KEY")
+          if not key:
+              sys.exit("BLOCKED: Gemini pilot key unavailable")
+          prompt = (
+              "Return ONLY a JSON object with exactly four keys: "
+              "schema_version (integer 1), page_id (string "
+              "40e8c067daa481999f12c9b6486de444), marker (string "
+              "NXS-GEMINI-NOTION-SYNTHETIC-V1), summary (ASCII string 1-160 "
+              "characters, letters numbers spaces and basic punctuation only). "
+              "The summary should say this is a fictional metadata bridge test. "
+              "No markdown, no additional fields, no personal data."
+          )
+          client = genai.Client(api_key=key)
+          response = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
+          raw = getattr(response, "text", "") or ""
+          result = subprocess.run(
+              [sys.executable, "-I", "tools/gemini_notion_bridge.py"],
+              input=raw, text=True, capture_output=True, timeout=10
+          )
+          print(result.stdout.strip())
+          if result.returncode:
+              sys.exit("BLOCKED: model output failed strict validation")
+          PY
+# Explicitly no NOTION_SANDBOX_TOKEN, Notion API call, repository write, or Cortex write.
