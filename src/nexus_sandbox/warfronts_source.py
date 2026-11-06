@@ -9,6 +9,7 @@ import hashlib
 import re
 
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+CHANNEL_ID = re.compile(r"^UC[A-Za-z0-9_-]{22}$")
 
 
 @dataclass(frozen=True)
@@ -22,13 +23,15 @@ class CaptionSegment:
 @dataclass(frozen=True)
 class WarFrontsSourcePlan:
     video_id: str
+    channel_id: str
     source_url: str
     transcript_sha256: str
     segments: tuple[tuple[str, str], ...]
     status: str = "AWAITING_NOTION_ARCHIVE_READBACK"
 
 
-def prepare_warfronts_source(*, video_id, segments, channel_verified,
+def prepare_warfronts_source(*, video_id, expected_channel_id,
+                             observed_channel_id, segments, channel_verified,
                              captions_complete, caption_provenance_verified):
     """Validate a supplied caption sequence; never claim provider verification.
 
@@ -38,6 +41,11 @@ def prepare_warfronts_source(*, video_id, segments, channel_verified,
     """
     if type(video_id) is not str or not VIDEO_ID.fullmatch(video_id):
         raise ValueError("invalid YouTube video ID")
+    if (type(expected_channel_id) is not str or
+            not CHANNEL_ID.fullmatch(expected_channel_id) or
+            type(observed_channel_id) is not str or
+            observed_channel_id != expected_channel_id):
+        raise ValueError("channel identity mismatch or invalid channel ID")
     if any(type(flag) is not bool or not flag for flag in (
             channel_verified, captions_complete, caption_provenance_verified)):
         raise ValueError("unverified channel or incomplete/unproven captions")
@@ -58,5 +66,6 @@ def prepare_warfronts_source(*, video_id, segments, channel_verified,
         prepared.append((f"{item.sequence}:{item.start_ms}:{item.duration_ms}", item.text))
     transcript = "".join(text for _, text in prepared)
     return WarFrontsSourcePlan(
-        video_id, "https://www.youtube.com/watch?v=" + video_id,
+        video_id, observed_channel_id,
+        "https://www.youtube.com/watch?v=" + video_id,
         hashlib.sha256(transcript.encode("utf-8")).hexdigest(), tuple(prepared))
