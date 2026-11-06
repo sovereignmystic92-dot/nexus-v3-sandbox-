@@ -6,8 +6,9 @@
     "raw_segment_id": "RAW-001",
     "utf16_length": 20152,
     "source_readback": "Notion page includes independent readback receipt",
-    "sha256_utf8": "PENDING_EXACT_DIGEST",
-    "audio_verified": false
+    "sha256_utf8": "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646",
+    "audio_verified": false,
+    "digest_method": "SHA-256 of exact RAW-001 code block UTF-8; all ASCII, no normalization"
   },
   "status": "PRE_CSF_REVIEW_PACKET_NOT_VALIDATED_FINDINGS",
   "candidates": [
