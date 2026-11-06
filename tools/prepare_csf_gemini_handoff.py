@@ -13,6 +13,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from nexus_sandbox.csf_gemini_handoff import HandoffError, build_handoff, require_exact_checkout
+from nexus_sandbox.csf_gemini_review_request import build_review_request
 
 
 def prepare(root, source_commit):
@@ -32,9 +33,13 @@ def prepare(root, source_commit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-commit", required=True)
+    parser.add_argument("--include-review-request", action="store_true",
+                        help="Emit bounded full-source review request instead of hashes only")
     args = parser.parse_args()
     try:
         packet = prepare(ROOT, args.source_commit)
+        if args.include_review_request:
+            packet = build_review_request(ROOT, packet)
     except HandoffError as error:
         print(json.dumps({"status": "BLOCKED", "reason": str(error)}))
         return 2
