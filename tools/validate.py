@@ -49,7 +49,7 @@ def main():
     args = parser.parse_args()
     started = datetime.now(timezone.utc).isoformat()
     manifest = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-                for folder in ("src", "tests", "tools", "schemas") for p in sorted((ROOT / folder).rglob("*"))
+                for folder in ("src", "tests", "tools", "schemas", "docs/csf") for p in sorted((ROOT / folder).rglob("*"))
                 if p.is_file() and p.suffix in (".py", ".sql", ".json")}
     stream = io.StringIO()
     suite = unittest.defaultTestLoader.discover(str(ROOT / "tests/unit"))
