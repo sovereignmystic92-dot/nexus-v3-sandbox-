@@ -30,8 +30,8 @@ class WarFrontsSourceTransferTests(unittest.TestCase):
             original = root / "original.txt"
             candidate = root / "candidate.txt"
             report = root / "report.json"
-            original.write_bytes(b"alpha\\r\\nbeta\\r\\n")
-            candidate.write_bytes(b"alpha\\nbeta\\n")
+            original.write_bytes(b"alpha\r\nbeta\r\n")
+            candidate.write_bytes(b"alpha\nbeta\n")
             with patch.object(sys, "argv", ["probe", "--notion-raw-file", str(original),
                     "--candidate-file", str(candidate), "--candidate-provenance", "manual:reviewed-export",
                     "--report", str(report)]):
