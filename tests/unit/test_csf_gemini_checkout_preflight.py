@@ -1,17 +1,7 @@
 """Offline synthetic checkout binding tests without host Git dependency."""
 import unittest
 
-from nexus_sandbox.csf_gemini_handoff import HandoffError
-
-
-def require_exact_checkout(source_commit, observed_head):
-    """Pure model of the CLI's fail-closed checkout SHA comparison."""
-    import re
-    if not isinstance(source_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", source_commit):
-        raise HandoffError("exact source SHA required")
-    if observed_head != source_commit:
-        raise HandoffError("checkout HEAD differs from requested source commit")
-    return True
+from nexus_sandbox.csf_gemini_handoff import HandoffError, require_exact_checkout
 
 
 class GeminiCheckoutPreflightTests(unittest.TestCase):
