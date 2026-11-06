@@ -69,19 +69,25 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--notion-raw-file", required=True, type=Path)
     ap.add_argument("--candidate-file", type=Path, help="Use exact saved candidate instead of public fetch")
+    ap.add_argument("--candidate-provenance", help="Required when supplying a candidate file; identify its real source")
     ap.add_argument("--report", required=True, type=Path)
     args = ap.parse_args()
-    original = args.notion_raw_file.read_text(encoding="utf-8")
-    candidate = (args.candidate_file.read_text(encoding="utf-8")
+    if args.candidate_file and not args.candidate_provenance:
+        ap.error("--candidate-provenance is required with --candidate-file")
+    if not args.candidate_file and args.candidate_provenance:
+        ap.error("--candidate-provenance only applies to --candidate-file")
+    original = args.notion_raw_file.read_bytes().decode("utf-8")
+    candidate = (args.candidate_file.read_bytes().decode("utf-8")
                  if args.candidate_file else fetch_episode())
     result = compare_transcripts(
         original=original, candidate=candidate,
         original_provenance="notion:4088c067-daa4-813b-b1f0-e1f1993120fb",
-        candidate_provenance="podcastrex:warfronts-haiti-2026")
+        candidate_provenance=(args.candidate_provenance if args.candidate_file
+                              else "podcastrex:warfronts-haiti-2026"))
     report = dict(result.__dict__)
     report["candidate_source"] = str(args.candidate_file) if args.candidate_file else URL
     report["warning"] = "HTML extraction is not verbatim audio proof; human review required."
-    args.report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    args.report.write_bytes((json.dumps(report, indent=2) + "\n").encode("utf-8"))
     print("Read-only report written:", args.report)
 
 
