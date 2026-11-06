@@ -18,5 +18,6 @@
   "notion-read-probe.yml": "ff4613cb35d2f5700b383edf114fd6a326ef7a976f3f26e7f19a574b6a11f3d3",
   "synthetic-acceptance.yml": "4c45e5bd36c97216584230190fa1922cc25d530ba9222cdeab827d5221d387d8",
   "gemini-notion-fixture-read.yml": "4fe5e187d39c2f655cc7f4bf47918704349d8ca7ba9169fa45313b185d3d94e8",
-  "gemini-notion-combined-readonly.yml": "56d0d25d013113fa477eae3d6f622ccd9d4cbf6d2aa4bdb140e1b8251b7063d6"
+  "gemini-notion-combined-readonly.yml": "56d0d25d013113fa477eae3d6f622ccd9d4cbf6d2aa4bdb140e1b8251b7063d6",
+  "cp05-socra-credential-preflight.yml": "23937a461163ffefde60aaa364fec501e72091a44f1297006f2cacc02f53b73d"
 }
