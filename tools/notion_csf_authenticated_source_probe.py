@@ -143,6 +143,22 @@ def prepare_live_segments(token):
             extracted = propose_excerpts(raw, bounded)
             if extracted["source_digest"] != digest or extracted["external_writes"] != 0:
                 raise ValueError("extractive evidence integrity failure")
+            if os.environ.get("NOTION_CSF_REVIEW_PACKET") == "true":
+                from nexus_sandbox.csf_review_packet import prepare_review_packet
+                packet = prepare_review_packet(raw, bounded, extracted)
+                if packet["source_digest"] != digest or packet["review_item_count"] != extracted["proposal_count"]:
+                    raise ValueError("review packet integrity failure")
+                return {"status": "NOTION_CSF_REVIEW_PACKET_READ_ONLY",
+                        "page_id": PAGE_ID, "source_revision": revision,
+                        "content_digest": digest, "segment_count": bounded["segment_count"],
+                        "proposal_count": extracted["proposal_count"],
+                        "review_item_count": packet["review_item_count"],
+                        "context_offsets_verified": all(
+                            raw[item["context_start"]:item["context_end"]] == item["context"]
+                            and raw[item["start"]:item["end"]] == item["excerpt"]
+                            for item in packet["review_items"]),
+                        "provider_called": False, "external_writes": 0,
+                        "audit_gate_promoted": False}
             return {"status": "NOTION_CSF_EXCERPTS_READ_ONLY",
                     "page_id": PAGE_ID, "source_revision": revision,
                     "content_digest": digest, "segment_count": bounded["segment_count"],
