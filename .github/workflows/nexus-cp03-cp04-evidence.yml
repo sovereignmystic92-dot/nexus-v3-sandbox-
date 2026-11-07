@@ -1,0 +1,31 @@
+name: Nexus CP03 CP04 trigger evidence
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+permissions: {}
+concurrency:
+  group: nexus-cp03-cp04-evidence
+  cancel-in-progress: false
+jobs:
+  trigger-receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Observe real GitHub trigger and record receipt
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m nexus_sandbox.audit_trigger_receipt > cp03-cp04-receipt.json
+          python -m json.tool cp03-cp04-receipt.json
+      - name: Preserve runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp03-cp04-trigger-receipt
+          path: cp03-cp04-receipt.json
+          if-no-files-found: warn
