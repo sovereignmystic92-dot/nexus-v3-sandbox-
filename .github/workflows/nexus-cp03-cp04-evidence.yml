@@ -3,8 +3,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '17 3 * * *'
-permissions:
-  contents: read
+permissions: {}
 concurrency:
   group: nexus-cp03-cp04-evidence
   cancel-in-progress: false
