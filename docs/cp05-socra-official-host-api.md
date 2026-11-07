@@ -29,3 +29,12 @@ Status: **DOCUMENTED PROVIDER SURFACE; RUNNER AUTH NOT VERIFIED**. This does not
 ## Fail-closed controls
 
 No scheduled workflow, automatic OAuth registration, new client secret, unreviewed live REST implementation, mutations, CP05/CP09 closure, or permission promotion. Inability to verify the installation's OAuth flow or effective runner grant is `BLOCKED_HOST_AUTH`, not a synthetic success. See Issues #91 and #144.
+
+## 2026-11-06 — installation identity recovery checkpoint
+
+- GitHub Actions manual credential-preflight run [42330045739](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/42330045739) succeeded: `SOCRA_CLIENT_ID` and `SOCRA_CLIENT_SECRET` resolved to nonempty values. This proves **presence only**, not validity or OAuth installation.
+- The existing ChatGPT-connected Cortex read separately returned synthetic module `module_01m6kzebbfdk4ptbsg88gsf0ja` version 1 with Notion source `40e8c067-daa4-8199-9f12-c9b6486de444`. This does **not** prove GitHub-hosted access.
+- No verified Socra **installation principal ID** was found in inspected repository documentation, Cortex module search or available GitHub code search (code-search coverage incomplete). A GitHub App installation ID is not interchangeable with a Socra OAuth installation principal ID.
+- **Next authorization boundary:** recover the existing Socra OAuth installation/principal from provider-supported installation listing or approved account metadata; confirm its association with the existing client and its effective Cortex `module.view` grant. Never infer a principal from a project ID, client ID, account ID, or fixture. Do not print client credentials or tokens.
+- **Execution sequence:** (1) identify verified installation ID using supported provider interface, (2) confirm documented installation-token exchange and least-privilege scope, (3) add reviewed manual-only, fail-closed GitHub runner read of the exact synthetic module, (4) retain independently inspectable zero-write receipt. Stop at `BLOCKED_HOST_AUTH` if any prerequisite fails.
+- No new project, client, secret, production write, scheduled probe, or gate promotion is authorized by this checkpoint. CP05 remains **OPEN**.
