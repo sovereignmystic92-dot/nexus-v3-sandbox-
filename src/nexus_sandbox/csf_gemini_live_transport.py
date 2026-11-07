@@ -9,12 +9,13 @@ import urllib.error
 import urllib.request
 
 from .csf_v02 import CSFValidationError
+from .csf_gemini_model_selection import select_gemini_model, GeminiModelSelectionError
 from .csf_gemini_adapter_offline import (
     build_gemini_review_request, parse_gemini_review_response,
     MAX_RESPONSE_BYTES,
 )
 
-ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models/"
 MAX_HTTP_BYTES = 65000
 
 
@@ -48,8 +49,12 @@ def review_with_gemini(packet, *, authorized=False, opener=None):
     }, ensure_ascii=False).encode("utf-8")
     if len(payload) > 60000:
         raise GeminiReviewDiagnostic("REQUEST_TOO_LARGE")
+    try:
+        model = select_gemini_model(token, opener=opener)
+    except GeminiModelSelectionError as exc:
+        raise GeminiReviewDiagnostic(exc.category) from None
     req = urllib.request.Request(
-        ENDPOINT, data=payload, method="POST",
+        ENDPOINT_BASE + model + ":generateContent", data=payload, method="POST",
         headers={"x-goog-api-key": token, "Content-Type": "application/json"})
     transport = opener if opener is not None else urllib.request.urlopen
     try:
