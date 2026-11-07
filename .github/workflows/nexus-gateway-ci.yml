@@ -1,0 +1,20 @@
+name: Nexus unified gateway unit CI
+on:
+  pull_request:
+    paths:
+      - 'src/nexus_sandbox/nexus_processing_gateway.py'
+      - 'tests/test_nexus_processing_gateway.py'
+      - '.github/workflows/nexus-gateway-ci.yml'
+      - 'tools/workflow_policy.json'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  gateway-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run gateway and handoff unit tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_nexus_processing_gateway.py' -v && PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_transcript_live_handoff.py' -v
