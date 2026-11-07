@@ -28,7 +28,7 @@ def execute(*, run_id, receipt_dir, provider_ports, **job):
     # a marker that requires explicit reconciliation, never an automatic retry.
     fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "wb") as marker:
-        marker.write(b'{"status":"INCOMPLETE","next_action":"RECONCILE_UNCERTAIN_RUN"}\\n')
+        marker.write(b'{"status":"INCOMPLETE","next_action":"RECONCILE_UNCERTAIN_RUN"}\n')
         marker.flush()
         os.fsync(marker.fileno())
     result = process(**job, **provider_ports)
