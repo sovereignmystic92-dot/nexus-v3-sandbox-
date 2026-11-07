@@ -6,7 +6,7 @@ from nexus_sandbox.csf_notional_intake import prepare_source_receipt
 from nexus_sandbox.csf_v02 import CSFValidationError
 
 
-def sample(text="Paragraph one.\\n\\nParagraph two."):
+def sample(text="Paragraph one.\n\nParagraph two."):
     return {
         "source_url": "https://app.notion.com/p/4088c067daa4813bb1f0e1f1993120fb",
         "source_revision": "2026-10-29T23:44:29.194Z",
