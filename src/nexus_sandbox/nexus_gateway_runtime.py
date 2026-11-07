@@ -24,7 +24,15 @@ def execute(*, run_id, receipt_dir, provider_ports, **job):
     target = directory / (run_id + ".json")
     if target.exists() or target.is_symlink():
         raise FileExistsError("Run receipt already exists; reconcile before retry")
-    # Reserve the run identifier BEFORE any provider side effect. A crash leaves\n    # a marker that requires explicit reconciliation, never an automatic retry.\n    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)\n    with os.fdopen(fd, "wb") as marker:\n        marker.write(b'{"status":"INCOMPLETE","next_action":"RECONCILE_UNCERTAIN_RUN"}\\n')\n        marker.flush()\n        os.fsync(marker.fileno())\n    result = process(**job, **provider_ports)\n    receipt = {
+    # Reserve the run identifier BEFORE any provider side effect. A crash leaves
+    # a marker that requires explicit reconciliation, never an automatic retry.
+    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "wb") as marker:
+        marker.write(b'{"status":"INCOMPLETE","next_action":"RECONCILE_UNCERTAIN_RUN"}\\n')
+        marker.flush()
+        os.fsync(marker.fileno())
+    result = process(**job, **provider_ports)
+    receipt = {
         "schema_version": 1,
         "run_id": run_id,
         "status": "INCOMPLETE",
@@ -39,7 +47,9 @@ def execute(*, run_id, receipt_dir, provider_ports, **job):
         "provider_readback_claimed_by_host": result.status == "READBACK_MATCHED",
         "audit_gate_promoted": False,
     }
-    # Replace only our own reserved marker with a complete, still\n    # non-attesting receipt. Any interruption leaves reconciliation evidence.\n    payload = (json.dumps(receipt, sort_keys=True) + "\n").encode("utf-8")
+    # Replace only our own reserved marker with a complete, still
+    # non-attesting receipt. Any interruption leaves reconciliation evidence.
+    payload = (json.dumps(receipt, sort_keys=True) + "\n").encode("utf-8")
     fd = os.open(target, os.O_WRONLY | os.O_TRUNC)
     try:
         with os.fdopen(fd, "wb") as stream:
