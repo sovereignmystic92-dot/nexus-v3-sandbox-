@@ -33,7 +33,7 @@ class LiveSegmentTests(unittest.TestCase):
             {"id": mod.PAGE_ID, "last_edited_time": "old"},
             {"id": mod.PAGE_ID, "last_edited_time": "new"},
         ]
-        with patch.object(mod, "read_json", side_effect=pages), patch.object(mod, "children", return_value=[]):
+        with patch.object(mod, "read_json", side_effect=pages), patch.object(mod, "children", return_value=[{"type": "heading_2", "heading_2": {"rich_text": [{"plain_text": "RAW-001"}]}}, {"type": "code", "code": {"rich_text": [{"plain_text": "A valid transcript."}]}}]):
             with self.assertRaisesRegex(ValueError, "source changed"):
                 mod.prepare_live_segments("fake-token")
 
