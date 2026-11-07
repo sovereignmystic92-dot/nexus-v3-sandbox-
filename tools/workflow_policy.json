@@ -27,5 +27,5 @@
   "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
   "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
-  "nexus-manual-processing-preflight.yml": "96f0a1dfcce67d38f5a99e9b79032b5bd50a8709e9dcd47cbbe6c47aeb7c0b5"
+  "nexus-manual-processing-preflight.yml": "00aacbd473a30e656e68c2bc30268f9dd0a4d667283ff1e2d5487e7baa2d27d6"
 }
