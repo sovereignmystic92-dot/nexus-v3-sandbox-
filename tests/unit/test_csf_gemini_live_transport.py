@@ -49,8 +49,11 @@ class GeminiLiveTransportTests(unittest.TestCase):
         envelope = json.dumps({"candidates": [{"finishReason": "STOP",
             "content": {"parts": [{"text": output}]}}]}).encode()
         def fake_opener(request, timeout):
+            if "pageSize=100" in request.full_url:
+                self.assertEqual(timeout, 15)
+                return FakeResponse(b'{"models":[{"name":"models/gemini-3.5-flash-lite","supportedGenerationMethods":["generateContent"]}]}')
             self.assertEqual(request.full_url,
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent")
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent")
             self.assertEqual(timeout, 25)
             return FakeResponse(envelope)
         with patch.dict(os.environ, {"GEMINI_API_KEY": "fake-key", "NEXUS_CSF_GEMINI_LIVE": "true"}):
@@ -65,7 +68,9 @@ class GeminiLiveTransportTests(unittest.TestCase):
         with patch.dict(os.environ, {"GEMINI_API_KEY": "fake-key", "NEXUS_CSF_GEMINI_LIVE": "true"}):
             with self.assertRaises(CSFValidationError):
                 review_with_gemini(self.packet, authorized=True,
-                    opener=lambda req, timeout: FakeResponse(b'{"candidates":[]}'))
+                    opener=lambda req, timeout: FakeResponse(
+                        b'{"models":[{"name":"models/gemini-3.5-flash-lite","supportedGenerationMethods":["generateContent"]}]}'
+                        if "pageSize=100" in req.full_url else b'{"candidates":[]}'))
 
 
 if __name__ == "__main__":
