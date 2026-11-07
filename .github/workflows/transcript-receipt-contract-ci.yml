@@ -1,0 +1,22 @@
+name: Transcript receipt contract CI
+on:
+  pull_request:
+    paths:
+      - 'tools/transcript_execution_receipt.py'
+      - 'tests/test_transcript_execution_receipt.py'
+      - '.github/workflows/transcript-receipt-contract-ci.yml'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  receipt-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate syntax
+        run: python3 -m py_compile tools/transcript_execution_receipt.py tests/test_transcript_execution_receipt.py
+      - name: Fail-closed receipt unit tests
+        run: python3 -m unittest discover -s tests -p 'test_transcript_execution_receipt.py' -v
+# No provider credentials, provider writes, or audit gate promotions.
