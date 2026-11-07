@@ -29,5 +29,6 @@
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
   "csf-real-notion-source-read.yml": "3e4f4f25358ba7094c59bed94e4c1098d585fff308eb53bf711213994f362b9e",
-  "notion-token-identity-read.yml": "cd7bdca0937445bd25d4f86d7129bea3e03b41501b757c3d85da207a96c06eec"
+  "notion-token-identity-read.yml": "cd7bdca0937445bd25d4f86d7129bea3e03b41501b757c3d85da207a96c06eec",
+  "csf-gemini-manual-live-review.yml": "227f0ca9fd299bca5f929b08354912e5497f2665fa49782edecb0cc8c1494ab4"
 }
