@@ -17,6 +17,7 @@ from nexus_sandbox.csf_transcript_ingest import segment_transcript_bounded
 from nexus_sandbox.csf_extractive_proposals import propose_excerpts
 from nexus_sandbox.csf_review_packet import prepare_review_packet
 from nexus_sandbox.csf_gemini_live_transport import review_with_gemini, GeminiReviewDiagnostic
+from nexus_sandbox.csf_live_acceptance import receipt_json
 
 PINNED_DIGEST = "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646"
 PINNED_REVISION = "2026-11-07T16:58:00.000Z"
@@ -49,6 +50,12 @@ def main():
             raise ValueError("unexpected source evidence inventory")
         result = review_with_gemini(packet, authorized=True)
         print(json.dumps(result, sort_keys=True))
+        run_id = os.environ.get("GITHUB_RUN_ID", "")
+        commit_sha = os.environ.get("GITHUB_SHA", "")
+        if not run_id.isdecimal():
+            raise ValueError("missing GitHub run identity")
+        print("CSF_LIVE_ACCEPTANCE_RECEIPT " + receipt_json(
+            result, run_id=int(run_id), commit_sha=commit_sha))
         return 0
     except GeminiReviewDiagnostic as exc:
         print(json.dumps({"status":"BLOCKED", "reason":"gemini_review",
