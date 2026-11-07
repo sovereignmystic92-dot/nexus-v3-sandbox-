@@ -13,6 +13,7 @@ PROVIDER_SECRETS = {
     'gemini-notion-combined-readonly.yml': (None, {'GEMINI_PILOT_API_KEY', 'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-fixture-read.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'csf-real-notion-source-read.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
+    'notion-token-identity-read.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-notion-bridge-synthetic.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
     'cp05-authenticated-notion-fixture-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-interactions-diagnostic.yml': (None, {'GEMINI_API_KEY'}),

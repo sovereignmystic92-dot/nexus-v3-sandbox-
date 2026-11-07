@@ -106,12 +106,32 @@ def probe(token):
             "csf_processed": False, "audit_gate_promoted": False}
 
 
+def identity_probe(token):
+    """Read token principal only; never emit bearer token or provider response body."""
+    try:
+        me = read_json("users/me", token)
+    except urllib.error.HTTPError as exc:
+        return {"status": "IDENTITY_BLOCKED_HTTP", "http_status": int(exc.code),
+                "external_writes": 0}
+    bot = me.get("bot", {}) if isinstance(me, dict) else {}
+    owner = bot.get("owner", {}) if isinstance(bot, dict) else {}
+    return {"status": "IDENTITY_READ_ONLY", "principal_type": me.get("type"),
+            "principal_id": me.get("id"), "principal_name": me.get("name"),
+            "workspace_name": bot.get("workspace_name"),
+            "owner_type": owner.get("type") if isinstance(owner, dict) else None,
+            "external_writes": 0}
+
+
 def main():
     token = os.environ.get("NOTION_SANDBOX_TOKEN", "")
     if not token:
         print('{"status":"BLOCKED","reason":"credential_unavailable"}')
         return 2
     try:
+        if os.environ.get("NOTION_IDENTITY_ONLY") == "true":
+            result = identity_probe(token)
+            print(json.dumps(result, sort_keys=True))
+            return 0 if result["status"] == "IDENTITY_READ_ONLY" else 2
         print(json.dumps(probe(token), sort_keys=True))
         return 0
     except urllib.error.HTTPError as exc:

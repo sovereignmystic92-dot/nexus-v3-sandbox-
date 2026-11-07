@@ -1,0 +1,29 @@
+name: Notion token principal identity read-only
+on:
+  workflow_dispatch:
+    inputs:
+      identity_confirmed:
+        description: "Authorize one read-only identity check of existing Notion sandbox token"
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-token-identity-read
+  cancel-in-progress: false
+jobs:
+  identify:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.identity_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read authenticated Notion integration identity only
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_IDENTITY_ONLY: "true"
+        run: python3 -I tools/notion_csf_authenticated_source_probe.py
+# No transcript reads, data writes, or raw credential output.
