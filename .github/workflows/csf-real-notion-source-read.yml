@@ -7,6 +7,11 @@ on:
         required: true
         type: boolean
         default: false
+      prepare_review_packet:
+        description: "Validate review packet metadata only; requires excerpt extraction"
+        required: true
+        type: boolean
+        default: false
       extract_excerpts:
         description: "Metadata-only unverified source excerpt extraction; requires bounded segments"
         required: true
@@ -42,5 +47,6 @@ jobs:
           NOTION_CSF_SEGMENTS_ONLY: ${{ inputs.prepare_segments }}
           NOTION_CSF_BOUNDED: ${{ inputs.bounded_segments }}
           NOTION_CSF_EXCERPTS: ${{ inputs.extract_excerpts }}
+          NOTION_CSF_REVIEW_PACKET: ${{ inputs.prepare_review_packet }}
         run: python3 -I tools/notion_csf_authenticated_source_probe.py
 # No transcript artifacts, external writes, Gemini calls, or Cortex calls.
