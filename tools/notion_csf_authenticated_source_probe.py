@@ -114,6 +114,10 @@ def main():
     try:
         print(json.dumps(probe(token), sort_keys=True))
         return 0
+    except urllib.error.HTTPError as exc:
+        print(json.dumps({"status": "BLOCKED_HTTP", "http_status": int(exc.code),
+                          "external_writes": 0}))
+        return 2
     except (ValueError, KeyError, TypeError, urllib.error.URLError) as exc:
         print(json.dumps({"status": "BLOCKED", "reason": type(exc).__name__,
                           "external_writes": 0}))
