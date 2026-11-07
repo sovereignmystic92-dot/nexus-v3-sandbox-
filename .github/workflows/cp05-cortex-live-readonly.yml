@@ -13,6 +13,7 @@ jobs:
       - name: Verify effective Cortex access and exact Nexus module readback
         env:
           SOCRA_ACCESS_TOKEN: ${{ secrets.SOCRA_ACCESS_TOKEN }}
+          SOCRA_INSTALLATION_PRINCIPAL: ${{ secrets.SOCRA_INSTALLATION_PRINCIPAL }}
         shell: bash
         run: |
           set -euo pipefail
@@ -21,7 +22,7 @@ jobs:
           from nexus_sandbox.cp05_cortex_http import CortexReadOnlyHTTP, CortexReadError
           token = os.environ.get("SOCRA_ACCESS_TOKEN", "")
           if not token:
-              print(json.dumps({"result":"BLOCKED_NO_ACCESS_TOKEN","reason":"Client ID and secret alone do not establish an installed OAuth principal or access token","writes":0}))
+              print(json.dumps({"result":"BLOCKED_NO_ACCESS_TOKEN","installation_principal_configured":bool(os.environ.get("SOCRA_INSTALLATION_PRINCIPAL", "").strip()),"reason":"Client ID and secret alone do not establish an installed OAuth principal or access token","writes":0}))
               sys.exit(1)
           try:
               module = CortexReadOnlyHTTP(token).read_module(
