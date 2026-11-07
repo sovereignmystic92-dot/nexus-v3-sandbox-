@@ -1,0 +1,36 @@
+name: CSF Gemini manual live context review
+on:
+  workflow_dispatch:
+    inputs:
+      source_review_confirmed:
+        description: "I authorize sending up to 12 excerpts and context from the pinned Haiti transcript to Gemini"
+        required: true
+        type: boolean
+        default: false
+      free_tier_confirmed:
+        description: "I confirm the Gemini key/project cost terms and authorize one provider call"
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: csf-gemini-manual-live-review
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.source_review_confirmed == true && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Pinned Notion transcript context-only Gemini review
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXUS_CSF_GEMINI_LIVE: "true"
+          CSF_GEMINI_SEND_APPROVED: ${{ inputs.source_review_confirmed }}
+        run: python3 -I tools/csf_gemini_manual_live_pilot.py
+# No raw transcript or review text in logs, artifacts, Cortex or audit state.
