@@ -1,0 +1,36 @@
+name: CP05 Cortex live read-only identity check
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  cortex-read:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify effective Cortex access and exact Nexus module readback
+        env:
+          SOCRA_ACCESS_TOKEN: ${{ secrets.SOCRA_ACCESS_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python3 - <<'PY'
+          import json, os, sys
+          from nexus_sandbox.cp05_cortex_http import CortexReadOnlyHTTP, CortexReadError
+          token = os.environ.get("SOCRA_ACCESS_TOKEN", "")
+          if not token:
+              print(json.dumps({"result":"BLOCKED_NO_ACCESS_TOKEN","reason":"Client ID and secret alone do not establish an installed OAuth principal or access token","writes":0}))
+              sys.exit(1)
+          try:
+              module = CortexReadOnlyHTTP(token).read_module(
+                  "Archive ↔ Nexus Transcript Routing Rule",
+                  "module_01m3ex6a5nq3rdsc54gn2ejcsf")
+          except (CortexReadError, ValueError):
+              print(json.dumps({"result":"BLOCKED_CORTEX_READ","writes":0,"credential_values_logged":False}))
+              sys.exit(1)
+          print(json.dumps({"result":"PASS_CORTEX_READ_ONLY","module_id":module["id"],"version":module["version"],"writes":0,"credential_values_logged":False}))
+          PY
+# This does not exchange client credentials for an access token or assert OAuth installation.
+# No writes, no token logging, and no secret replacement.
