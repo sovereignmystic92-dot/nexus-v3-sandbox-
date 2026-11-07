@@ -1,0 +1,23 @@
+name: Transcript provider handoff unit CI
+on:
+  pull_request:
+    paths:
+      - 'src/nexus_sandbox/transcript_live_handoff.py'
+      - 'tests/test_transcript_live_handoff.py'
+      - '.github/workflows/transcript-handoff-ci.yml'
+      - 'tools/workflow_policy.json'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  handoff-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate syntax
+        run: python3 -m py_compile src/nexus_sandbox/transcript_live_handoff.py tests/test_transcript_live_handoff.py
+      - name: Test bounded provider ports without credentials
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_transcript_live_handoff.py' -v
+# No provider credentials, provider calls or live writes.

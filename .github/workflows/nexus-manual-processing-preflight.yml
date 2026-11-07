@@ -1,0 +1,58 @@
+name: Nexus manual processing preflight
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Nexus job origin
+        type: choice
+        options:
+          - manual
+          - gemini
+          - scheduled
+        required: true
+      video_url:
+        description: Canonical YouTube URL (no secrets)
+        required: true
+        type: string
+permissions: {}
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate source and dispatch mode without credentials or writes
+        env:
+          NEXUS_MODE: ${{ inputs.mode }}
+          NEXUS_URL: ${{ inputs.video_url }}
+        run: |
+          PYTHONPATH=src python3 - <<'PY'
+          import json, os, re
+          from urllib.parse import urlsplit, parse_qs
+          from nexus_sandbox.nexus_processing_gateway import MODES
+          mode = os.environ["NEXUS_MODE"]
+          url = os.environ["NEXUS_URL"]
+          parts = urlsplit(url.strip())
+          host = (parts.hostname or "").lower()
+          params = parse_qs(parts.query, keep_blank_values=True)
+          if host in {"youtube.com", "www.youtube.com", "m.youtube.com"} and parts.path == "/watch":
+              ids = params.get("v", [])
+              video_id = ids[0] if len(ids) == 1 else ""
+          elif host == "youtu.be" and re.fullmatch(r"/[A-Za-z0-9_-]{11}/?", parts.path):
+              video_id = parts.path.strip("/")
+          else:
+              video_id = ""
+          valid = (parts.scheme == "https" and parts.username is None
+                   and parts.password is None and parts.port is None
+                   and re.fullmatch(r"[A-Za-z0-9_-]{11}", video_id) is not None)
+          if mode not in MODES or not valid:
+              raise SystemExit("BLOCKED: invalid mode or canonical source URL")
+          print(json.dumps({"status": "DISPATCH_ACCEPTED_READ_ONLY",
+                            "mode": mode, "source_url": "https://www.youtube.com/watch?v=" + video_id,
+                            "transcript_retrieved": False,
+                            "provider_writes": 0,
+                            "provider_readback_verified": False,
+                            "next_action": "ATTACH_AUTHENTICATED_TRANSCRIPT_AND_PROVIDER_RUNTIME"}))
+          PY
