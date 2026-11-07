@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CivilizationSystemsFinding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "finding_id",
+    "idempotency_key",
+    "source_reference",
+    "domain_id",
+    "claim_type",
+    "systemic_role",
+    "assertion",
+    "causal_links",
+    "confidence_level",
+    "confidence_rationale"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "0.2.0"
+    },
+    "finding_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "content_digest",
+        "transcript_segment",
+        "segment_id"
+      ],
+      "properties": {
+        "document_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "transcript_segment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "segment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp_or_line": {
+          "type": "string"
+        }
+      }
+    },
+    "domain_id": {
+      "$ref": "#/definitions/domain"
+    },
+    "claim_type": {
+      "enum": [
+        "observation",
+        "inference",
+        "scenario"
+      ]
+    },
+    "systemic_role": {
+      "enum": [
+        "structural_bottleneck",
+        "feedback_loop",
+        "institutional_failure",
+        "resilience_factor"
+      ]
+    },
+    "assertion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "causal_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target_domain",
+          "direction",
+          "mechanism",
+          "evidence_refs",
+          "verification_status"
+        ],
+        "properties": {
+          "target_domain": {
+            "$ref": "#/definitions/domain"
+          },
+          "direction": {
+            "enum": [
+              "accelerates",
+              "mitigates",
+              "triggers",
+              "constrains"
+            ]
+          },
+          "mechanism": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "verification_status": {
+            "enum": [
+              "hypothesized",
+              "supported",
+              "disputed",
+              "rejected"
+            ]
+          }
+        }
+      }
+    },
+    "confidence_level": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "unassessed"
+      ]
+    },
+    "confidence_rationale": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "definitions": {
+    "domain": {
+      "enum": [
+        "gov_coordination",
+        "inf_supply",
+        "geo_dependencies"
+      ]
+    }
+  }
+}

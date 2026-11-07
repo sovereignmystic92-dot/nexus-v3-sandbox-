@@ -1,0 +1,93 @@
+{
+  "packet_version": "csf-haiti-review-candidates/0.1",
+  "source": {
+    "notion_page_id": "4088c067-daa4-813b-b1f0-e1f1993120fb",
+    "transaction": "NXS-LIVE-TRANSCRIPT-RAXLnCNA4w8-20261029",
+    "raw_segment_id": "RAW-001",
+    "utf16_length": 20152,
+    "source_readback": "Notion page includes independent readback receipt",
+    "sha256_utf8": "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646",
+    "audio_verified": false,
+    "digest_method": "SHA-256 of exact RAW-001 code block UTF-8; all ASCII, no normalization"
+  },
+  "status": "PRE_CSF_REVIEW_PACKET_NOT_VALIDATED_FINDINGS",
+  "candidates": [
+    {
+      "id": "HAI-C01",
+      "label": "GSF staffing gap",
+      "source_segment": "RAW-001",
+      "offset_utf16": 3606,
+      "excerpt": "The GSF is supposed to include roughly 5,500 personnel to help the Haitian National Police and the armed forces restore order, but right now only around 2,000 of those troops",
+      "domain_id": "inf_supply",
+      "claim_type": "observation",
+      "systemic_role": "structural_bottleneck",
+      "assertion": "The supplied WarFronts transcript states: GSF staffing gap.",
+      "verification_status": "UNVERIFIED_SOURCE_CLAIM",
+      "confidence_level": "unassessed",
+      "confidence_rationale": "Video transcript claim; no independent corroboration in this packet."
+    },
+    {
+      "id": "HAI-C02",
+      "label": "Ambush circumstances",
+      "source_segment": "RAW-001",
+      "offset_utf16": 5119,
+      "excerpt": "After they visited the market, the Salvadoran's vehicle was attacked with planted explosives. With their vehicle on fire, the Salvadorans fled the scene, but at some point later that day, they were taken hostage u",
+      "domain_id": "gov_coordination",
+      "claim_type": "observation",
+      "systemic_role": "institutional_failure",
+      "assertion": "The supplied WarFronts transcript states: Ambush circumstances.",
+      "verification_status": "UNVERIFIED_SOURCE_CLAIM",
+      "confidence_level": "unassessed",
+      "confidence_rationale": "Video transcript claim; no independent corroboration in this packet."
+    },
+    {
+      "id": "HAI-C03",
+      "label": "Captors not established",
+      "source_segment": "RAW-001",
+      "offset_utf16": 5360,
+      "excerpt": "According to some Haitian media reports, they were taken by the Sha Bashon gang. Though those reports are unreliable and they don't necessarily mean that Shawn Mashaw has the Salvadorans right now. Th",
+      "domain_id": "gov_coordination",
+      "claim_type": "observation",
+      "systemic_role": "institutional_failure",
+      "assertion": "The supplied WarFronts transcript states: Captors not established.",
+      "verification_status": "UNVERIFIED_SOURCE_CLAIM",
+      "confidence_level": "unassessed",
+      "confidence_rationale": "Video transcript claim; no independent corroboration in this packet."
+    },
+    {
+      "id": "HAI-C04",
+      "label": "Command arrangement uncertainty",
+      "source_segment": "RAW-001",
+      "offset_utf16": 8860,
+      "excerpt": "those Salvadoran troops do not appear to be working under the mandate of the gang suppression force. They are Salvadoran forces under Salvadoran command. By Wednesday the 28th of October, none of Haiti's gangs had taken ",
+      "domain_id": "gov_coordination",
+      "claim_type": "inference",
+      "systemic_role": "institutional_failure",
+      "assertion": "The supplied WarFronts transcript states: Command arrangement uncertainty.",
+      "verification_status": "UNVERIFIED_SOURCE_CLAIM",
+      "confidence_level": "unassessed",
+      "confidence_rationale": "Video transcript claim; no independent corroboration in this packet."
+    },
+    {
+      "id": "HAI-C05",
+      "label": "Unannounced agreement claim",
+      "source_segment": "RAW-001",
+      "offset_utf16": 18215,
+      "excerpt": "Any legal agreement between San Salvador and the Haitian government for this troop deployment to take place hasn't been announced or even acknowledged. If no such agreement exists and Salvador and troops are operating outside the GSF's chain of command, as they're believ",
+      "domain_id": "geo_dependencies",
+      "claim_type": "observation",
+      "systemic_role": "institutional_failure",
+      "assertion": "The supplied WarFronts transcript states: Unannounced agreement claim.",
+      "verification_status": "UNVERIFIED_SOURCE_CLAIM",
+      "confidence_level": "unassessed",
+      "confidence_rationale": "Video transcript claim; no independent corroboration in this packet."
+    }
+  ],
+  "review_questions": [
+    "Are any excerpt labels misleading or overconfident?",
+    "Are source observation and real-world fact properly separated?",
+    "Which classifications are unsupported by the excerpt?",
+    "Which claims are contradicted by the dated follow-on Notion analysis?",
+    "What evidence is required before a real CSF finding is accepted?"
+  ]
+}

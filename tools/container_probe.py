@@ -1,6 +1,7 @@
 """Container-internal checks before executing the synthetic suite."""
 
 import errno
+import hashlib
 import io
 from contextlib import redirect_stdout
 import json
@@ -71,6 +72,13 @@ def main():
     with redirect_stdout(stream):
         outcome = validate.main()
     report = json.loads(stream.getvalue())
+    # Independently hash every staged file, including newly added CSF JSON.
+    # Never relax host/guest manifest equality: this is a second full readback.
+    report["source_sha256"] = {
+        str(p.relative_to(Path("/sandbox"))): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(Path("/sandbox").rglob("*"))
+        if p.is_file() and p.suffix in (".py", ".sql", ".json")
+    }
     import fault_checks
     faults = fault_checks.run() if outcome == 0 else {"status": "NOT_ATTEMPTED", "cases": []}
     print(json.dumps({"container_preflight": checks, "tests_attempted": True, "local_report": report,
