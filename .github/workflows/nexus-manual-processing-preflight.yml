@@ -1,0 +1,45 @@
+name: Nexus manual processing preflight
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Nexus job origin
+        type: choice
+        options:
+          - manual
+          - gemini
+          - scheduled
+        required: true
+      video_url:
+        description: Canonical YouTube URL (no secrets)
+        required: true
+        type: string
+permissions: {}
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate source and dispatch mode without credentials or writes
+        env:
+          NEXUS_MODE: ${{ inputs.mode }}
+          NEXUS_URL: ${{ inputs.video_url }}
+        run: |
+          PYTHONPATH=src python3 - <<'PY'
+          import json, os, re
+          from nexus_sandbox.nexus_processing_gateway import MODES
+          mode = os.environ["NEXUS_MODE"]
+          url = os.environ["NEXUS_URL"]
+          pattern = r"https://(?:www\.youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}"
+          if mode not in MODES or re.fullmatch(pattern, url) is None:
+              raise SystemExit("BLOCKED: invalid mode or canonical source URL")
+          print(json.dumps({"status": "DISPATCH_ACCEPTED_READ_ONLY",
+                            "mode": mode, "source_url": url,
+                            "transcript_retrieved": False,
+                            "provider_writes": 0,
+                            "provider_readback_verified": False,
+                            "next_action": "ATTACH_AUTHENTICATED_TRANSCRIPT_AND_PROVIDER_RUNTIME"}))
+          PY
