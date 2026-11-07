@@ -133,6 +133,19 @@ def prepare_live_segments(token):
         "transcript": raw,
         "expected_sha256": digest,
     })
+    if os.environ.get("NOTION_CSF_BOUNDED") == "true":
+        from nexus_sandbox.csf_transcript_ingest import segment_transcript_bounded
+        bounded = segment_transcript_bounded(PAGE_ID, raw)
+        if bounded["content_digest"] != digest:
+            raise ValueError("bounded digest mismatch")
+        return {"status": "NOTION_CSF_BOUNDED_READ_ONLY",
+                "page_id": PAGE_ID, "source_revision": revision,
+                "content_digest": digest, "segment_count": bounded["segment_count"],
+                "offsets_verified": all(raw[v["start"]:v["end"]] and
+                  hashlib.sha256(raw[v["start"]:v["end"]].encode("utf-8")).hexdigest() == v["sha256"]
+                  for v in bounded["spans"].values()),
+                "candidates": 0, "provider_called": False, "external_writes": 0,
+                "audit_gate_promoted": False}
     return {"status": "NOTION_CSF_SEGMENTS_READ_ONLY",
             "page_id": PAGE_ID, "source_revision": revision,
             "content_digest": receipt["content_digest"],
