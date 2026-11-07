@@ -16,7 +16,7 @@ from notion_csf_authenticated_source_probe import PAGE_ID, read_json, children, 
 from nexus_sandbox.csf_transcript_ingest import segment_transcript_bounded
 from nexus_sandbox.csf_extractive_proposals import propose_excerpts
 from nexus_sandbox.csf_review_packet import prepare_review_packet
-from nexus_sandbox.csf_gemini_live_transport import review_with_gemini
+from nexus_sandbox.csf_gemini_live_transport import review_with_gemini, GeminiReviewDiagnostic
 
 PINNED_DIGEST = "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646"
 PINNED_REVISION = "2026-11-07T16:58:00.000Z"
@@ -50,9 +50,13 @@ def main():
         result = review_with_gemini(packet, authorized=True)
         print(json.dumps(result, sort_keys=True))
         return 0
+    except GeminiReviewDiagnostic as exc:
+        print(json.dumps({"status":"BLOCKED", "reason":"gemini_review",
+                          "diagnostic":exc.category, "external_writes":0}))
+        return 2
     except Exception as exc:
         # Never print provider error bodies, transcript text or credentials.
-        print(json.dumps({"status":"BLOCKED", "reason":"pilot_validation_or_transport_failure",
+        print(json.dumps({"status":"BLOCKED", "reason":"source_or_pilot_validation",
                           "error_type":type(exc).__name__, "external_writes":0}))
         return 2
 
