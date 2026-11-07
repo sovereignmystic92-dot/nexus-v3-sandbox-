@@ -29,8 +29,12 @@ class DiagnosticTests(unittest.TestCase):
         self.packet = prepare_review_packet(raw, bounded, propose_excerpts(raw, bounded))
 
     def call(self, opener):
+        def discovery_then_generate(req, timeout):
+            if "pageSize=100" in req.full_url:
+                return Response(b'{"models":[{"name":"models/gemini-3.5-flash-lite","supportedGenerationMethods":["generateContent"]}]}')
+            return opener(req, timeout)
         with patch.dict(os.environ, {"GEMINI_API_KEY":"fake-key", "NEXUS_CSF_GEMINI_LIVE":"true"}):
-            return review_with_gemini(self.packet, authorized=True, opener=opener)
+            return review_with_gemini(self.packet, authorized=True, opener=discovery_then_generate)
 
     def test_unauthorized(self):
         with self.assertRaises(GeminiReviewDiagnostic) as raised:
