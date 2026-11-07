@@ -49,6 +49,19 @@ class RuntimeTests(unittest.TestCase):
         self.assertFalse(self.notion)
         self.assertFalse(self.cortex)
 
+    def test_uncertain_provider_error_preserves_marker(self):
+        def fail(_key):
+            raise RuntimeError("provider unavailable")
+        self.ports["notion_read"] = fail
+        with self.assertRaises(RuntimeError):
+            execute(run_id="test-5", receipt_dir=self.tmp.name,
+                    provider_ports=self.ports, **self.job)
+        marker = json.loads((Path(self.tmp.name) / "test-5.json").read_text())
+        self.assertEqual(marker["next_action"], "RECONCILE_UNCERTAIN_RUN")
+        with self.assertRaises(FileExistsError):
+            execute(run_id="test-5", receipt_dir=self.tmp.name,
+                    provider_ports=self.ports, **self.job)
+
     def test_missing_port_rejected(self):
         with self.assertRaises(ValueError):
             execute(run_id="test-4", receipt_dir=self.tmp.name,
