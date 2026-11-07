@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from nexus_sandbox.nexus_processing_gateway import MODES
 
-VIDEO = re.compile(r"^https://(?:www\\.youtube\\.com/watch\\?v=|youtu\\.be/)([A-Za-z0-9_-]{11})$")
+VIDEO = re.compile(r"^https://(?:www\.youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{11})$")
 
 
 def preflight(payload):
