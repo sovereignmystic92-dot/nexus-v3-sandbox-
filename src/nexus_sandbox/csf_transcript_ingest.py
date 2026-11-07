@@ -46,7 +46,7 @@ def segment_transcript_bounded(document_id, transcript, max_chars=1200):
         end = min(start + max_chars, len(transcript))
         if end < len(transcript):
             # Prefer whitespace, but never permit a tiny fragment.
-            boundary = max(transcript.rfind("\\n", start + max_chars // 2, end),
+            boundary = max(transcript.rfind("\n", start + max_chars // 2, end),
                            transcript.rfind(" ", start + max_chars // 2, end))
             if boundary > start:
                 end = boundary + 1
