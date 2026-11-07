@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,6 +10,25 @@ from verify_workflows import verify
 
 
 class WorkflowPolicyTests(unittest.TestCase):
+    def test_inventory_diagnostics_distinguish_all_differences(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / '.github/workflows'
+            folder.mkdir(parents=True)
+            (folder / 'changed.yml').write_text('private workflow body')
+            (folder / 'new-z.yml').write_text('on: push\n')
+            (folder / 'new-a.yml').write_text('on: push\n')
+            policy = {'changed.yml': '0' * 64, 'removed.yml': '1' * 64}
+            with self.assertRaises(ValueError) as caught:
+                verify(temp, policy)
+            message = str(caught.exception)
+            details = json.loads(message.split(': ', 1)[1])
+            self.assertEqual(details, {
+                'unreviewed': ['new-a.yml', 'new-z.yml'],
+                'missing': ['removed.yml'], 'changed': ['changed.yml'],
+            })
+            self.assertNotIn('private workflow body', message)
+            self.assertEqual(policy, {'changed.yml': '0' * 64, 'removed.yml': '1' * 64})
+
     def test_new_trigger_or_extra_workflow_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             folder=Path(temp)/'.github/workflows';folder.mkdir(parents=True)

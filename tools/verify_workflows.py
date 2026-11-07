@@ -81,7 +81,15 @@ def verify(root, policy):
         raise ValueError('Unexpected workflow entry type')
     actual={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in entries}
     if actual != policy:
-        raise ValueError('Workflow inventory differs from reviewed trigger/network policy')
+        differences = {
+            'unreviewed': sorted(actual.keys() - policy.keys()),
+            'missing': sorted(policy.keys() - actual.keys()),
+            'changed': sorted(name for name in actual.keys() & policy.keys()
+                              if actual[name] != policy[name]),
+        }
+        # Report filenames only: never dump workflow bodies or regenerate policy.
+        raise ValueError('Workflow inventory differs from reviewed trigger/network policy: '
+                         + json.dumps(differences, sort_keys=True))
     return sorted(actual)
 
 
