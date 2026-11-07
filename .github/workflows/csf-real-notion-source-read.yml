@@ -7,6 +7,11 @@ on:
         required: true
         type: boolean
         default: false
+      extract_excerpts:
+        description: "Metadata-only unverified source excerpt extraction; requires bounded segments"
+        required: true
+        type: boolean
+        default: false
       bounded_segments:
         description: "When preparing segments, use bounded source-offset chunks"
         required: true
@@ -36,5 +41,6 @@ jobs:
           NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
           NOTION_CSF_SEGMENTS_ONLY: ${{ inputs.prepare_segments }}
           NOTION_CSF_BOUNDED: ${{ inputs.bounded_segments }}
+          NOTION_CSF_EXCERPTS: ${{ inputs.extract_excerpts }}
         run: python3 -I tools/notion_csf_authenticated_source_probe.py
 # No transcript artifacts, external writes, Gemini calls, or Cortex calls.

@@ -138,6 +138,20 @@ def prepare_live_segments(token):
         bounded = segment_transcript_bounded(PAGE_ID, raw)
         if bounded["content_digest"] != digest:
             raise ValueError("bounded digest mismatch")
+        if os.environ.get("NOTION_CSF_EXCERPTS") == "true":
+            from nexus_sandbox.csf_extractive_proposals import propose_excerpts
+            extracted = propose_excerpts(raw, bounded)
+            if extracted["source_digest"] != digest or extracted["external_writes"] != 0:
+                raise ValueError("extractive evidence integrity failure")
+            return {"status": "NOTION_CSF_EXCERPTS_READ_ONLY",
+                    "page_id": PAGE_ID, "source_revision": revision,
+                    "content_digest": digest, "segment_count": bounded["segment_count"],
+                    "proposal_count": extracted["proposal_count"],
+                    "excerpt_offsets_verified": all(
+                        hashlib.sha256(raw[v["start"]:v["end"]].encode("utf-8")).hexdigest() == v["excerpt_sha256"]
+                        for v in extracted["proposals"]),
+                    "classification_performed": False, "provider_called": False,
+                    "external_writes": 0, "audit_gate_promoted": False}
         return {"status": "NOTION_CSF_BOUNDED_READ_ONLY",
                 "page_id": PAGE_ID, "source_revision": revision,
                 "content_digest": digest, "segment_count": bounded["segment_count"],
