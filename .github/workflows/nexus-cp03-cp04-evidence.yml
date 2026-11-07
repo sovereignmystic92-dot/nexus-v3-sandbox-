@@ -2,7 +2,7 @@ name: Nexus CP03 CP04 trigger evidence
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 3 * * *'
+    - cron: '22 2 * * *'
 permissions: {}
 concurrency:
   group: nexus-cp03-cp04-evidence
