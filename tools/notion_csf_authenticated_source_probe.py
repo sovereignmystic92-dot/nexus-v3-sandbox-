@@ -106,6 +106,41 @@ def probe(token):
             "csf_processed": False, "audit_gate_promoted": False}
 
 
+
+def prepare_live_segments(token):
+    """Read canonical source twice, then segment in memory without emitting raw text."""
+    page = read_json("pages/" + PAGE_ID, token)
+    if page.get("id", "").replace("-", "") != PAGE_ID.replace("-", ""):
+        raise ValueError("page identity mismatch")
+    if page.get("archived") or page.get("in_trash"):
+        raise ValueError("archived source")
+    revision = page.get("last_edited_time")
+    if not isinstance(revision, str) or not revision:
+        raise ValueError("missing revision")
+    blocks = children(PAGE_ID, token)
+    raw = extract_raw(blocks)
+    again = read_json("pages/" + PAGE_ID, token)
+    if again.get("id", "").replace("-", "") != PAGE_ID.replace("-", "") or again.get("last_edited_time") != revision:
+        raise ValueError("source changed during read")
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    from nexus_sandbox.csf_notional_intake import prepare_source_receipt
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    receipt = prepare_source_receipt({
+        "source_url": "https://app.notion.com/p/" + PAGE_ID.replace("-", ""),
+        "source_revision": revision,
+        "document_id": PAGE_ID,
+        "transcript": raw,
+        "expected_sha256": digest,
+    })
+    return {"status": "NOTION_CSF_SEGMENTS_READ_ONLY",
+            "page_id": PAGE_ID, "source_revision": revision,
+            "content_digest": receipt["content_digest"],
+            "segment_count": receipt["segment_count"],
+            "candidates": 0, "provider_called": False,
+            "external_writes": 0, "audit_gate_promoted": False}
+
+
 def identity_probe(token):
     """Read token principal only; never emit bearer token or provider response body."""
     try:
@@ -132,6 +167,9 @@ def main():
             result = identity_probe(token)
             print(json.dumps(result, sort_keys=True))
             return 0 if result["status"] == "IDENTITY_READ_ONLY" else 2
+        if os.environ.get("NOTION_CSF_SEGMENTS_ONLY") == "true":
+            print(json.dumps(prepare_live_segments(token), sort_keys=True))
+            return 0
         print(json.dumps(probe(token), sort_keys=True))
         return 0
     except urllib.error.HTTPError as exc:
