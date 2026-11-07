@@ -28,6 +28,6 @@
   "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
-  "csf-real-notion-source-read.yml": "ad379422f787d7df7fb0b88e6384004df039348af27bd1d3a880f7105f2ddadf",
+  "csf-real-notion-source-read.yml": "c7183f8711310bfdfa1debf34eac0777c4d84e79f406c10fbce9f9f3bc8a5fc7",
   "notion-token-identity-read.yml": "cd7bdca0937445bd25d4f86d7129bea3e03b41501b757c3d85da207a96c06eec"
 }

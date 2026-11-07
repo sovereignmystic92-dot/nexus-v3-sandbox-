@@ -26,6 +26,39 @@ def segment_transcript(document_id, transcript):
     return {"document_id": document_id, "content_digest": digest, "segments": segments}
 
 
+
+def segment_transcript_bounded(document_id, transcript, max_chars=1200):
+    """Deterministic bounded chunks; preserve exact text via character offsets.
+
+    Unlike paragraph normalization, each span references the original source
+    by [start,end) Python character offsets. No claims are generated.
+    """
+    if not isinstance(document_id, str) or not document_id.strip():
+        raise CSFValidationError("document_id required")
+    if not isinstance(transcript, str) or not transcript.strip() or len(transcript) > MAX_TRANSCRIPT_CHARS:
+        raise CSFValidationError("transcript missing or oversized")
+    if type(max_chars) is not int or not 256 <= max_chars <= 8192:
+        raise CSFValidationError("invalid bounded segment size")
+    spans = {}
+    start = 0
+    i = 1
+    while start < len(transcript):
+        end = min(start + max_chars, len(transcript))
+        if end < len(transcript):
+            # Prefer whitespace, but never permit a tiny fragment.
+            boundary = max(transcript.rfind("\n", start + max_chars // 2, end),
+                           transcript.rfind(" ", start + max_chars // 2, end))
+            if boundary > start:
+                end = boundary + 1
+        spans[f"seg-{i:04d}"] = {"start": start, "end": end,
+                                "sha256": hashlib.sha256(transcript[start:end].encode("utf-8")).hexdigest()}
+        start = end
+        i += 1
+    return {"document_id": document_id,
+            "content_digest": hashlib.sha256(transcript.encode("utf-8")).hexdigest(),
+            "segment_count": len(spans), "spans": spans}
+
+
 def ingest_candidates(source, candidates):
     """Produce findings from explicitly supplied candidate annotations.
 
