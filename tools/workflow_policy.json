@@ -24,5 +24,6 @@
   "nexus-cp03-cp04-evidence.yml": "bc48aefab9681a832c24d180be137af20c2cf32d6929b81a93fc694572288882",
   "transcript-receipt-contract-ci.yml": "b31d8a35ca32a0663173d80f8f4519d7d3b585ff0125323ff358b92b1e75e2c7",
   "transcript-handoff-ci.yml": "ff60bf8040dc3a9da0a82745a77764b9a7742e247f1f8ede5c438b3b305d8020",
-  "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1"
+  "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
+  "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b"
 }

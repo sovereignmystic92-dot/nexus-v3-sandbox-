@@ -1,0 +1,20 @@
+name: Nexus processing CLI unit CI
+on:
+  pull_request:
+    paths:
+      - 'tools/nexus_process.py'
+      - 'tests/test_nexus_process_cli.py'
+      - '.github/workflows/nexus-process-cli-ci.yml'
+      - 'tools/workflow_policy.json'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  cli-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate CLI syntax and unit tests
+        run: python3 -m py_compile tools/nexus_process.py tests/test_nexus_process_cli.py && PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_nexus_process_cli.py' -v
