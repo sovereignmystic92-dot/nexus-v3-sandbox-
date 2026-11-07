@@ -31,7 +31,7 @@ def propose_excerpts(transcript, bounded, limit=12):
             raise CSFValidationError("span digest mismatch")
         position = end
         # One first substantive sentence per span, at most. Extractive, not generated.
-        match = re.search(r"[^.!?\\n]{40,240}[.!?](?=\\s|$)", piece)
+        match = re.search(r"[^.!?\n]{40,240}[.!?](?=\s|$)", piece)
         if match and len(proposals) < limit:
             excerpt = match.group().strip()
             offset = start + match.start() + len(match.group()) - len(match.group().lstrip())
