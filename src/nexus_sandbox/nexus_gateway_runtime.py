@@ -3,12 +3,9 @@
 Provider ports must come from an authenticated host. This module cannot prove
 their origin and therefore never emits VERIFIED or promotes an audit gate.
 """
-from dataclasses import asdict
-import hashlib
 import json
 import os
 from pathlib import Path
-import tempfile
 
 from .nexus_processing_gateway import process
 
@@ -27,8 +24,7 @@ def execute(*, run_id, receipt_dir, provider_ports, **job):
     target = directory / (run_id + ".json")
     if target.exists() or target.is_symlink():
         raise FileExistsError("Run receipt already exists; reconcile before retry")
-    result = process(**job, **provider_ports)
-    receipt = {
+    # Reserve the run identifier BEFORE any provider side effect. A crash leaves\n    # a marker that requires explicit reconciliation, never an automatic retry.\n    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)\n    with os.fdopen(fd, "wb") as marker:\n        marker.write(b'{"status":"INCOMPLETE","next_action":"RECONCILE_UNCERTAIN_RUN"}\\n')\n        marker.flush()\n        os.fsync(marker.fileno())\n    result = process(**job, **provider_ports)\n    receipt = {
         "schema_version": 1,
         "run_id": run_id,
         "status": "INCOMPLETE",
@@ -43,10 +39,8 @@ def execute(*, run_id, receipt_dir, provider_ports, **job):
         "provider_readback_claimed_by_host": result.status == "READBACK_MATCHED",
         "audit_gate_promoted": False,
     }
-    # Exclusive create prevents overwrite. fsync persists the bytes before
-    # returning. No tempfile replacement can overwrite an existing run.
-    payload = (json.dumps(receipt, sort_keys=True) + "\n").encode("utf-8")
-    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    # Replace only our own reserved marker with a complete, still\n    # non-attesting receipt. Any interruption leaves reconciliation evidence.\n    payload = (json.dumps(receipt, sort_keys=True) + "\n").encode("utf-8")
+    fd = os.open(target, os.O_WRONLY | os.O_TRUNC)
     try:
         with os.fdopen(fd, "wb") as stream:
             stream.write(payload)
