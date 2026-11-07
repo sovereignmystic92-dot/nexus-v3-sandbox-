@@ -30,6 +30,7 @@ jobs:
         run: |
           PYTHONPATH=src python3 - <<'PY'
           import json, os, re
+          from urllib.parse import urlsplit, parse_qs
           from nexus_sandbox.nexus_processing_gateway import MODES
           mode = os.environ["NEXUS_MODE"]
           url = os.environ["NEXUS_URL"]
@@ -37,7 +38,7 @@ jobs:
           if mode not in MODES or re.fullmatch(pattern, url) is None:
               raise SystemExit("BLOCKED: invalid mode or canonical source URL")
           print(json.dumps({"status": "DISPATCH_ACCEPTED_READ_ONLY",
-                            "mode": mode, "source_url": url,
+                            "mode": mode, "source_url": "https://www.youtube.com/watch?v=" + video_id,
                             "transcript_retrieved": False,
                             "provider_writes": 0,
                             "provider_readback_verified": False,
