@@ -25,5 +25,6 @@
   "transcript-receipt-contract-ci.yml": "b31d8a35ca32a0663173d80f8f4519d7d3b585ff0125323ff358b92b1e75e2c7",
   "transcript-handoff-ci.yml": "ff60bf8040dc3a9da0a82745a77764b9a7742e247f1f8ede5c438b3b305d8020",
   "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
-  "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b"
+  "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
+  "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95"
 }
