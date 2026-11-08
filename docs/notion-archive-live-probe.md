@@ -58,3 +58,60 @@ injection and observe-only rerun behavior. SIGKILL is mocked in the new callback
 unit test to avoid terminating the test runner; actual process-kill coverage
 remains in the existing transcript host suite. Workflow inventory/routing
 verification passed. Live fault-mode execution remains pending.
+
+
+## Two-run journal checkpoint handoff
+
+The workflow now has an off-by-default cross_run_phase. Existing healthy and
+lost-reply tests still use disabled. Cross-run mode cannot be combined with
+discard_first_reply. It adds no token, secret route, GitHub permission or schedule.
+
+Provision TWO new empty pages shared with the sandbox integration:
+fixture_page_id for source chunks and journal_page_id for the immutable
+checkpoint. The two canonical UUIDs must differ. The confirmation now explicitly
+covers up to three source-chunk writes plus one checkpoint append across the
+two-stage protocol.
+
+1. On main, dispatch phase pause, archive_test_confirmed=true,
+   discard_first_reply=false, and both page IDs. Leave checkpoint_sha256 blank.
+   One source chunk is written and read back. The local SQLite binding and exact
+   five-event paused prefix are exported as canonical JSON (no SQL or database
+   file), appended once to the separate journal page, and read back exactly.
+   Expect PAUSED_CHECKPOINT_VERIFIED with archive_writes=1, checkpoint_writes=1.
+2. Copy checkpoint_sha256 from that successful run summary. Start a NEW workflow
+   run on the same code revision with phase resume, the same page IDs and that
+   hash. Do not merely rerun the pause job. The new host retrieves and validates
+   the remote journal before creating a new SQLite file. Only the expected
+   source/destination/revision/origin-run and exact paused event prefix are
+   accepted. The new run ID must differ from the checkpoint's origin run.
+3. The resumed host independently reads the archive and writes at most the two
+   missing chunks. Its final read-only fetch must return ARCHIVE_VERIFIED.
+   The initial checkpoint is retained unchanged; checkpoint_writes=0 on resume.
+4. Re-run the successful resume workflow to confirm archive_writes=0,
+   checkpoint_writes=0 and ARCHIVE_VERIFIED. Reruns are observe-only; the
+   original local SQLite file is not downloaded or reused by the rerun.
+
+The checkpoint hash is an OWNER-PINNED integrity value copied from the first
+run's verified output, not a signature or independently authenticated history.
+Do not obtain it solely from an untrusted replacement checkpoint. Identical
+manual input is not cryptographic attestation. A checkpoint from another code
+revision blocks; a reviewed migration would be needed if main advances.
+This is a bounded synthetic checkpoint protocol, not general SQLite backup or
+arbitrary history import. Restore refuses to overwrite any existing local file.
+
+An absent original chunk with a pending intent remains blocked; no automatic
+settled-non-commit override exists. An uncertain checkpoint append is not
+retried. A rerun of pause with the original blank hash will block read-only;
+inspect/reconcile before any new write-enabled dispatch. Never restart pause
+on a partly used or uncertain fixture. Retain both pages as evidence.
+
+This demonstrates an external journal handoff only after both NEW runs have
+executed and their results are verified. It does not prove atomic transactions
+between pages, remote CAS/fencing, automatic triggering, actual network fault
+handling, general journal durability or unattended readiness. Workflow-level
+non-cancelling concurrency serializes cooperating executions; other editors
+are excluded. No provider grants or audit checkpoints are promoted.
+
+Offline validation: 19 probe tests passed (nine new cross-run tests), plus all
+48 transcript tests. YAML wiring, workflow inventory and unchanged credential
+routing passed. Cross-run live execution remains pending.

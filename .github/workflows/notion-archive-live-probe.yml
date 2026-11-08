@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       archive_test_confirmed:
-        description: Authorize at most three synthetic chunk writes to this fixture and independent readback; reruns observe only
+        description: Authorize up to three synthetic chunk writes and one checkpoint write when using cross-run pause; reruns observe only
         required: true
         type: boolean
         default: false
@@ -16,6 +16,24 @@ on:
         required: true
         type: boolean
         default: false
+      cross_run_phase:
+        description: Disabled keeps the original test; pause saves one-chunk journal, resume restores it in a NEW run, observe never writes
+        required: true
+        type: choice
+        default: disabled
+        options:
+          - disabled
+          - pause
+          - resume
+          - observe
+      journal_page_id:
+        description: Separate empty shared journal page UUID for cross-run mode; never the archive page
+        required: false
+        type: string
+      checkpoint_sha256:
+        description: Copy the verified checkpoint SHA-256 from the pause run; mandatory for resume or observe
+        required: false
+        type: string
 permissions: {}
 concurrency:
   group: notion-synthetic-archive-live-probe
@@ -42,13 +60,19 @@ jobs:
           curl --fail --silent --show-error --max-time 30 --proto '=https' \
             "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_archive_live_probe.py" \
             -o "$RUNNER_TEMP/archive-probe/tools/notion_archive_live_probe.py"
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_archive_cross_run_probe.py" \
+            -o "$RUNNER_TEMP/archive-probe/tools/notion_archive_cross_run_probe.py"
       - name: Bounded synthetic archive test with process reopening and final readback
         env:
           NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
           NOTION_ARCHIVE_TEST_CONFIRMED: 'true'
           NOTION_ARCHIVE_LOST_REPLY_CONFIRMED: ${{ inputs.discard_first_reply }}
           NOTION_ARCHIVE_FIXTURE_ID: ${{ inputs.fixture_page_id }}
-        run: python3 -I "$RUNNER_TEMP/archive-probe/tools/notion_archive_live_probe.py"
+          NOTION_ARCHIVE_CROSS_RUN_PHASE: ${{ inputs.cross_run_phase }}
+          NOTION_ARCHIVE_JOURNAL_ID: ${{ inputs.journal_page_id }}
+          NOTION_ARCHIVE_CHECKPOINT_SHA256: ${{ inputs.checkpoint_sha256 }}
+        run: python3 -I "$RUNNER_TEMP/archive-probe/tools/notion_archive_cross_run_probe.py"
       - name: Remove staged code and ephemeral journal
         if: always()
         run: |
