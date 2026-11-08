@@ -77,3 +77,6 @@ from test_transcript_runner_evidence import RunnerEvidenceTests  # noqa: E402,F4
 
 # Exercise source-bound Gemini review evidence in existing handoff CI.
 from test_transcript_gemini_review import GeminiReviewBindingTests  # noqa: E402,F401
+
+# Exercise reviewed transcript composition in existing handoff CI.
+from test_transcript_reviewed_execution import ReviewedExecutionTests  # noqa: E402,F401
