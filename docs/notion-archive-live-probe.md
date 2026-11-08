@@ -21,3 +21,40 @@ No CP05/CP09 promotion, runner-wide identity certification or unattended readine
 Six offline probe guard tests and 48 existing transcript tests passed locally. Workflow inventory and credential routing matched after adding the exact workflow fingerprint and explicit route. Hosted CI must independently pass. No live execution occurred while preparing this PR.
 
 Manual dispatch is not exposed by the current GitHub connector; after merge an owner can run the workflow from GitHub Actions. Do not substitute rerunning a different checkpoint workflow or forwarding ChatGPT connector credentials.
+
+
+## Optional controlled lost-reply mode
+
+After this change is reviewed and merged, use a NEW empty fixture shared with
+the sandbox integration and enable discard_first_reply in the same manual
+workflow. Leave it false for the original healthy-transfer probe. The existing
+successful fixture is retained; do not delete its evidence or use it to claim a
+new write/fault.
+
+On attempt 1, the first child makes one bound append request, receives a success
+response, emits a fixed ACK_DISCARDED_AFTER_SUCCESS marker, then SIGKILLs itself
+before the archive host can observe/verify the write. Durable intent already
+exists. The parent accepts only that exact marker plus actual SIGKILL exit
+status, and starts the next bounded child using the same journal. Fresh
+readback must find the committed chunk and omit it from new write plans. The
+remaining two chunks may then be written. Final observation is read-only and
+must verify all exact chunks; the maximum remains three requests.
+
+Missing marker, unexpected exit, absent commit, denied access or any other
+failure stops execution without blind retry. No settled-absence override is
+provided. A fixture already containing the first chunk does not inject a fake
+success: the child rejects zero-new-write fault injection. All workflow reruns
+are observe-only and disable injection regardless of the original flag.
+
+This tests real process termination against a live provider AFTER its successful
+response, not packet loss, mid-request timeout, provider rollback or power loss.
+The local journal is still ephemeral to one Actions job. It cannot establish
+cross-host durable recovery or unattended readiness. A failed probe needs
+observation/reconciliation before any new write-enabled dispatch.
+
+Offline validation for this revision: 10 probe guard/driver tests passed,
+including expected-kill control flow, unexpected-failure stop, new-write-only
+injection and observe-only rerun behavior. SIGKILL is mocked in the new callback
+unit test to avoid terminating the test runner; actual process-kill coverage
+remains in the existing transcript host suite. Workflow inventory/routing
+verification passed. Live fault-mode execution remains pending.

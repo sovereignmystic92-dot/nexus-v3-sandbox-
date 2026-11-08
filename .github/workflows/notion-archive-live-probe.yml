@@ -11,6 +11,11 @@ on:
         required: true
         type: boolean
         default: false
+      discard_first_reply:
+        description: On a NEW empty fixture only, kill the child after the first successful write response and reconcile without duplicate writes
+        required: true
+        type: boolean
+        default: false
 permissions: {}
 concurrency:
   group: notion-synthetic-archive-live-probe
@@ -41,6 +46,7 @@ jobs:
         env:
           NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
           NOTION_ARCHIVE_TEST_CONFIRMED: 'true'
+          NOTION_ARCHIVE_LOST_REPLY_CONFIRMED: ${{ inputs.discard_first_reply }}
           NOTION_ARCHIVE_FIXTURE_ID: ${{ inputs.fixture_page_id }}
         run: python3 -I "$RUNNER_TEMP/archive-probe/tools/notion_archive_live_probe.py"
       - name: Remove staged code and ephemeral journal
