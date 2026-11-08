@@ -1,0 +1,31 @@
+name: CP05 Socra installed-principal identity (no Cortex reads/writes)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tools/cp05_socra_installed_principal_identity.py'
+      - 'tests/test_cp05_socra_installed_principal_identity.py'
+      - '.github/workflows/cp05-socra-installed-principal-identity.yml'
+permissions: {}
+jobs:
+  offline-safety:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test CP05 identity probe without credentials or network
+        run: python3 -m unittest discover -s tests -p test_cp05_socra_installed_principal_identity.py -v
+  installed-principal-identity:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify installed app identity (fail closed)
+        env:
+          SOCRA_CLIENT_ID: ${{ secrets.SOCRA_CLIENT_ID }}
+          SOCRA_CLIENT_SECRET: ${{ secrets.SOCRA_CLIENT_SECRET }}
+          SOCRA_PRINCIPAL_ID: ${{ secrets.SOCRA_PRINCIPAL_ID }}
+          SOCRA_EXPECTED_DIRECTORY_ID: ${{ secrets.SOCRA_EXPECTED_DIRECTORY_ID }}
+        run: python3 tools/cp05_socra_installed_principal_identity.py
