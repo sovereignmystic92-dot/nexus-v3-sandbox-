@@ -24,10 +24,12 @@
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
   "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
+  "notion-archive-live-probe.yml": "8bfb5963bb2638a23b131a73956cc0dfeb500c9ddf33a74f9cd3e0525c4d43f4",
   "notion-audit-access-probe.yml": "0a827d840f592a61e2b6c767e79eb3670ee48a72b94e7072c3a519345584aa70",
   "notion-boundary-probe.yml": "03250dedfcc9ee585d992000503621064dc377c000daf9d765d5140f0e84f0c2",
   "notion-checkpoint-reconcile-probe.yml": "75ecc8173988bb95cc7e38089bea069bb6e03f18f4ca7d1b3a84bf5f0db75dd6",
   "notion-checkpoint-write-probe.yml": "68544b1caad034ba63c1bf4c50c787c109e3a218a3fb2c9d753c16a9d6d00048",
+  "notion-gemini-pinned-source-review.yml": "c943dca856d3ad726e2daea4174d1e3b6749d98b3c3def2ac6eab576d6102342",
   "notion-identity-probe.yml": "804f036c7e0a8920103f536c8ceb109d08b5e6997a24064235edde15d4140c20",
   "notion-read-probe.yml": "ff4613cb35d2f5700b383edf114fd6a326ef7a976f3f26e7f19a574b6a11f3d3",
   "notion-token-identity-read.yml": "cd7bdca0937445bd25d4f86d7129bea3e03b41501b757c3d85da207a96c06eec",
@@ -35,6 +37,5 @@
   "transcript-fidelity-tests.yml": "26d7fd8aa83fe6692f1fa32fcc955024fbc5029c56f91cda03dc6312fe8db023",
   "transcript-handoff-ci.yml": "fb00f18ca67a88d7e7ad83773df76e074d5cd9dda3f8af0af7a79ef717988257",
   "transcript-receipt-contract-ci.yml": "b31d8a35ca32a0663173d80f8f4519d7d3b585ff0125323ff358b92b1e75e2c7",
-  "warfronts-source-tests.yml": "529a7fadeeca18fba73cbad6ebdee25df68277af037e1fd040059d4526efb537",
-  "notion-gemini-pinned-source-review.yml": "c943dca856d3ad726e2daea4174d1e3b6749d98b3c3def2ac6eab576d6102342"
+  "warfronts-source-tests.yml": "529a7fadeeca18fba73cbad6ebdee25df68277af037e1fd040059d4526efb537"
 }

@@ -1,0 +1,50 @@
+name: Notion synthetic archive adapter live probe
+on:
+  workflow_dispatch:
+    inputs:
+      fixture_page_id:
+        description: Canonical UUID of a dedicated empty page shared with the sandbox integration; never use an existing archive
+        required: true
+        type: string
+      archive_test_confirmed:
+        description: Authorize at most three synthetic chunk writes to this fixture and independent readback; reruns observe only
+        required: true
+        type: boolean
+        default: false
+permissions: {}
+concurrency:
+  group: notion-synthetic-archive-live-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.archive_test_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 10
+    steps:
+      - name: Fetch exact reviewed public code without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir -p "$RUNNER_TEMP/archive-probe/tools" "$RUNNER_TEMP/archive-probe/src/nexus_sandbox"
+          for file in transcript_ingestion_gate.py transcript_fidelity.py; do
+            curl --fail --silent --show-error --max-time 30 --proto '=https' \
+              "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/src/nexus_sandbox/${file}" \
+              -o "$RUNNER_TEMP/archive-probe/src/nexus_sandbox/${file}"
+          done
+          curl --fail --silent --show-error --max-time 30 --proto '=https' \
+            "https://raw.githubusercontent.com/sovereignmystic92-dot/nexus-v3-sandbox-/${SOURCE_SHA}/tools/notion_archive_live_probe.py" \
+            -o "$RUNNER_TEMP/archive-probe/tools/notion_archive_live_probe.py"
+      - name: Bounded synthetic archive test with process reopening and final readback
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          NOTION_ARCHIVE_TEST_CONFIRMED: 'true'
+          NOTION_ARCHIVE_FIXTURE_ID: ${{ inputs.fixture_page_id }}
+        run: python3 -I "$RUNNER_TEMP/archive-probe/tools/notion_archive_live_probe.py"
+      - name: Remove staged code and ephemeral journal
+        if: always()
+        run: |
+          rm -rf -- "$RUNNER_TEMP/archive-probe"
+          rm -f -- "$RUNNER_TEMP/archive-probe.sqlite" "$RUNNER_TEMP/archive-probe.sqlite.lock" "$RUNNER_TEMP/archive-probe.sqlite-journal"
