@@ -42,11 +42,11 @@ def main():
     if not isinstance(member, dict) or member.get("type") != "app" or member.get("role") != "member":
         raise ValueError("directory identity not verified as installed app member")
     expected_id = os.environ.get("SOCRA_EXPECTED_DIRECTORY_ID", "")
-    if expected_id and member.get("id") != expected_id:
+    if not re.fullmatch(r"user_[A-Za-z0-9_-]+", expected_id) or member.get("id") != expected_id:
         raise ValueError("directory identity mismatch")
     print("PASS: installed Socra app identity verified; Cortex resource access NOT TESTED")
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-        f.write("PASS: Socra installed-app identity verified. Cortex access and writes NOT TESTED.\\n")
+        f.write("PASS: Socra installed-app identity verified. Cortex access and writes NOT TESTED.\n")
 
 if __name__ == "__main__":
     try:
