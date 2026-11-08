@@ -80,3 +80,6 @@ from test_transcript_gemini_review import GeminiReviewBindingTests  # noqa: E402
 
 # Exercise reviewed transcript composition in existing handoff CI.
 from test_transcript_reviewed_execution import ReviewedExecutionTests  # noqa: E402,F401
+
+# Exercise bounded Gemini invocation adapter in existing handoff CI.
+from test_transcript_gemini_runtime import GeminiRuntimeTests  # noqa: E402,F401
