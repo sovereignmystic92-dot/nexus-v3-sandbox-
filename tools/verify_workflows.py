@@ -19,6 +19,7 @@ PROVIDER_SECRETS = {
     'cp05-authenticated-notion-fixture-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'gemini-interactions-diagnostic.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-live-review-pilot.yml': (None, {'GEMINI_API_KEY'}),
+    'nexus-gemini-live-transcript-readonly.yml': (None, {'GEMINI_API_KEY'}),
     'gemini-smoke.yml': ('gemini-pilot', {'GEMINI_PILOT_API_KEY'}),
     'notion-audit-access-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'notion-boundary-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN', 'NOTION_SANDBOX_ROOT_ID', 'NOTION_SANDBOX_DENIED_PAGE_ID'}),
