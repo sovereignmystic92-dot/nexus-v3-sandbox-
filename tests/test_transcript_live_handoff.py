@@ -74,3 +74,6 @@ from test_transcript_event_execution import EventExecutionTests  # noqa: E402,F4
 
 # Exercise runner evidence contract in existing provider handoff CI.
 from test_transcript_runner_evidence import RunnerEvidenceTests  # noqa: E402,F401
+
+# Exercise source-bound Gemini review evidence in existing handoff CI.
+from test_transcript_gemini_review import GeminiReviewBindingTests  # noqa: E402,F401
