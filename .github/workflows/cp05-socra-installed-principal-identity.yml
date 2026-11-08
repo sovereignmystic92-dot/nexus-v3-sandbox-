@@ -6,8 +6,7 @@ on:
       - 'tools/cp05_socra_installed_principal_identity.py'
       - 'tests/test_cp05_socra_installed_principal_identity.py'
       - '.github/workflows/cp05-socra-installed-principal-identity.yml'
-permissions:
-  contents: read
+permissions: {}
 jobs:
   offline-safety:
     if: github.event_name == 'pull_request'
