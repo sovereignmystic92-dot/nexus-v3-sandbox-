@@ -83,3 +83,6 @@ from test_transcript_reviewed_execution import ReviewedExecutionTests  # noqa: E
 
 # Exercise bounded Gemini invocation adapter in existing handoff CI.
 from test_transcript_gemini_runtime import GeminiRuntimeTests  # noqa: E402,F401
+
+# Exercise credential-scoped Gemini SDK port in existing handoff CI.
+from test_transcript_gemini_sdk_port import GeminiSdkPortTests  # noqa: E402,F401
