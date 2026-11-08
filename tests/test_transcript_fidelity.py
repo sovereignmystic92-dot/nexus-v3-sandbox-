@@ -152,5 +152,86 @@ class IngestionGateTests(unittest.TestCase):
         self.assertFalse(verify_archive(prepared, prepared["chunks"])["cortex_write_allowed"])
 
 
+
+class ArchiveResumeTests(unittest.TestCase):
+    def setUp(self):
+        self.p = prepare_transcript("🚀 [music] >>  A\n" * 100, 256)
+        self.sha = self.p["receipt"]["sha256"]
+
+    def observe(self, indices):
+        return {"complete": True, "destination": "notion:fixture",
+                "source_sha256": self.sha,
+                "chunks": [{"index": i, "text": self.p["chunks"][i]} for i in indices]}
+
+    def plan(self, observation, **kw):
+        from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+        return plan_archive_resume(self.p, "notion:fixture", observation,
+                                   expected_source_sha256=kw.get("sha", self.sha))
+
+    def test_partial_resume_and_noop_retry(self):
+        obs = self.observe([0])
+        plan = self.plan(obs)
+        self.assertEqual(plan["state"], "MISSING_CHUNKS")
+        self.assertEqual([c["index"] for c in plan["missing_chunks"]],
+                         list(range(1, len(self.p["chunks"]))))
+        obs["chunks"].extend(plan["missing_chunks"])
+        full = self.plan(obs)
+        self.assertEqual(full["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(full["missing_chunks"], [])
+        self.assertEqual(self.plan(obs), full)
+        for key in ("provider_writes_allowed", "cortex_write_allowed", "audit_promotion"):
+            self.assertFalse(full[key])
+
+    def test_unknown_write_outcome_requires_readback(self):
+        result = self.plan(None)
+        self.assertEqual(result["state"], "READBACK_REQUIRED")
+        self.assertEqual(result["missing_chunks"], [])
+        self.assertFalse(result["archive_readback_verified"])
+
+    def test_successful_write_with_lost_reply_not_repeated(self):
+        obs = self.observe(range(len(self.p["chunks"])))
+        self.assertEqual(self.plan(None)["state"], "READBACK_REQUIRED")
+        self.assertEqual(self.plan(obs)["missing_chunks"], [])
+
+    def test_empty_archive_plans_all_chunks(self):
+        self.assertEqual(len(self.plan(self.observe([]))["missing_chunks"]),
+                         len(self.p["chunks"]))
+
+    def test_wrong_binding_or_incomplete_readback_rejected(self):
+        for field, value in (("destination", "notion:other"),
+                             ("source_sha256", "0" * 64), ("complete", False),
+                             ("complete", 1), ("chunks", None)):
+            obs = self.observe([0])
+            obs[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                self.plan(obs)
+
+    def test_duplicate_conflicting_unordered_and_bad_index_rejected(self):
+        for indices in ([0, 0], [1, 0]):
+            with self.subTest(indices=indices), self.assertRaises(ValueError):
+                self.plan(self.observe(indices))
+        for index, text in ((True, self.p["chunks"][0]), (-1, "x"),
+                            (len(self.p["chunks"]), "x"), (0, "altered")):
+            obs = self.observe([])
+            obs["chunks"] = [{"index": index, "text": text}]
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                self.plan(obs)
+
+    def test_pinned_source_cannot_be_replaced(self):
+        with self.assertRaises(ValueError):
+            self.plan(self.observe([]), sha="0" * 64)
+        self.p["receipt"]["byte_count"] += 1
+        with self.assertRaises(ValueError):
+            self.plan(self.observe([]))
+
+    def test_malformed_prepared_source_rejected(self):
+        from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+        for prepared in (None, {}, dict(self.p, receipt=None),
+                         dict(self.p, chunks=[])):
+            with self.subTest(prepared=prepared), self.assertRaises(ValueError):
+                plan_archive_resume(prepared, "notion:fixture", None,
+                                    expected_source_sha256=self.sha)
+
+
 if __name__ == "__main__":
     unittest.main()
