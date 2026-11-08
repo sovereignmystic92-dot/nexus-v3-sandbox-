@@ -32,6 +32,7 @@
   "notion-read-probe.yml": "ff4613cb35d2f5700b383edf114fd6a326ef7a976f3f26e7f19a574b6a11f3d3",
   "notion-token-identity-read.yml": "cd7bdca0937445bd25d4f86d7129bea3e03b41501b757c3d85da207a96c06eec",
   "synthetic-acceptance.yml": "4c45e5bd36c97216584230190fa1922cc25d530ba9222cdeab827d5221d387d8",
+  "transcript-fidelity-tests.yml": "661e154fb6409bdbe2972c43a274655d797f9bf33c1819df2d6bd87042d1e788",
   "transcript-handoff-ci.yml": "fb00f18ca67a88d7e7ad83773df76e074d5cd9dda3f8af0af7a79ef717988257",
   "transcript-receipt-contract-ci.yml": "b31d8a35ca32a0663173d80f8f4519d7d3b585ff0125323ff358b92b1e75e2c7",
   "warfronts-source-tests.yml": "529a7fadeeca18fba73cbad6ebdee25df68277af037e1fd040059d4526efb537",
