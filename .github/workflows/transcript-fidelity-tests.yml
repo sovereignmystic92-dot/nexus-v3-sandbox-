@@ -8,8 +8,7 @@ on:
       - '.github/workflows/transcript-fidelity-tests.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   transcript-fidelity:
