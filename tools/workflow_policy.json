@@ -19,7 +19,7 @@
   "live-transcript-receipt-ci.yml": "be39b586da952c1b59ecbfb1638079618959f3c5c60cee185c37c94d9334117c",
   "nexus-cp03-cp04-evidence.yml": "bc48aefab9681a832c24d180be137af20c2cf32d6929b81a93fc694572288882",
   "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
-  "nexus-gemini-live-transcript-readonly.yml": "6c2378db65c0d8e722e234e8c1828a52d6d7361159d98b96c99391f43023c035",
+  "nexus-gemini-live-transcript-readonly.yml": "15467fcd89e01c87491a448ca0897f8598890df63d32ae81bd99deed365868cb",
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
   "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
