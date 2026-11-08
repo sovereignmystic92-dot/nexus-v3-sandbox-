@@ -62,3 +62,16 @@ def verify_receipt(receipt):
     if expected != receipt:
         raise ValueError("receipt mismatch")
     return True
+
+
+def verify_expected_receipt(receipt, *, event_id, source_sha256,
+                            workflow_run_id, workflow_run_attempt, commit_sha):
+    """Verify integrity and caller-bound context, not provider authentication."""
+    verify_receipt(receipt)
+    expected = dict(event_id=event_id, source_sha256=source_sha256,
+                    workflow_run_id=workflow_run_id,
+                    workflow_run_attempt=workflow_run_attempt, commit_sha=commit_sha)
+    for key, value in expected.items():
+        if type(value) is not str or not value.strip() or receipt[key] != value:
+            raise ValueError("receipt context mismatch: " + key)
+    return True

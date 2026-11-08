@@ -89,6 +89,13 @@ jobs:
           name: nexus-gemini-review-receipt-${{ github.run_id }}-${{ github.run_attempt }}
           path: downloaded-receipt
       - name: Independently validate downloaded receipt
+        env:
+          SOURCE_PATH: ${{ inputs.source_path }}
+          EVENT_PATH: ${{ inputs.event_path }}
+          AUTHORIZED_EVENT_ID: ${{ inputs.authorized_event_id }}
+          SOURCE_REF: ${{ inputs.source_ref }}
         run: |
-          PYTHONPATH=src python3 tools/verify_gemini_review_receipt.py downloaded-receipt/receipt.json
+          PYTHONPATH=src python3 tools/verify_gemini_review_receipt.py downloaded-receipt/receipt.json \
+            --event-file "$EVENT_PATH" --source-file "$SOURCE_PATH" \
+            --authorized-event-id "$AUTHORIZED_EVENT_ID" --source-ref "$SOURCE_REF"
 # Read-only; artifact readback proves GitHub artifact durability for this run, not Notion/Cortex persistence.
