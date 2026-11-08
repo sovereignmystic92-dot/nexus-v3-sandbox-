@@ -73,15 +73,28 @@ class BoundClient:
                             {'children': children, 'position': position})
 
 
-def child(destination, journal, allow_write):
+def child(destination, journal, allow_write, *, discard_reply=False):
     prepared = prepare_transcript(RAW, 256)
     sha = prepared['receipt']['sha256']
     client = BoundClient(destination, os.environ.get('NOTION_SANDBOX_TOKEN', ''), allow_write)
     port = NotionArchivePort(client, prepared, destination, expected_source_sha256=sha)
+    def write_with_fault(*args):
+        port.write_chunk(*args)
+        if discard_reply:
+            if client.writes != 1:
+                raise ValueError('fault requires one new committed request')
+            # The HTTP response arrived, but the host never records an ACK or
+            # conducts post-write readback. This is not a network timeout.
+            os.write(1, json.dumps({'fault': 'ACK_DISCARDED_AFTER_SUCCESS',
+                                   'writes': 1}).encode('utf-8'))
+            import signal
+            os.kill(os.getpid(), signal.SIGKILL)
+    if discard_reply and not allow_write:
+        raise ValueError('fault requires explicit write mode')
     if allow_write:
         result = ArchiveRecoveryHost(journal).attempt(
             prepared, destination, expected_source_sha256=sha,
-            read_archive=port.read_archive, write_chunk=port.write_chunk,
+            read_archive=port.read_archive, write_chunk=write_with_fault,
             authorize_write=lambda dest, source, index: dest == destination and source == sha)
     else:
         from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
@@ -104,18 +117,30 @@ def main():
         if str(UUID(destination)) != destination:
             raise ValueError('canonical fixture required')
         if len(sys.argv) == 3 and sys.argv[1] == '--child':
-            write = sys.argv[2] == 'write' and os.environ.get('GITHUB_RUN_ATTEMPT') == '1'
-            result = child(destination, str(Path(os.environ['RUNNER_TEMP']) / 'archive-probe.sqlite'), write)
+            write = sys.argv[2] in ('write', 'lost-reply') and os.environ.get('GITHUB_RUN_ATTEMPT') == '1'
+            result = child(destination, str(Path(os.environ['RUNNER_TEMP']) / 'archive-probe.sqlite'), write,
+                           discard_reply=(sys.argv[2] == 'lost-reply' and write
+                               and os.environ.get('NOTION_ARCHIVE_LOST_REPLY_CONFIRMED') == 'true'))
             print(json.dumps(result, sort_keys=True))
             return 0
         # Each iteration is a fresh process reopening the same journal. On a
         # workflow rerun, all children are strictly observe-only, even if absent.
         n = len(prepare_transcript(RAW, 256)['chunks'])
         mode = 'write' if os.environ.get('GITHUB_RUN_ATTEMPT') == '1' else 'observe'
+        fault_enabled = (mode == 'write'
+            and os.environ.get('NOTION_ARCHIVE_LOST_REPLY_CONFIRMED') == 'true')
         summaries = []
-        for _ in range(n):
-            proc = subprocess.run([sys.executable, '-I', __file__, '--child', mode],
-                capture_output=True, text=True, timeout=150, check=True)
+        for iteration in range(n):
+            child_mode = 'lost-reply' if fault_enabled and iteration == 0 else mode
+            proc = subprocess.run([sys.executable, '-I', __file__, '--child', child_mode],
+                capture_output=True, text=True, timeout=150)
+            if child_mode == 'lost-reply':
+                import signal
+                if (proc.returncode != -signal.SIGKILL or json.loads(proc.stdout) !=
+                        {'fault': 'ACK_DISCARDED_AFTER_SUCCESS', 'writes': 1}):
+                    raise ValueError('expected controlled fault not observed')
+            elif proc.returncode != 0:
+                raise ValueError('child failed; reconcile before retry')
             summaries.append(json.loads(proc.stdout))
         proc = subprocess.run([sys.executable, '-I', __file__, '--child', 'observe'],
             capture_output=True, text=True, timeout=150, check=True)
@@ -124,7 +149,9 @@ def main():
             raise ValueError('final readback incomplete')
         print(json.dumps({'result': 'VERIFIED', 'processes': n + 1,
             'writes_attempted': sum(s['writes'] for s in summaries),
-            'final': final, 'scope': 'LIVE_SYNTHETIC_SAME_RUN_PROCESS_REOPEN',
+            'final': final, 'scope': ('LIVE_SYNTHETIC_POST_ACK_SIGKILL_RECOVERY' if fault_enabled
+                      else 'LIVE_SYNTHETIC_SAME_RUN_PROCESS_REOPEN'),
+            'controlled_fault_observed': fault_enabled,
             'unattended_readiness': False}, sort_keys=True))
         return 0
     except Exception:
