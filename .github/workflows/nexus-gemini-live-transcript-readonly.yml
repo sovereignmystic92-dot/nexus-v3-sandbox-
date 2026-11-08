@@ -55,7 +55,7 @@ jobs:
           PY
       - name: Install Gemini SDK
         run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
-      - name: Invoke source-bound Gemini read-only review
+      - name: Invoke source-bound Gemini read-only review and construct receipt
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SOURCE_PATH: ${{ inputs.source_path }}
@@ -63,7 +63,32 @@ jobs:
           AUTHORIZED_EVENT_ID: ${{ inputs.authorized_event_id }}
           SOURCE_REF: ${{ inputs.source_ref }}
         run: |
+          mkdir -p receipt-output
           PYTHONPATH=src python3 -m nexus_sandbox.transcript_gemini_readonly_runner \
             --event-file "$EVENT_PATH" --source-file "$SOURCE_PATH" \
-            --authorized-event-id "$AUTHORIZED_EVENT_ID" --source-ref "$SOURCE_REF"
-# No Notion/Cortex credentials or writes. No unattended trigger or audit promotion.
+            --authorized-event-id "$AUTHORIZED_EVENT_ID" --source-ref "$SOURCE_REF" > receipt-output/result.json
+          PYTHONPATH=src python3 tools/write_gemini_review_receipt.py receipt-output/result.json receipt-output/receipt.json
+          rm receipt-output/result.json
+      - name: Upload content-free review receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-gemini-review-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: receipt-output/receipt.json
+          if-no-files-found: error
+          retention-days: 30
+  verify-receipt:
+    needs: review
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: nexus-gemini-review-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: downloaded-receipt
+      - name: Independently validate downloaded receipt
+        run: |
+          PYTHONPATH=src python3 tools/verify_gemini_review_receipt.py downloaded-receipt/receipt.json
+# Read-only; artifact readback proves GitHub artifact durability for this run, not Notion/Cortex persistence.
