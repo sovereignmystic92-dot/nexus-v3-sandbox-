@@ -1,0 +1,17 @@
+name: CP05 Socra installed-principal identity (no Cortex reads/writes)
+on:
+  workflow_dispatch:
+permissions: {}
+jobs:
+  installed-principal-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify installed app identity (fail closed)
+        env:
+          SOCRA_CLIENT_ID: ${{ secrets.SOCRA_CLIENT_ID }}
+          SOCRA_CLIENT_SECRET: ${{ secrets.SOCRA_CLIENT_SECRET }}
+          SOCRA_PRINCIPAL_ID: ${{ secrets.SOCRA_PRINCIPAL_ID }}
+          SOCRA_EXPECTED_DIRECTORY_ID: ${{ secrets.SOCRA_EXPECTED_DIRECTORY_ID }}
+        run: python3 tools/cp05_socra_installed_principal_identity.py
