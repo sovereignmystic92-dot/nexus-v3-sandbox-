@@ -1,4 +1,5 @@
 import unittest
+from nexus_sandbox.transcript_ingestion_gate import prepare_transcript, verify_archive
 from nexus_sandbox.transcript_event_replay import replay_transcript_events
 from nexus_sandbox.transcript_fidelity import build_receipt, split_transcript, verify_readback
 
@@ -121,6 +122,34 @@ class ArkshipReceiptReplayFixtureTests(unittest.TestCase):
     def test_source_digest_mismatch_blocks(self):
         with self.assertRaises(ValueError):
             replay_transcript_events([self.event(self.steps[0])], "b" * 64)
+
+
+class IngestionGateTests(unittest.TestCase):
+    def test_prepare_and_verified_archive(self):
+        raw = ("Relay >> [music] 🌌  " + "\\n") * 1000
+        prepared = prepare_transcript(raw, 512)
+        self.assertEqual("".join(prepared["chunks"]), raw)
+        self.assertFalse(prepared["cortex_write_allowed"])
+        result = verify_archive(prepared, list(prepared["chunks"]))
+        self.assertEqual(result["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(result["next_step"], "BOUNDED_DERIVED_REVIEW")
+        self.assertFalse(result["cortex_write_allowed"])
+        self.assertFalse(result["audit_promotion"])
+
+    def test_archive_mismatch_blocks(self):
+        prepared = prepare_transcript("A  B [music] " * 200)
+        altered = [prepared["chunks"][0].replace("  ", " ", 1)]
+        result = verify_archive(prepared, altered)
+        self.assertEqual(result["state"], "BLOCKED_ARCHIVE_MISMATCH")
+        self.assertIsNone(result["next_step"])
+
+    def test_missing_chunk_blocks(self):
+        prepared = prepare_transcript("z" * 26000)
+        self.assertFalse(verify_archive(prepared, prepared["chunks"][:-1])["archive_readback_verified"])
+
+    def test_no_provider_authorization_on_success(self):
+        prepared = prepare_transcript("Mass Effect relay")
+        self.assertFalse(verify_archive(prepared, prepared["chunks"])["cortex_write_allowed"])
 
 
 if __name__ == "__main__":
