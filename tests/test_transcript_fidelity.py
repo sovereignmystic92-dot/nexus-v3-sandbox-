@@ -441,5 +441,128 @@ print(json.dumps(r))
         self.assertEqual(len(json.loads((root / "provider.json").read_text())), 1)
 
 
+
+class NotionArchivePortTests(unittest.TestCase):
+    destination = "12345678-1234-1234-1234-123456789abc"
+
+    def setUp(self):
+        import copy
+        from types import SimpleNamespace
+        from nexus_sandbox.transcript_ingestion_gate import NotionArchivePort
+        self.p = prepare_transcript("🚀[music] >>  A\n" * 1000, 12000)
+        self.sha = self.p["receipt"]["sha256"]
+        self.blocks = []
+        self.requests = []
+        self.list_override = None
+
+        def listing(**kw):
+            if self.list_override:
+                return self.list_override(**kw)
+            return {"results": copy.deepcopy(self.blocks), "has_more": False,
+                    "next_cursor": None}
+
+        def append(**kw):
+            self.requests.append(copy.deepcopy(kw))
+            child = copy.deepcopy(kw["children"][0])
+            child.update(id=f"00000000-0000-0000-0000-{len(self.requests):012d}",
+                         parent={"type": "page_id", "page_id": self.destination},
+                         has_children=False, archived=False, in_trash=False)
+            position = kw["position"]
+            if position["type"] == "start":
+                self.blocks.insert(0, child)
+            else:
+                at = next(i for i, b in enumerate(self.blocks)
+                          if b["id"] == position["after_block"]["id"])
+                self.blocks.insert(at + 1, child)
+            return {"results": [child]}
+        self.client = SimpleNamespace(blocks=SimpleNamespace(
+            children=SimpleNamespace(list=listing, append=append)))
+        self.port = NotionArchivePort(self.client, self.p, self.destination,
+                                     expected_source_sha256=self.sha)
+
+    def write(self, i):
+        self.port.write_chunk(self.destination, self.sha, i, self.p["chunks"][i])
+
+    def test_unicode_roundtrip_rich_text_limits_and_noop(self):
+        for i in range(len(self.p["chunks"])):
+            self.write(i)
+        obs = self.port.read_archive(self.destination, self.sha)
+        self.assertEqual("".join(c["text"] for c in obs["chunks"]), "".join(self.p["chunks"]))
+        count = len(self.requests)
+        self.write(0)
+        self.assertEqual(len(self.requests), count)
+        for req in self.requests:
+            for part in req["children"][0]["code"]["rich_text"]:
+                self.assertLessEqual(len(part["text"]["content"].encode("utf-16-le")) // 2, 2000)
+
+    def test_sparse_gap_inserted_in_logical_order(self):
+        self.write(1)
+        self.write(0)
+        obs = self.port.read_archive(self.destination, self.sha)
+        self.assertEqual([c["index"] for c in obs["chunks"]], [0, 1])
+        self.assertEqual(self.requests[-1]["position"], {"type": "start"})
+
+    def test_paginated_read(self):
+        import copy
+        self.write(0)
+        self.write(1)
+        calls = []
+        def pages(**kw):
+            calls.append(kw)
+            if "start_cursor" not in kw:
+                return {"results": copy.deepcopy(self.blocks[:1]), "has_more": True,
+                        "next_cursor": "second"}
+            return {"results": copy.deepcopy(self.blocks[1:]), "has_more": False}
+        self.list_override = pages
+        self.assertEqual(len(self.port.read_archive(self.destination, self.sha)["chunks"]), 2)
+        self.assertEqual(calls[1]["start_cursor"], "second")
+
+    def test_repeated_cursor_and_malformed_listing_fail(self):
+        for response in ({"results": [], "has_more": True, "next_cursor": "repeat"},
+                         {"results": [], "has_more": True},
+                         {"results": [], "has_more": 0}):
+            self.list_override = lambda **kw: response
+            with self.subTest(response=response), self.assertRaises(ValueError):
+                self.port.read_archive(self.destination, self.sha)
+
+    def test_foreign_or_duplicate_block_rejected(self):
+        import copy
+        self.write(0)
+        original = copy.deepcopy(self.blocks)
+        for change in ("parent", "caption", "duplicate"):
+            self.blocks = copy.deepcopy(original)
+            if change == "parent":
+                self.blocks[0]["parent"]["page_id"] = "00000000-0000-0000-0000-000000000000"
+            elif change == "caption":
+                self.blocks[0]["code"]["caption"][0]["text"]["content"] = "{}"
+            else:
+                self.blocks.append(copy.deepcopy(self.blocks[0]))
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.port.read_archive(self.destination, self.sha)
+
+    def test_wrong_payload_or_binding_never_appends(self):
+        for dest, sha, index, text in (
+                (self.destination, self.sha, 0, "changed"),
+                (self.destination, "0"*64, 0, self.p["chunks"][0]),
+                ("00000000-0000-0000-0000-000000000000", self.sha, 0, self.p["chunks"][0])):
+            with self.assertRaises(ValueError):
+                self.port.write_chunk(dest, sha, index, text)
+        self.assertEqual(self.requests, [])
+
+    def test_real_host_wiring_with_mocked_notion_client(self):
+        import tempfile
+        from pathlib import Path
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        with tempfile.TemporaryDirectory() as tmp:
+            host = ArchiveRecoveryHost(str(Path(tmp) / "state.sqlite"))
+            for _ in range(len(self.p["chunks"]) + 1):
+                result = host.attempt(
+                    self.p, self.destination, expected_source_sha256=self.sha,
+                    read_archive=self.port.read_archive,
+                    write_chunk=self.port.write_chunk, authorize_write=lambda *args: True)
+            self.assertEqual(result["state"], "ARCHIVE_VERIFIED")
+            self.assertEqual(len(self.requests), len(self.p["chunks"]))
+
+
 if __name__ == "__main__":
     unittest.main()

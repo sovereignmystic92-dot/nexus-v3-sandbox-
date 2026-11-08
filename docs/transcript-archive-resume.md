@@ -60,3 +60,46 @@ destination binding, incomplete listings, local lock exclusion, durable intent,
 and an actual owned-child SIGKILL after a flushed/fsynced file-backed fake-provider
 commit. A new process reopens the same SQLite journal and verifies with zero
 duplicate writes. No live Notion provider callback was executed in these tests.
+
+
+## Concrete Notion block adapter (mock-validated)
+
+`NotionArchivePort(client, prepared, destination, expected_source_sha256=...)`
+accepts a Notion SDK-shaped client and a canonical hyphenated container UUID.
+Use its `read_archive` and `write_chunk` as ArchiveRecoveryHost ports; retain
+the separately supplied exact-write authorizer. This does not install a client,
+provide credentials, establish installation identity or create a container.
+
+Use a newly provisioned, explicitly authorized, exclusively owned container.
+Every child must be one of this format's code blocks. Legacy archives with
+headings, metadata paragraphs or other blocks are deliberately rejected and
+must not be pointed at this adapter. The existing Mass Relays archive is not
+migrated or modified.
+
+Each code block holds exact chunk text in literal rich-text segments and a JSON
+caption binding schema, source digest and index in the same block. Reads validate
+parent identities, unique block IDs, expected chunk contents and logical order,
+and consume all pagination (maximum 100 pages) before setting complete. Missing,
+cyclic or malformed cursor responses fail closed. Writes reread, reuse exact
+existing chunks without appending duplicates, and insert missing chunks after
+the preceding indexed block or at the beginning. No write ACK is a verification.
+
+The client must disable automatic write retries and set bounded request timeouts.
+Authentication, integration capability verification, current authorization, API
+version/SDK compatibility and exclusive ownership remain host setup duties.
+Pagination is not an atomic provider snapshot: uncooperative edits and eventual
+visibility require stopping/reconciliation, not claims of linearizable storage.
+This adapter offers no settled-non-commit proof; leave confirm_absent unset unless
+a separate provider-specific mechanism establishes it. No live provider write or
+unattended readiness is demonstrated by these mocked tests.
+
+Official contract references checked 2026-11-08:
+- https://developers.notion.com/reference/patch-block-children (position/append)
+- https://developers.notion.com/reference/get-block-children (pagination)
+- https://developers.notion.com/reference/block#code (caption/rich_text)
+- https://developers.notion.com/reference/request-limits (text limits)
+Rich text uses at most 1000 Unicode code points per segment, conservatively
+within 2000 UTF-16 code units. No normalization or extra separators are added.
+
+Validation: 48 local offline tests passed, including seven new mocked Notion
+adapter methods. No real Notion API execution or Gemini review performed.
