@@ -83,3 +83,94 @@ def plan_archive_resume(prepared, destination, observation, *, expected_source_s
     if not verified["archive_readback_verified"]:
         raise ValueError("full readback mismatch")
     return dict(result, state="ARCHIVE_VERIFIED", archive_readback_verified=True)
+
+
+class ArchiveRecoveryHost:
+    """Bounded host wiring; injected provider ports, owned Linux state directory.
+
+    Reader must authenticate and return a complete, strongly consistent snapshot.
+    Writer must preserve index order. Authorizer must check current effective
+    grants for the exact destination/source/index. No built-in provider or token.
+    """
+
+    def __init__(self, journal_path):
+        self.path = journal_path
+
+    def attempt(self, prepared, destination, *, expected_source_sha256,
+                read_archive, write_chunk, authorize_write, confirm_absent=None):
+        """Read/reconcile, at most one write, then read/verify; never trust ACKs.
+
+        A local advisory lock spans the attempt and releases on process death.
+        All workers on this host must use this same journal path. Remote workers
+        and uncooperative writers require separate provider fencing.
+        """
+        import fcntl
+        import json
+        import sqlite3
+
+        # Copy caller-owned structures so callbacks cannot silently change source.
+        prepared = json.loads(json.dumps(prepared))
+        plan_archive_resume(prepared, destination, None,
+                            expected_source_sha256=expected_source_sha256)
+        binding = json.dumps({"destination": destination, "prepared": prepared,
+                              "source_sha256": expected_source_sha256}, sort_keys=True)
+        with open(str(self.path) + ".lock", "a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            db = sqlite3.connect(self.path)
+            try:
+                db.execute("PRAGMA synchronous=FULL")
+                db.execute("CREATE TABLE IF NOT EXISTS archive_binding "
+                           "(singleton INTEGER PRIMARY KEY CHECK(singleton=1), binding TEXT NOT NULL)")
+                db.execute("CREATE TABLE IF NOT EXISTS archive_events "
+                           "(id INTEGER PRIMARY KEY, state TEXT NOT NULL, chunk_index INTEGER)")
+                prior = db.execute("SELECT binding FROM archive_binding WHERE singleton=1").fetchone()
+                if prior is not None and prior[0] != binding:
+                    raise ValueError("journal source/destination binding changed")
+                if prior is None:
+                    db.execute("INSERT INTO archive_binding VALUES (1,?)", (binding,))
+                    db.commit()
+
+                def record(state, index=None):
+                    db.execute("INSERT INTO archive_events(state,chunk_index) VALUES (?,?)",
+                               (state, index))
+                    db.commit()
+
+                def observe():
+                    record("READBACK_REQUIRED")
+                    observation = read_archive(destination, expected_source_sha256)
+                    decision = plan_archive_resume(
+                        prepared, destination, observation,
+                        expected_source_sha256=expected_source_sha256)
+                    record(decision["state"])
+                    return decision
+
+                decision = observe()
+                if decision["state"] != "MISSING_CHUNKS":
+                    return decision
+                item = decision["missing_chunks"][0]
+                last_intent = db.execute(
+                    "SELECT chunk_index FROM archive_events WHERE state='WRITE_INTENT' "
+                    "ORDER BY id DESC LIMIT 1").fetchone()
+                if last_intent and any(c["index"] == last_intent[0]
+                                       for c in decision["missing_chunks"]):
+                    # Absence in a snapshot alone cannot rule out a delayed
+                    # earlier write. Require host proof of settled non-commit.
+                    if (confirm_absent is None or confirm_absent(
+                            destination, expected_source_sha256, last_intent[0]) is not True):
+                        record("BLOCKED_UNCERTAIN_WRITE", last_intent[0])
+                        raise ValueError("prior write unresolved; absence is not proof of non-commit")
+                if authorize_write(destination, expected_source_sha256, item["index"]) is not True:
+                    record("BLOCKED_AUTHORIZATION", item["index"])
+                    raise PermissionError("exact chunk write not authorized")
+                # Durable intent precedes external side effect. Any exception or
+                # process death leaves recovery dependent on a new provider read.
+                record("WRITE_INTENT", item["index"])
+                try:
+                    write_chunk(destination, expected_source_sha256,
+                                item["index"], item["text"])
+                except Exception:
+                    record("WRITE_OUTCOME_UNKNOWN", item["index"])
+                    raise
+                return observe()
+            finally:
+                db.close()

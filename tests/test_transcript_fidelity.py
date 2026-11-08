@@ -302,5 +302,144 @@ print(json.dumps(plan_archive_resume(
                 self.assertFalse(decision["audit_promotion"])
 
 
+class ArchiveRecoveryHostTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = str(Path(self.tmp.name) / "journal.sqlite")
+        self.p = prepare_transcript("A" * 600, 256)
+        self.sha = self.p["receipt"]["sha256"]
+        self.saved = []
+        self.writes = []
+
+    def read(self, destination, sha):
+        return {"complete": True, "destination": destination, "source_sha256": sha,
+                "chunks": [dict(c) for c in self.saved]}
+
+    def write(self, destination, sha, index, text):
+        self.writes.append(index)
+        self.saved.append({"index": index, "text": text})
+
+    def run_attempt(self, **kwargs):
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        ports = dict(read_archive=self.read, write_chunk=self.write,
+                     authorize_write=lambda *args: True)
+        ports.update(kwargs)
+        return ArchiveRecoveryHost(self.path).attempt(
+            self.p, "fixture", expected_source_sha256=self.sha, **ports)
+
+    def test_one_chunk_per_attempt_then_verified_noop(self):
+        self.assertEqual(self.run_attempt()["state"], "MISSING_CHUNKS")
+        self.assertEqual(self.writes, [0])
+        self.run_attempt()
+        self.assertEqual(self.run_attempt()["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(self.run_attempt()["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(self.writes, [0, 1, 2])
+
+    def test_committed_write_lost_reply_reconciles_after_reopen(self):
+        def lost(*args):
+            self.write(*args)
+            raise TimeoutError("lost reply")
+        with self.assertRaises(TimeoutError):
+            self.run_attempt(write_chunk=lost)
+        self.run_attempt()
+        self.assertEqual(self.writes, [0, 1])
+
+    def test_absent_uncertain_write_blocks_until_settled(self):
+        def failed(*args):
+            raise TimeoutError("unknown")
+        with self.assertRaises(TimeoutError):
+            self.run_attempt(write_chunk=failed)
+        with self.assertRaises(ValueError):
+            self.run_attempt()
+        self.assertEqual(self.writes, [])
+        self.run_attempt(confirm_absent=lambda *args: True)
+        self.assertEqual(self.writes, [0])
+
+    def test_unauthorized_has_no_side_effect(self):
+        with self.assertRaises(PermissionError):
+            self.run_attempt(authorize_write=lambda *args: False)
+        self.assertEqual(self.writes, [])
+
+    def test_rebound_journal_rejected_before_provider(self):
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        self.run_attempt()
+        with self.assertRaises(ValueError):
+            ArchiveRecoveryHost(self.path).attempt(
+                self.p, "other", expected_source_sha256=self.sha,
+                read_archive=lambda *args: self.fail("must not read rebound target"),
+                write_chunk=self.write, authorize_write=lambda *args: True)
+
+    def test_incomplete_readback_never_writes(self):
+        with self.assertRaises(ValueError):
+            self.run_attempt(read_archive=lambda *args: {"complete": False})
+        self.assertEqual(self.writes, [])
+
+    def test_local_lock_excludes_second_worker(self):
+        import fcntl
+        with open(self.path + ".lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaises(BlockingIOError):
+                self.run_attempt()
+        self.assertEqual(self.writes, [])
+
+    def test_intent_is_durable_before_callback(self):
+        import sqlite3
+        def inspect(*args):
+            with sqlite3.connect(self.path) as db:
+                self.assertEqual(db.execute(
+                    "SELECT state,chunk_index FROM archive_events ORDER BY id DESC LIMIT 1"
+                ).fetchone(), ("WRITE_INTENT", 0))
+            self.write(*args)
+        self.run_attempt(write_chunk=inspect)
+
+
+    @unittest.skipUnless(__import__("sys").platform == "linux", "Linux lock/crash fixture")
+    def test_host_kill_after_provider_commit_reopens_journal_without_duplicate(self):
+        import json
+        import os
+        from pathlib import Path
+        import signal
+        import subprocess
+        import sys
+        root = Path(self.tmp.name)
+        (root / "provider.json").write_text("[]")
+        script = """
+import json, os, signal, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost, prepare_transcript
+root = Path(sys.argv[1])
+p = prepare_transcript('one chunk')
+sha = p['receipt']['sha256']
+def read(dest, sha):
+    return {'complete': True, 'destination': dest, 'source_sha256': sha,
+            'chunks': json.loads((root / 'provider.json').read_text())}
+def write(dest, sha, index, text):
+    chunks = json.loads((root / 'provider.json').read_text())
+    chunks.append({'index': index, 'text': text})
+    with (root / 'provider.json').open('w') as stream:
+        json.dump(chunks, stream)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.kill(os.getpid(), signal.SIGKILL)
+r = ArchiveRecoveryHost(str(root / 'crash.sqlite')).attempt(
+    p, 'fixture', expected_source_sha256=sha, read_archive=read,
+    write_chunk=write, authorize_write=lambda *args: True)
+print(json.dumps(r))
+"""
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+        first = subprocess.run([sys.executable, "-c", script, str(root)],
+                               env=env, capture_output=True, timeout=10)
+        self.assertEqual(first.returncode, -signal.SIGKILL, first.stderr)
+        second = subprocess.run([sys.executable, "-c", script, str(root)],
+                                env=env, capture_output=True, text=True, timeout=10)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual(json.loads(second.stdout)["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(len(json.loads((root / "provider.json").read_text())), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
