@@ -1,0 +1,9 @@
+{
+  "schema": "NEXUS_TRANSCRIPT_EVENT_V2",
+  "event_id": "nexus-gemini-fixture-20261108-v1",
+  "source_ref": "nexus:synthetic:gemini-readonly-fixture-v1",
+  "source_sha256": "a88ab3161d2750a49abee43cb1c178a10c41523a3d73c84464843c687cc158e9",
+  "source_byte_count": 147,
+  "idempotency_key": "dad3bbdce7494804901f73f3413b37295a2b23dd864dedbda43c851ec8a1e423",
+  "event_kind": "SOURCE_READY"
+}
