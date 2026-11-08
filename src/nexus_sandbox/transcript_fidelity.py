@@ -30,6 +30,7 @@ def build_receipt(raw, chunk_bytes=12000):
     chunks = split_transcript(raw, chunk_bytes)
     return {"schema": "nexus.transcript-fidelity.v1",
             "encoding": "utf-8", "normalization": "none",
+            "chunk_bytes": chunk_bytes,
             "byte_count": len(raw.encode("utf-8")),
             "sha256": sha256_bytes(raw.encode("utf-8")),
             "chunks": [{"index": i, "byte_count": len(s.encode("utf-8")),
@@ -44,8 +45,11 @@ def verify_readback(original, readback_chunks, receipt):
     if not isinstance(receipt, dict) or receipt.get("schema") != "nexus.transcript-fidelity.v1":
         return False
     try:
-        expected = build_receipt(original)
-        actual = build_receipt("".join(readback_chunks))
+        chunk_bytes = receipt.get("chunk_bytes")
+        if type(chunk_bytes) is not int or not 256 <= chunk_bytes <= 20000:
+            return False
+        expected = build_receipt(original, chunk_bytes)
+        actual = build_receipt("".join(readback_chunks), chunk_bytes)
         if expected != receipt or actual["sha256"] != expected["sha256"]:
             return False
         return [sha256_bytes(s.encode("utf-8")) for s in readback_chunks] == [

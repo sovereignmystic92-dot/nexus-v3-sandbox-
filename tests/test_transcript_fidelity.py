@@ -17,6 +17,17 @@ class TranscriptFidelityTests(unittest.TestCase):
     def test_reordered_chunks_fail(self):
         raw = "a" * 12000 + "b" * 12000
         self.assertFalse(verify_readback(raw, list(reversed(split_transcript(raw))), build_receipt(raw)))
+    def test_custom_chunk_size(self):
+        raw = "🚀[music] " * 1500
+        chunks = split_transcript(raw, 512)
+        receipt = build_receipt(raw, 512)
+        self.assertTrue(verify_readback(raw, chunks, receipt))
+        self.assertFalse(verify_readback(raw, chunks, build_receipt(raw)))
+    def test_receipt_chunk_size_tamper(self):
+        raw = "abc" * 2000
+        receipt = build_receipt(raw, 512)
+        receipt["chunk_bytes"] = 1024
+        self.assertFalse(verify_readback(raw, split_transcript(raw, 512), receipt))
     def test_empty_rejected(self):
         with self.assertRaises(ValueError):
             split_transcript("")
