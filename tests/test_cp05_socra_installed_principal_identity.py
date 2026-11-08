@@ -27,5 +27,38 @@ class IdentitySafetyTests(unittest.TestCase):
         handler = probe.NoRedirect()
         self.assertIsNone(handler.redirect_request(None, None, 302, "redirect", {}, "https://example.invalid"))
 
+    def test_wrong_directory_identity_fails_closed(self):
+        env = {
+            "SOCRA_CLIENT_ID": "synthetic-client",
+            "SOCRA_CLIENT_SECRET": "synthetic-secret",
+            "SOCRA_PRINCIPAL_ID": "11111111-1111-4111-8111-111111111111",
+            "SOCRA_EXPECTED_DIRECTORY_ID": "user_expected",
+        }
+        responses = [
+            {"access_token": "synthetic-token", "token_type": "Bearer"},
+            {"type": "app", "role": "member", "id": "user_other"},
+        ]
+        with patch.dict(os.environ, env):
+            with patch.object(probe, "post", side_effect=responses) as post:
+                with self.assertRaises(ValueError):
+                    probe.main()
+                self.assertEqual(post.call_count, 2)
+
+    def test_wrong_role_fails_closed(self):
+        env = {
+            "SOCRA_CLIENT_ID": "synthetic-client",
+            "SOCRA_CLIENT_SECRET": "synthetic-secret",
+            "SOCRA_PRINCIPAL_ID": "11111111-1111-4111-8111-111111111111",
+            "SOCRA_EXPECTED_DIRECTORY_ID": "user_expected",
+        }
+        responses = [
+            {"access_token": "synthetic-token", "token_type": "Bearer"},
+            {"type": "app", "role": "owner", "id": "user_expected"},
+        ]
+        with patch.dict(os.environ, env):
+            with patch.object(probe, "post", side_effect=responses):
+                with self.assertRaises(ValueError):
+                    probe.main()
+
 if __name__ == "__main__":
     unittest.main()
