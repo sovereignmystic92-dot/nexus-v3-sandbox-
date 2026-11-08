@@ -2,7 +2,7 @@
 import hashlib
 import re
 
-HEX = re.compile(r"[0-9a-f]{64}\\Z")
+HEX = re.compile(r"[0-9a-f]{64}\Z")
 FIELDS = {"schema", "event_id", "source_ref", "source_sha256",
           "source_byte_count", "idempotency_key", "event_kind"}
 SCHEMA = "NEXUS_TRANSCRIPT_EVENT_V2"
@@ -29,7 +29,7 @@ def validate_event(event, *, raw_source, expected_source_ref, authorized_event_i
         raise ValueError("invalid source checksum")
     if digest != event["source_sha256"]:
         raise ValueError("source checksum mismatch")
-    expected_key = hashlib.sha256((event["source_ref"] + "\\n" + digest).encode("utf-8")).hexdigest()
+    expected_key = hashlib.sha256((event["source_ref"] + "\n" + digest).encode("utf-8")).hexdigest()
     if event["idempotency_key"] != expected_key:
         raise ValueError("idempotency key mismatch")
     return {"source_sha256": digest, "source_byte_count": len(raw_source),
