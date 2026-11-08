@@ -1,0 +1,88 @@
+name: Notion pinned full-transcript Gemini review
+on:
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: Exact current canonical Haiti Notion last_edited_time
+        required: true
+        type: string
+      full_source_confirmed:
+        description: I authorize sending the full pinned Haiti transcript to Gemini
+        required: true
+        default: false
+        type: boolean
+      free_tier_confirmed:
+        description: I confirm the approved free-tier project and authorize one Gemini call
+        required: true
+        default: false
+        type: boolean
+permissions: {}
+concurrency:
+  group: nexus-real-source-gemini
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && inputs.full_source_confirmed == true && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    environment: notion-sandbox
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Gemini SDK without provider credentials
+        run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
+      - name: Review pinned source in memory
+        env:
+          NOTION_SANDBOX_TOKEN: ${{ secrets.NOTION_SANDBOX_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXUS_REAL_SOURCE_GEMINI_APPROVED: ${{ inputs.full_source_confirmed }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          set -euo pipefail
+          mkdir -p receipt-output
+          python3 - <<'PY'
+          import hashlib,json
+          ref="notion:4088c067-daa4-813b-b1f0-e1f1993120fb:RAW-001"
+          digest="2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646"
+          event=dict(schema="NEXUS_TRANSCRIPT_EVENT_V2",event_kind="SOURCE_READY",
+            event_id="haiti-gemini-full-v1",source_ref=ref,source_sha256=digest,
+            source_byte_count=20152,idempotency_key=hashlib.sha256((ref+"\n"+digest).encode()).hexdigest())
+          with open("source-event.json","w") as out: json.dump(event,out)
+          PY
+          python3 tools/notion_gemini_source_bridge.py --event-file source-event.json --source-revision "$SOURCE_REVISION" --event-id haiti-gemini-full-v1 --source-ref notion:4088c067-daa4-813b-b1f0-e1f1993120fb:RAW-001 > receipt-output/receipt.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nexus-real-source-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: receipt-output/receipt.json
+          if-no-files-found: error
+          retention-days: 30
+  verify-receipt:
+    needs: review
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: nexus-real-source-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: downloaded-receipt
+      - name: Verify content-free receipt against fixed source and execution
+        run: |
+          PYTHONPATH=src python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          from nexus_sandbox.transcript_gemini_receipt import verify_expected_receipt
+          path=Path("downloaded-receipt/receipt.json")
+          if path.is_symlink() or not path.is_file() or path.stat().st_size>8192:
+              raise SystemExit("BLOCKED: unsafe receipt")
+          receipt=json.loads(path.read_bytes())
+          verify_expected_receipt(receipt,event_id="haiti-gemini-full-v1",
+            source_sha256="2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646",
+            workflow_run_id=os.environ["GITHUB_RUN_ID"],workflow_run_attempt=os.environ["GITHUB_RUN_ATTEMPT"],
+            commit_sha=os.environ["GITHUB_SHA"])
+          print("PINNED_REAL_SOURCE_GEMINI_RECEIPT_VERIFIED; NOTION_CORTEX_WRITES_ZERO")
+          PY
+# Manual full-source disclosure only. No Cortex/Notion writes or unattended trigger.

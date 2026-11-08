@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'notion-gemini-pinned-source-review.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN', 'GEMINI_API_KEY'}),
     'cp05-socra-installed-principal-identity.yml': (None, {'SOCRA_CLIENT_ID', 'SOCRA_CLIENT_SECRET', 'SOCRA_PRINCIPAL_ID', 'SOCRA_EXPECTED_DIRECTORY_ID'}),
     'cp05-socra-credential-preflight.yml': (None, {'SOCRA_CLIENT_ID', 'SOCRA_CLIENT_SECRET'}),
     'gemini-notion-combined-readonly.yml': (None, {'GEMINI_PILOT_API_KEY', 'NOTION_SANDBOX_TOKEN'}),
