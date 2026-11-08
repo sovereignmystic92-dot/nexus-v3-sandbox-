@@ -71,3 +71,6 @@ if __name__ == "__main__":
 
 # Include composed event-to-handoff tests in the existing bounded CI suite.
 from test_transcript_event_execution import EventExecutionTests  # noqa: E402,F401
+
+# Exercise runner evidence contract in existing provider handoff CI.
+from test_transcript_runner_evidence import RunnerEvidenceTests  # noqa: E402,F401
