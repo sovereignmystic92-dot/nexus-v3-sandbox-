@@ -86,3 +86,6 @@ from test_transcript_gemini_runtime import GeminiRuntimeTests  # noqa: E402,F401
 
 # Exercise credential-scoped Gemini SDK port in existing handoff CI.
 from test_transcript_gemini_sdk_port import GeminiSdkPortTests  # noqa: E402,F401
+
+# Exercise read-only Gemini SDK runner entry point in handoff CI.
+from test_transcript_gemini_readonly_runner import GeminiReadOnlyRunnerTests  # noqa: E402,F401
