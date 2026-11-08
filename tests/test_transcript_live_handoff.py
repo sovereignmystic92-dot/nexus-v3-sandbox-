@@ -68,3 +68,6 @@ class LiveHandoffTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# Include composed event-to-handoff tests in the existing bounded CI suite.
+from test_transcript_event_execution import EventExecutionTests  # noqa: E402,F401
