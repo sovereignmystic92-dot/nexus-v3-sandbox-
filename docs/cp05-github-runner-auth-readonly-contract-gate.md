@@ -1,18 +1,22 @@
-# CP05 GitHub runner → Cortex authentication/read-only probe gate
+# CP05 GitHub runner → Socra identity authentication gate
 
-## Verified
-GitHub runner has nonempty SOCRA_CLIENT_ID and SOCRA_CLIENT_SECRET (run 42446349632). ChatGPT-connected Socra Cortex created and independently listed synthetic module `module_01m6wpwex46vvgmsq9pr4k88d5` on 2026-11-08. These are **different credential and execution contexts**.
+## Official verified contract (2026-11-08)
+Socra's published agent identity guide documents the **client credentials** exchange:
+- POST `https://oauth.socra.cloud/oauth/token` as application/x-www-form-urlencoded with `grant_type=client_credentials`, `client_id`, `client_secret`, and `principal_id`.
+- The `principal_id` is the **raw UUID** returned by the active OAuth installation; it is **not** the Directory `user_...` ID.
+- Identity verification: POST `https://account.socra.cloud/directory/v1/users/me` with the Bearer access token and JSON `{}`; require `type=app`, `role=member`, and match the installation's expected identity.
+- Cortex MCP endpoint: `https://cortex.socra.cloud/mcp`. A valid token alone does not prove Cortex resource grants.
+Sources: https://workspace.socra.com/docs/admin/agents/create-an-agent and https://workspace.socra.com/docs/cortex/reference/mcp
 
-## Required before a real runner auth probe
-1. Confirm the official Socra OAuth token exchange endpoint and grant type for a GitHub-hosted, noninteractive installation. Do not infer from CLI command names.
-2. Confirm scope/audience and supported API endpoint for read-only module lookup, including the exact response contract.
-3. Use GitHub Actions secret environment, never echo token, client secret, raw HTTP response or credential-bearing URL.
-4. Dispatch a manual, read-only workflow with minimum permissions and a short timeout. Verify installation identity and access to only the existing synthetic module ID/name; record status/hashed metadata only.
-5. On missing/invalid endpoint, grant or response contract, report BLOCKED; do not attempt guessed URLs, redirect-following, write fallback, or a credential dump.
-6. Require an independently reviewed, separate synthetic write workflow only after authenticated read succeeds. Never enable automatic retries or multiwriter writes while CP09 is open.
+## Evidence and boundary
+GitHub runner preflight 42446349632 confirmed only SOCRA_CLIENT_ID and SOCRA_CLIENT_SECRET are nonempty. ChatGPT-connected Cortex separately created and read back module `module_01m6wpwex46vvgmsq9pr4k88d5`. Neither proves runner OAuth. **SOCRA_PRINCIPAL_ID has not been verified in the runner**.
 
-## Current disposition
-**BLOCKED — authenticated runner read not yet attempted.** Existing secrets-present test is not OAuth validation. Connected ChatGPT read/write does not establish GitHub runner access. This document does not include a runnable authentication call because the endpoint/grant contract has not been independently verified.
+## Next test
+1. Owner verifies active installation and securely adds raw principal UUID to GitHub Actions secret `SOCRA_PRINCIPAL_ID`; never post ID or secrets into a public issue.
+2. Manually dispatch `.github/workflows/cp05-socra-installed-principal-identity.yml`.
+3. Runner requests token and verifies app identity without printing secrets, token, raw HTTP bodies, or full principal IDs. Output only PASS/BLOCKED and bounded reason.
+4. Only after identity PASS, separately verify Cortex read access to a known synthetic module with a documented read-only Cortex API request contract.
+5. No live write, automatic retry, multiworker activation, or CP02/CP05/CP09 closure from identity PASS.
 
-## Audit
-CP02 effective runner grants open; CP05 end-to-end runner ingestion/write/readback open; CP09 remote fencing blocked. Single-writer operation only.
+## Fail-closed
+Missing principal, 401/403, malformed JSON, unexpected identity, redirect, or HTTP timeout means BLOCKED. No guessed token exchanges or write fallback. All GitHub runner actions remain single-writer-proposal-only until remote fencing is verified.
