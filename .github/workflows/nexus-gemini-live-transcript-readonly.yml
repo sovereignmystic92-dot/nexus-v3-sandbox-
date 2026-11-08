@@ -1,0 +1,69 @@
+name: Nexus live Gemini transcript review (read-only)
+on:
+  workflow_dispatch:
+    inputs:
+      source_path:
+        description: Repository-relative path to an approved, non-sensitive transcript fixture on main
+        required: true
+        type: string
+      event_path:
+        description: Repository-relative path to the matching authorized source event JSON on main
+        required: true
+        type: string
+      authorized_event_id:
+        description: Exact preapproved event ID
+        required: true
+        type: string
+      source_ref:
+        description: Exact preapproved source reference
+        required: true
+        type: string
+      free_tier_confirmed:
+        description: I confirm this Gemini key uses an approved free-tier project and authorize one API call
+        required: true
+        default: false
+        type: boolean
+permissions: {}
+concurrency:
+  group: nexus-gemini-transcript-readonly
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.ref == 'refs/heads/main' && inputs.free_tier_confirmed == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate approved source paths
+        env:
+          SOURCE_PATH: ${{ inputs.source_path }}
+          EVENT_PATH: ${{ inputs.event_path }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re
+          for key in ("SOURCE_PATH", "EVENT_PATH"):
+              value = os.environ[key]
+              if not re.fullmatch(r"tests/fixtures/[A-Za-z0-9_./-]{1,160}", value):
+                  raise SystemExit("BLOCKED: only approved tests/fixtures paths accepted")
+              path = pathlib.Path(value)
+              if not path.is_file() or path.is_symlink() or not path.resolve().is_relative_to(pathlib.Path("tests/fixtures").resolve()):
+                  raise SystemExit("BLOCKED: missing or unsafe fixture path")
+              if path.stat().st_size > 50000:
+                  raise SystemExit("BLOCKED: oversized fixture")
+          PY
+      - name: Install Gemini SDK
+        run: python3 -m pip install --disable-pip-version-check 'google-genai>=2.9,<3'
+      - name: Invoke source-bound Gemini read-only review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SOURCE_PATH: ${{ inputs.source_path }}
+          EVENT_PATH: ${{ inputs.event_path }}
+          AUTHORIZED_EVENT_ID: ${{ inputs.authorized_event_id }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          PYTHONPATH=src python3 -m nexus_sandbox.transcript_gemini_readonly_runner \
+            --event-file "$EVENT_PATH" --source-file "$SOURCE_PATH" \
+            --authorized-event-id "$AUTHORIZED_EVENT_ID" --source-ref "$SOURCE_REF"
+# No Notion/Cortex credentials or writes. No unattended trigger or audit promotion.
