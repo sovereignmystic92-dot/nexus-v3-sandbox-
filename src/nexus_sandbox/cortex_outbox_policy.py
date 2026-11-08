@@ -30,7 +30,7 @@ def validate_manifest(manifest):
         raise ProposalRejected("unsafe operation or status")
     if not isinstance(manifest["request_id"], str) or not re.fullmatch(r"[a-zA-Z0-9._:-]{1,128}", manifest["request_id"]):
         raise ProposalRejected("invalid request identifier")
-    if not isinstance(manifest["created_at"], str) or not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z", manifest["created_at"]):
+    if not isinstance(manifest["created_at"], str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", manifest["created_at"]):
         raise ProposalRejected("invalid timestamp")
     refs = manifest["evidence_refs"]
     if not isinstance(refs, list) or len(refs) > 8 or not all(isinstance(r, str) and re.fullmatch(r"[a-zA-Z0-9._:/#-]{1,160}", r) for r in refs):
