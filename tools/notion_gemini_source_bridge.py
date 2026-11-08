@@ -42,7 +42,7 @@ def main():
             return dict(page_id=notion.PAGE_ID, revision=page.get("last_edited_time"), raw=raw)
         receipt = review_pinned_source(
             fetch_snapshot=fetch, review=partial(run, api_key=key, model="gemini-3.5-flash-lite"),
-            event=event, expected_page_id=notion.PAGE_ID, expected_revision=args.source_revision,
+            event=event, expected_page_id=notion.PAGE_ID, expected_revision=args.source_revision.strip(),
             authorized_event_id=args.event_id, source_ref=args.source_ref,
             workflow_run_id=os.environ["GITHUB_RUN_ID"],
             workflow_run_attempt=os.environ["GITHUB_RUN_ATTEMPT"], commit_sha=os.environ["GITHUB_SHA"])
