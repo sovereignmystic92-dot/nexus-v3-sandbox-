@@ -2,10 +2,10 @@ import hashlib
 import unittest
 from nexus_sandbox.transcript_event_preflight import validate_event
 
-SOURCE = b"Exact transcript.\\nNo normalization.\\n"
+SOURCE = b"Exact transcript.\nNo normalization.\n"
 REF = "notion:fixture-1"
 SHA = hashlib.sha256(SOURCE).hexdigest()
-KEY = hashlib.sha256((REF + "\\n" + SHA).encode()).hexdigest()
+KEY = hashlib.sha256((REF + "\n" + SHA).encode()).hexdigest()
 
 def event():
     return {"schema": "NEXUS_TRANSCRIPT_EVENT_V2", "event_id": "evt-1",
@@ -41,4 +41,4 @@ class PreflightTests(unittest.TestCase):
     def test_no_source(self):
         with self.assertRaises(ValueError): check(event(), b"")
     def test_no_implicit_text_normalization(self):
-        with self.assertRaises(ValueError): check(event(), SOURCE.replace(b"\\n", b"\\r\\n"))
+        with self.assertRaises(ValueError): check(event(), SOURCE.replace(b"\n", b"\r\n"))
