@@ -1,8 +1,7 @@
 name: CP05 Gemini sanitized shell diagnostic
 on:
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {}
 concurrency:
   group: cp05-gemini-sanitized-diagnostic
   cancel-in-progress: false
