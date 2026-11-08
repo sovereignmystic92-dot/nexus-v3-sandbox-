@@ -174,3 +174,116 @@ class ArchiveRecoveryHost:
                 return observe()
             finally:
                 db.close()
+
+
+class NotionArchivePort:
+    """Notion SDK-shaped client port for a dedicated, exclusively owned container.
+
+    Inject a client with retries disabled and bounded timeouts. No credentials are
+    accepted here. Do not point at legacy archives or mixed-content pages.
+    """
+
+    def __init__(self, client, prepared, destination, *, expected_source_sha256):
+        import json
+        from uuid import UUID
+        self.destination = str(UUID(destination))
+        if destination != self.destination:
+            raise ValueError("canonical UUID destination required")
+        self.prepared = json.loads(json.dumps(prepared))
+        self.sha = expected_source_sha256
+        plan_archive_resume(self.prepared, destination, None,
+                            expected_source_sha256=self.sha)
+        self.client = client
+
+    def _bind(self, destination, sha):
+        if destination != self.destination or sha != self.sha:
+            raise ValueError("Notion port binding changed")
+
+    @staticmethod
+    def _text(parts):
+        if not isinstance(parts, list):
+            raise ValueError("invalid rich text")
+        result = []
+        for part in parts:
+            if (not isinstance(part, dict) or part.get("type") != "text"
+                    or not isinstance(part.get("text"), dict)
+                    or not isinstance(part["text"].get("content"), str)):
+                raise ValueError("nonliteral rich text")
+            result.append(part["text"]["content"])
+        return "".join(result)
+
+    def _load(self, destination, sha):
+        import json
+        from uuid import UUID
+        self._bind(destination, sha)
+        chunks, ids, cursors = [], [], set()
+        cursor = None
+        for _ in range(100):
+            args = {"block_id": destination, "page_size": 100}
+            if cursor is not None:
+                args["start_cursor"] = cursor
+            page = self.client.blocks.children.list(**args)
+            if (not isinstance(page, dict) or not isinstance(page.get("results"), list)
+                    or type(page.get("has_more")) is not bool):
+                raise ValueError("invalid Notion listing")
+            for block in page["results"]:
+                if (not isinstance(block, dict) or block.get("type") != "code"
+                        or block.get("has_children") is not False
+                        or block.get("archived") or block.get("in_trash")):
+                    raise ValueError("unexpected archive block")
+                parent = block.get("parent", {})
+                parent_id = parent.get(parent.get("type"))
+                if str(UUID(parent_id)) != destination:
+                    raise ValueError("block belongs to another container")
+                block_id = str(UUID(block["id"]))
+                if block_id in ids:
+                    raise ValueError("duplicate block identity")
+                code = block["code"]
+                meta = json.loads(self._text(code.get("caption")))
+                if (not isinstance(meta, dict) or meta.get("schema") != "nexus.notion-chunk.v1"
+                        or meta.get("source_sha256") != sha):
+                    raise ValueError("foreign source or chunk schema")
+                chunks.append({"index": meta.get("index"),
+                               "text": self._text(code.get("rich_text"))})
+                ids.append(block_id)
+            if page["has_more"] is False:
+                observation = {"destination": destination, "source_sha256": sha,
+                               "complete": True, "chunks": chunks}
+                plan_archive_resume(self.prepared, destination, observation,
+                                    expected_source_sha256=sha)
+                return observation, ids
+            cursor = page.get("next_cursor")
+            if not isinstance(cursor, str) or not cursor or cursor in cursors:
+                raise ValueError("missing or repeated pagination cursor")
+            cursors.add(cursor)
+        raise ValueError("archive pagination limit reached")
+
+    def read_archive(self, destination, sha):
+        return self._load(destination, sha)[0]
+
+    def write_chunk(self, destination, sha, index, text):
+        """One append request; no automatic retry or acknowledgment promotion."""
+        import json
+        self._bind(destination, sha)
+        expected = self.prepared["chunks"]
+        if (type(index) is not int or not 0 <= index < len(expected)
+                or text != expected[index]):
+            raise ValueError("unbound chunk payload")
+        observation, ids = self._load(destination, sha)
+        prior = [(c, bid) for c, bid in zip(observation["chunks"], ids)
+                 if c["index"] < index]
+        if any(c["index"] == index for c in observation["chunks"]):
+            return  # Exact payload already validated by _load.
+        position = ({"type": "after_block", "after_block": {"id": prior[-1][1]}}
+                    if prior else {"type": "start"})
+        def rich(value):
+            # 1000 Unicode code points also stays within 2000 UTF-16 units.
+            return [{"type": "text", "text": {"content": value[i:i+1000]}}
+                    for i in range(0, len(value), 1000)]
+        meta = json.dumps({"schema": "nexus.notion-chunk.v1",
+                           "source_sha256": sha, "index": index}, sort_keys=True)
+        self.client.blocks.children.append(
+            block_id=destination, position=position,
+            children=[{"object": "block", "type": "code", "code": {
+                "language": "plain text", "caption": rich(meta),
+                "rich_text": rich(text)}}])
