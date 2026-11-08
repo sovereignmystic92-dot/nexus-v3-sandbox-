@@ -17,3 +17,11 @@
 **BLOCKED: no independently verified GitHub-runner installation principal or confirmed installation-list authentication contract.**
 
 The ChatGPT Cortex connector's permissions do not establish GitHub-runner permissions.
+
+## Verified Socra documentation (2026-11-08)
+- Official CLI reference: https://cloud.socra.com/docs/oauth/reference/cli
+- `socra oauth installation list` requires the CLI's authenticated **Account context**. It does **not** accept client ID/client secret directly. Do not invoke it on a clean runner expecting those secrets to work.
+- `socra oauth token create` requires `--client`, `--principal`, and `--client-secret-file`; optional `--scope` should be explicitly restricted. Do not invoke until the principal is verified.
+- Official CLI installation instructions: https://cli.socra.com/ (install script https://cli.socra.cloud/install.sh). Review/pin the installer before running in CI; do not pipe a mutable script directly to a privileged runner.
+- OAuth API reference: https://cloud.socra.com/docs/oauth/reference/api
+- **Resolution:** use an already authenticated Account context to discover the installation principal through a supported account-side process, then configure a bounded runner token exchange. Client credentials alone cannot discover the principal.
