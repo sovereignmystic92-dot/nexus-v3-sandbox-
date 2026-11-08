@@ -5,7 +5,7 @@ logging of prompt/credentials, or implicit fallback to an unauthenticated port.
 """
 import re
 
-_MODEL = re.compile(r"gemini-[a-zA-Z0-9._-]{1,70}\\Z")
+_MODEL = re.compile(r"gemini-[a-zA-Z0-9._-]{1,70}\Z")
 
 
 def make_gemini_sdk_port(*, api_key, client_factory=None):
