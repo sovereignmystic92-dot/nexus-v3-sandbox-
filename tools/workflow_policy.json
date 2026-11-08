@@ -4,7 +4,7 @@
   "cp04-environment-enforcement-probe.yml": "be54e74c1be59694c14a2918bb10363f9787990aa43ee17038d7640bf5df603a",
   "cp04-host-reachability-observation.yml": "40f1cfeda3e3b34dd063656de2b17e5eee1041f8352c907c30f3d3a0476ffa63",
   "cp05-authenticated-notion-fixture-probe.yml": "5fe1eec8335540d57bae2f0b03cc96fbb86d9a9f0fd7117b38fb66130b09d376",
-  "cp05-gemini-sanitized-diagnostic.yml": "0d605647d5a0fa46425a84ed93028a0fa6349eb5d038905917fa431027754a70",
+  "cp05-gemini-sanitized-diagnostic.yml": "aa48630055e9946545dc963e64aa215244e00091456687f609db915c3dfa04d3",
   "cp05-socra-credential-preflight.yml": "23937a461163ffefde60aaa364fec501e72091a44f1297006f2cacc02f53b73d",
   "cp05-socra-installed-principal-identity.yml": "2a51cad9b7e04b5f8685f83771a70c1866fbab2e5cd2ce61ceb01332001a8a29",
   "csf-gemini-manual-live-review.yml": "227f0ca9fd299bca5f929b08354912e5497f2665fa49782edecb0cc8c1494ab4",
