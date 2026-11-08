@@ -4,6 +4,8 @@ on:
     paths:
       - 'src/nexus_sandbox/transcript_live_handoff.py'
       - 'tests/test_transcript_live_handoff.py'
+      - 'src/nexus_sandbox/transcript_event_preflight.py'
+      - 'tests/test_transcript_event_preflight.py'
       - '.github/workflows/transcript-handoff-ci.yml'
       - 'tools/workflow_policy.json'
   workflow_dispatch:
@@ -18,6 +20,10 @@ jobs:
           persist-credentials: false
       - name: Validate syntax
         run: python3 -m py_compile src/nexus_sandbox/transcript_live_handoff.py tests/test_transcript_live_handoff.py
+      - name: Validate event preflight syntax
+        run: python3 -m py_compile src/nexus_sandbox/transcript_event_preflight.py tests/test_transcript_event_preflight.py
+      - name: Test strict source-bound event preflight
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_transcript_event_preflight.py' -v
       - name: Test bounded provider ports without credentials
         run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_transcript_live_handoff.py' -v
 # No provider credentials, provider calls or live writes.
