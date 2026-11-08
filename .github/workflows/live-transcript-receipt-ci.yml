@@ -1,0 +1,22 @@
+name: Live transcript receipt contract CI
+on:
+  pull_request:
+    paths:
+      - 'tools/validate_live_transcript_receipt.py'
+      - 'tests/test_validate_live_transcript_receipt.py'
+      - '.github/workflows/live-transcript-receipt-ci.yml'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Syntax validation
+        run: python3 -m py_compile tools/validate_live_transcript_receipt.py tests/test_validate_live_transcript_receipt.py
+      - name: Run fail-closed receipt tests
+        run: python3 -m unittest discover -s tests -p 'test_validate_live_transcript_receipt.py' -v
+# Contract tests only. No provider secrets, live ingestion or audit promotion.
