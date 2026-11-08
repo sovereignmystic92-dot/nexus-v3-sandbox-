@@ -233,5 +233,74 @@ class ArchiveResumeTests(unittest.TestCase):
                                     expected_source_sha256=self.sha)
 
 
+    @unittest.skipUnless(__import__("sys").platform == "linux", "SIGKILL fixture requires Linux")
+    def test_process_kill_before_and_after_persisted_write(self):
+        """Actual owned-child kills; file-backed fake provider, no live API."""
+        import json
+        import os
+        from pathlib import Path
+        import signal
+        import subprocess
+        import sys
+        import tempfile
+        child = """
+import json, os, signal, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+root = Path(sys.argv[1])
+prepared = json.loads((root / 'prepared.json').read_text())
+snapshot = json.loads((root / 'provider.json').read_text())
+plan = plan_archive_resume(prepared, 'notion:fixture', snapshot,
+                          expected_source_sha256=prepared['receipt']['sha256'])
+if sys.argv[2] == 'before':
+    os.kill(os.getpid(), signal.SIGKILL)
+snapshot['chunks'].extend(plan['missing_chunks'])
+with (root / 'provider.json').open('w') as stream:
+    json.dump(snapshot, stream)
+    stream.flush()
+    os.fsync(stream.fileno())
+# Successful fake-provider write, lost reply and lost local process state.
+os.kill(os.getpid(), signal.SIGKILL)
+"""
+        restart = """
+import json, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+root = Path(sys.argv[1])
+prepared = json.loads((root / 'prepared.json').read_text())
+snapshot = json.loads((root / 'provider.json').read_text())
+print(json.dumps(plan_archive_resume(
+    prepared, 'notion:fixture', snapshot,
+    expected_source_sha256=prepared['receipt']['sha256'])))
+"""
+        # Run one missing chunk through each crash boundary in a fresh process.
+        for phase in ("before", "after"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                observed = self.observe(range(len(self.p["chunks"]) - 1))
+                (root / "prepared.json").write_text(json.dumps(self.p))
+                (root / "provider.json").write_text(json.dumps(observed))
+                env = dict(os.environ)
+                env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+                killed = subprocess.run([sys.executable, "-c", child, tmp, phase],
+                                        env=env, capture_output=True, timeout=10)
+                self.assertEqual(killed.returncode, -signal.SIGKILL, killed.stderr)
+                resumed = subprocess.run([sys.executable, "-c", restart, tmp],
+                                         env=env, capture_output=True, text=True,
+                                         check=True, timeout=10)
+                decision = json.loads(resumed.stdout)
+                if phase == "before":
+                    self.assertEqual(decision["state"], "MISSING_CHUNKS")
+                    self.assertEqual([c["index"] for c in decision["missing_chunks"]],
+                                     [len(self.p["chunks"]) - 1])
+                else:
+                    self.assertEqual(decision["state"], "ARCHIVE_VERIFIED")
+                    self.assertEqual(decision["missing_chunks"], [])
+                    saved = json.loads((root / "provider.json").read_text())["chunks"]
+                    self.assertEqual(len(saved), len(self.p["chunks"]))
+                self.assertFalse(decision["provider_writes_allowed"])
+                self.assertFalse(decision["audit_promotion"])
+
+
 if __name__ == "__main__":
     unittest.main()
