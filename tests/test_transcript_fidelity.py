@@ -86,5 +86,42 @@ class TranscriptReplayTests(unittest.TestCase):
             replay_transcript_events([self.event("source_verified", source_sha256="b"*64)], self.digest)
 
 
+
+class ArkshipReceiptReplayFixtureTests(unittest.TestCase):
+    """Pinned real-source metadata, synthetic events; no provider operations."""
+    digest = "9f0001d95812ede7be917e16989f074369050c8a29548d22f7838eb39e85c08e"
+    steps = ("source_verified", "archive_written", "archive_readback",
+             "derived_written", "derived_readback")
+
+    def event(self, step):
+        return {"event_id": "arkship-v1:" + step, "step": step,
+                "source_sha256": self.digest, "authorized": True, "evidence": True}
+
+    def test_verified_metadata_replay_to_completion(self):
+        events = [self.event(step) for step in self.steps]
+        result = replay_transcript_events(events, self.digest)
+        self.assertEqual(result["status"], "SYNTHETIC_COMPLETE")
+        self.assertFalse(result["provider_writes"])
+        self.assertFalse(result["audit_promotion"])
+
+    def test_resume_after_archive_readback(self):
+        events = [self.event(step) for step in self.steps[:3]]
+        self.assertEqual(replay_transcript_events(events, self.digest)["next_step"],
+                         "derived_written")
+        resumed = events + [self.event(step) for step in self.steps[3:]]
+        self.assertEqual(replay_transcript_events(resumed, self.digest)["status"],
+                         "SYNTHETIC_COMPLETE")
+
+    def test_replayed_archive_write_does_not_advance(self):
+        events = [self.event(step) for step in self.steps[:2]]
+        result = replay_transcript_events(events + [dict(events[-1])], self.digest)
+        self.assertEqual(result["completed_steps"], list(self.steps[:2]))
+        self.assertEqual(result["next_step"], "archive_readback")
+
+    def test_source_digest_mismatch_blocks(self):
+        with self.assertRaises(ValueError):
+            replay_transcript_events([self.event(self.steps[0])], "b" * 64)
+
+
 if __name__ == "__main__":
     unittest.main()
