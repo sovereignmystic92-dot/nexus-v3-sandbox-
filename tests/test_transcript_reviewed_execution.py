@@ -11,7 +11,7 @@ REF="notion:fixture"
 TEXT="Gemini review, source bound."
 EVENT={"schema":SCHEMA,"event_id":"authorized-1","source_ref":REF,
        "source_sha256":SHA,"source_byte_count":len(RAW),
-       "idempotency_key":hashlib.sha256((REF+"\\n"+SHA).encode()).hexdigest(),
+       "idempotency_key":hashlib.sha256((REF+chr(10)+SHA).encode()).hexdigest(),
        "event_kind":"SOURCE_READY"}
 
 def review(**kwargs):
