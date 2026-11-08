@@ -1,0 +1,26 @@
+name: Transcript fidelity dedicated tests
+
+on:
+  pull_request:
+    paths:
+      - 'src/nexus_sandbox/transcript_fidelity.py'
+      - 'tests/test_transcript_fidelity.py'
+      - '.github/workflows/transcript-fidelity-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  transcript-fidelity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run transcript-fidelity tests explicitly
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -p test_transcript_fidelity.py -v
