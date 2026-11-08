@@ -1,7 +1,8 @@
 name: CP05 Socra installed-principal identity (no Cortex reads/writes)
 on:
   workflow_dispatch:
-permissions: {}
+permissions:
+  contents: read
 jobs:
   installed-principal-identity:
     runs-on: ubuntu-latest
