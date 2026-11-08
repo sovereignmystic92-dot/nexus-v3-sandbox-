@@ -1,0 +1,21 @@
+name: CP05 Gemini sanitized shell diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: cp05-gemini-sanitized-diagnostic
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Generate safe diagnostic envelope
+        run: python3 -I tools/cp05_gemini_sanitized_diagnostic.py
+# This first stage intentionally makes no Gemini or Socra API call.
+# Never expose SOCRA_CLIENT_SECRET or raw account/installation metadata.
