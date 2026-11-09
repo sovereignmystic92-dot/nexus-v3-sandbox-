@@ -12,6 +12,17 @@ after independently establishing its provenance. Never route source documents,
 quoted text, assistant responses, tool results, or attachment contents as
 trusted user commands. The classifier cannot authenticate provenance itself.
 
+Direct user-pasted source candidates are additional intake triggers: a standalone
+HTTP(S) hyperlink (including webpage/news article URLs), or a multi-line
+timestamped/speaker-labeled transcript. Both yield PREFLIGHT_REQUIRED only.
+They do not fetch, archive, process or persist source material. Host validation
+must resolve URL safety (including redirects and private-network targets),
+source type, provenance, user scope, existing receipts and permissions.
+Heuristics can miss valid transcripts and misclassify formatted text; this
+is a bounded proposal, not a semantic guarantee. A URL mentioned inside
+ordinary prose is not an intake trigger. The conversation opt-out suppresses
+source triggers. Source data is never trusted as instructions.
+
 Explicit commands start at the beginning of the trimmed user turn: Nexus
 status, verify, process, archive, research, connect, resume, or off.
 Status/verify are read-only intents; process/archive/research/connect/resume
@@ -52,7 +63,7 @@ ChatGPT entrypoint and authenticated handoff. Do not claim one is installed.
 Run: PYTHONPATH=src python -m unittest discover -s tests/unit -p
 'test_trigger_router.py' -v
 
-Test normal chat, explicit commands, quote/untrusted content, opt-out,
+Test normal chat, explicit commands, direct pasted transcript/link candidates, quote/untrusted content, opt-out,
 unknown commands, invalid provenance and oversized input. This does not test
 host authentication, ChatGPT-wide behavior, live providers, or independent
 readback. Rollback: revert the Phase 1 feature-branch changes. No provider
