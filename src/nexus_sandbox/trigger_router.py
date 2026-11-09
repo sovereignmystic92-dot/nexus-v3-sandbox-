@@ -17,6 +17,9 @@ COMMANDS = {
     "resume": "PREFLIGHT_REQUIRED",
 }
 MAX_COMMAND_LENGTH = 4096
+MAX_SOURCE_LENGTH = 250000
+_URL = re.compile(r"^https?://[^\\s<>]+$", re.ASCII)
+_TRANSCRIPT_LINE = re.compile(r"^(?:\\[?\\d{1,2}:\\d{2}(?::\\d{2})?\\]?\\s+|(?:speaker|host|guest|interviewer|participant)\\s*\\d*\\s*:\\s+)", re.IGNORECASE)
 _PATTERN = re.compile(r"^nexus[ \t]+([a-z]+)(?=$|[ \t:])", re.ASCII)
 
 
@@ -37,6 +40,17 @@ def classify(message: str, *, trusted_user_turn: bool, nexus_disabled: bool = Fa
         return TriggerDecision("BLOCKED", None, "Invalid input or provenance")
     if not trusted_user_turn:
         return TriggerDecision("NORMAL", None, "Untrusted text cannot activate Nexus")
+    # Direct user-pasted source material may request intake preflight only.
+    # A host must ensure the entire content is a genuine direct user paste,
+    # not a quotation, forwarded tool result, or untrusted attachment.
+    if not nexus_disabled and len(message) <= MAX_SOURCE_LENGTH:
+        candidate = message.strip()
+        if _URL.fullmatch(candidate):
+            return TriggerDecision("PREFLIGHT_REQUIRED", "link_intake", "Pasted URL candidate; validate URL, source type and authorization in host")
+        lines = [line.strip() for line in candidate.splitlines() if line.strip()]
+        transcript_lines = sum(bool(_TRANSCRIPT_LINE.match(line)) for line in lines)
+        if len(lines) >= 4 and transcript_lines >= 3 and transcript_lines * 2 >= len(lines):
+            return TriggerDecision("PREFLIGHT_REQUIRED", "transcript_intake", "Pasted transcript candidate; host must confirm provenance, scope and authorization")
     if len(message) > MAX_COMMAND_LENGTH:
         return TriggerDecision("NORMAL", None, "No bounded explicit command")
     text = message.strip()
