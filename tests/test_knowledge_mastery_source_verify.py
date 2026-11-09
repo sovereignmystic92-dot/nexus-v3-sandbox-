@@ -14,7 +14,7 @@ class ArchiveSourceVerifierTests(unittest.TestCase):
         self.assertEqual(verify_source(data)["reason"], "SOURCE_HASH_MISMATCH")
 
     def test_invalid_utf8_fails(self):
-        self.assertEqual(verify_source(b"\\xff")["reason"], "INVALID_UTF8")
+        self.assertEqual(verify_source(bytes([255]) * MASS_RELAYS["byte_count"])["reason"], "INVALID_UTF8")
 
     def test_type_validation(self):
         self.assertEqual(verify_source("text")["reason"], "INVALID_INPUT")
