@@ -4,6 +4,8 @@ on:
     paths:
       - 'schemas/knowledge_mastery_receipt_v0.1.json'
       - 'tests/test_knowledge_mastery_schema.py'
+      - 'tests/test_knowledge_mastery_policy.py'
+      - 'tools/knowledge_mastery_policy.py'
       - '.github/workflows/knowledge-mastery-contract-ci.yml'
   workflow_dispatch:
 permissions: {}
@@ -20,5 +22,5 @@ jobs:
       - name: Validate schema and run contract tests
         run: |
           python3 -m json.tool schemas/knowledge_mastery_receipt_v0.1.json >/dev/null
-          python3 -m unittest discover -s tests -p 'test_knowledge_mastery_schema.py' -v
+          python3 -m unittest discover -s tests -p 'test_knowledge_mastery_*.py' -v
 # No secrets, external provider calls, writes, or mastery promotion.
