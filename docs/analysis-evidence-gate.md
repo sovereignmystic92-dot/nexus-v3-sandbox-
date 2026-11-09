@@ -1,6 +1,6 @@
 # Structural analysis evidence gate
 
-This opt-in code implements the checkable portion of the existing Domain Quality
+This code implements the checkable portion of the existing Domain Quality
 Lock and source/output completion rules. It creates no new policy or semantic
 quality standard. It neither runs Gemini nor activates a workflow/provider.
 
@@ -59,7 +59,7 @@ Rollback is reverting these source/test/doc changes; retain real receipts.
 
 ## Supervised live-host preparation
 
-The existing `execute_supervised` now optionally accepts `analysis_gate` with
+The standard `execute_supervised` requires `analysis_gate` with
 exactly binding, required_domains (tuple), and report. The gate binding's
 source_id/source_sha256 must match the exact Notion source; output_id is the
 pinned Cortex destination **name**, while the existing host separately verifies
@@ -82,11 +82,24 @@ or independent-review acceptance. The assessment is pinned in journal metadata;
 the host remains responsible for ensuring it accurately describes the saved
 analysis and for separately persisting/readback-verifying the receipt.
 
-Existing CLI configuration remains unchanged and does not accept this sidecar.
-A supervised Chat Python host can invoke the API directly with its authenticated
-request callback. No provider credentials enter the code or sidecar. This prepares
-a bounded test when the owner supplies a new transcript; it is not a standing
-auto-ingestion installation or permission to generate missing evidence.
+The CLI now requires the same sidecar in its standard configuration. JSON
+required_domains is a list, converted to the API tuple without inferring missing
+domains or evidence. Missing gate data blocks before provider requests/journal
+initialization. The supervised Chat Python host uses this same guarded entrypoint
+with its authenticated request callback. No provider credentials enter the code
+or sidecar; no standing auto-ingestion worker is installed.
+
+The only public ungated host path is `reconcile_legacy_supervised`, an explicitly
+reasoned, provider-read-only recovery for an existing ungated journal/transaction.
+It cannot create a provider object or a replacement journal. Its receipts state
+NOT_ASSESSED_LEGACY_RECONCILIATION rather than structural acceptance. See the
+supervised-host document for exact flags and recovery constraints. Existing gated
+journal bindings remain unchanged; a gate cannot be stripped or silently added.
+
+The generic pipeline guard remains opt-in for non-transcript callers. Low-level
+run/handoff functions do not enforce ordinary Chat invocation and must not be
+used as a policy bypass for new transcript processing. This change strengthens
+the supported host/CLI boundary, not authentication of arbitrary Python code.
 
 The already scheduled November 9 pilot has a separate gate-assessment instruction:
 inspect the exact checked candidate first, exercise only the authorized read-only
