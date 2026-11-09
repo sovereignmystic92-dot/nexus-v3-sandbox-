@@ -1,0 +1,40 @@
+name: Knowledge Mastery receipt contract CI
+on:
+  pull_request:
+    paths:
+      - 'schemas/knowledge_mastery_receipt_v0.1.json'
+      - 'tests/test_knowledge_mastery_schema.py'
+      - 'tests/test_knowledge_mastery_policy.py'
+      - 'tools/knowledge_mastery_policy.py'
+      - 'src/nexus_sandbox/knowledge_mastery_cortex_bridge.py'
+      - 'tests/test_knowledge_mastery_cortex_bridge.py'
+      - 'src/nexus_sandbox/knowledge_mastery_exchange.py'
+      - 'tests/test_knowledge_mastery_exchange.py'
+      - 'src/nexus_sandbox/knowledge_mastery_history.py'
+      - 'tests/test_knowledge_mastery_history.py'
+      - 'src/nexus_sandbox/knowledge_mastery_cycle.py'
+      - 'tests/test_knowledge_mastery_cycle.py'
+      - 'tools/knowledge_mastery_source_verify.py'
+      - 'tests/test_knowledge_mastery_source_verify.py'
+      - 'src/nexus_sandbox/knowledge_mastery_claims.py'
+      - 'tests/test_knowledge_mastery_claims.py'
+      - 'tests/test_knowledge_mastery_mass_relays_evidence.py'
+      - 'evidence/knowledge-mastery/**'
+      - '.github/workflows/knowledge-mastery-contract-ci.yml'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  knowledge-mastery-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install offline schema validator dependency
+        run: python3 -m pip install 'jsonschema==4.23.0'
+      - name: Validate schema and run contract tests
+        run: |
+          python3 -m json.tool schemas/knowledge_mastery_receipt_v0.1.json >/dev/null
+          PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_knowledge_mastery_*.py' -v
+# No secrets, external provider calls, writes, or mastery promotion.
