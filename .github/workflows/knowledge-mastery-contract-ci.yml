@@ -10,6 +10,8 @@ on:
       - 'tests/test_knowledge_mastery_cortex_bridge.py'
       - 'src/nexus_sandbox/knowledge_mastery_exchange.py'
       - 'tests/test_knowledge_mastery_exchange.py'
+      - 'src/nexus_sandbox/knowledge_mastery_history.py'
+      - 'tests/test_knowledge_mastery_history.py'
       - '.github/workflows/knowledge-mastery-contract-ci.yml'
   workflow_dispatch:
 permissions: {}
