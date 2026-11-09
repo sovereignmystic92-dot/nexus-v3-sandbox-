@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Nexus Knowledge Mastery evaluation receipt v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evaluation_id",
+    "subject_id",
+    "source_refs",
+    "source_integrity_status",
+    "revision",
+    "question_or_task",
+    "rubric_version",
+    "expected_or_reference",
+    "observed_answer",
+    "score",
+    "evidence_refs",
+    "uncertainty",
+    "contradiction_refs",
+    "evaluator_identity",
+    "review_independence_status",
+    "timestamp",
+    "outcome"
+  ],
+  "properties": {
+    "evaluation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_integrity_status": {
+      "enum": [
+        "verified",
+        "unverified",
+        "failed"
+      ]
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "question_or_task": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rubric_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_or_reference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_answer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "uncertainty": {
+      "type": "string"
+    },
+    "contradiction_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evaluator_identity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "review_independence_status": {
+      "enum": [
+        "verified",
+        "unavailable",
+        "failed"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "enum": [
+        "pass",
+        "fail",
+        "inconclusive"
+      ]
+    },
+    "mastery_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6
+    },
+    "promotion_requested": {
+      "type": "boolean"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "pass"
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source_integrity_status": {
+            "const": "verified"
+          },
+          "review_independence_status": {
+            "const": "verified"
+          },
+          "evidence_refs": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}
