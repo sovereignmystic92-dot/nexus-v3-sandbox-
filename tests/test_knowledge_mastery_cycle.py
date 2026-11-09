@@ -45,5 +45,39 @@ class LearningCycleTests(unittest.TestCase):
         f=fixture();f["active_constitution_revision"]="rev3"
         self.assertEqual(prepare_learning_cycle(**f).status,"BLOCKED")
 
+    def test_mass_relays_transcript_requires_independent_review(self):
+        # Real excerpt from archived 2026-11-08 Mass Relays transcript.
+        # Its source presence is NOT an independent review of its claims.
+        from tools.knowledge_mastery_policy import assess
+        excerpt = ("The Codex does not state in plain [music] letters that primary "
+                   "relays are quantum entangled with their partners.")
+        self.assertIn("does not state", excerpt)
+        receipt = dict(subject_id="mass-relays-primary-quantum-entanglement",
+                       evaluation_id="mass-relays:entanglement:1",
+                       outcome="pass", source_integrity_status="verified",
+                       review_independence_status="unverified",
+                       evidence_refs=["mass-relays-source.txt:quantum-entanglement"],
+                       source_refs=["mass-relays-source.txt"],
+                       contradiction_refs=[], mastery_level=2)
+        result = assess([receipt], subject_id=receipt["subject_id"])
+        self.assertEqual(result["demonstrated_level"], 0)
+        self.assertEqual(result["blocked"][0]["reason"], "review_not_independent")
+        self.assertEqual(result["accepted_evaluation_ids"], [])
+
+    def test_mass_relays_unresolved_claim_cannot_cross_modules(self):
+        from nexus_sandbox.knowledge_mastery_exchange import prepare_exchange
+        candidate = dict(subject_id="mass-relays-primary-quantum-entanglement",
+                         source_refs=["mass-relays-source.txt"],
+                         evidence_refs=["mass-relays-source.txt:quantum-entanglement"],
+                         evaluation_ids=["mass-relays:entanglement:1"],
+                         constitution_revision="offline-test-rev",
+                         contradiction_refs=["codex-not-confirmed"],
+                         mastery_level=2)
+        result = prepare_exchange(candidate=candidate,
+                                  recipient_modules=["research", "planning"],
+                                  active_constitution_revision="offline-test-rev")
+        self.assertEqual(result.reason, "UNRESOLVED_CONTRADICTION")
+        self.assertEqual(result.provider_writes, 0)
+
 if __name__=="__main__":
     unittest.main()
