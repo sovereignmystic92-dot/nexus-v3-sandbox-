@@ -18,6 +18,8 @@ on:
       - 'tests/test_knowledge_mastery_source_verify.py'
       - 'src/nexus_sandbox/knowledge_mastery_claims.py'
       - 'tests/test_knowledge_mastery_claims.py'
+      - 'tests/test_knowledge_mastery_mass_relays_evidence.py'
+      - 'evidence/knowledge-mastery/**'
       - '.github/workflows/knowledge-mastery-contract-ci.yml'
   workflow_dispatch:
 permissions: {}

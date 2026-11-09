@@ -1,0 +1,72 @@
+{
+  "schema": "nexus.knowledge-mastery.claim-candidates.v0.1",
+  "source_archive": "https://app.notion.com/p/4128c067daa481fea010fd3cc75575df",
+  "source_bytes": 19000,
+  "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+  "scope": "Narrator statements and interpretations only; not independent fictional-canon or scientific validation",
+  "extraction_method": "exact quote matching on independently read-back archived source; byte offsets UTF-8",
+  "provider_writes": 0,
+  "mastery_promoted": false,
+  "claims": [
+    {
+      "claim_id": "mr-001",
+      "kind": "narrator_claim",
+      "interpretation": "The narrator argues the relay network steers technological development.",
+      "source_id": "notion:4128c067-daa4-81fe-a010-fd3cc75575df",
+      "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+      "evidence_quote": "The relays don't just move you. They shape you.",
+      "byte_start": 2740,
+      "byte_end": 2787,
+      "review_status": "pending_independent_review",
+      "truth_status": "unverified"
+    },
+    {
+      "claim_id": "mr-002",
+      "kind": "fictional_lore",
+      "interpretation": "The narrator attributes intentional technology steering to Sovereign.",
+      "source_id": "notion:4128c067-daa4-81fe-a010-fd3cc75575df",
+      "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+      "evidence_quote": "By using their technology, your society develops along the paths they desire.",
+      "byte_start": 3095,
+      "byte_end": 3172,
+      "review_status": "pending_independent_review",
+      "truth_status": "unverified"
+    },
+    {
+      "claim_id": "mr-003",
+      "kind": "inference",
+      "interpretation": "The narrator explicitly says primary-relay quantum entanglement is not established by the Codex.",
+      "source_id": "notion:4128c067-daa4-81fe-a010-fd3cc75575df",
+      "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+      "evidence_quote": "The Codex does not state in plain [music] letters that primary relays are quantum entangled with their partners.",
+      "byte_start": 7912,
+      "byte_end": 8024,
+      "review_status": "pending_independent_review",
+      "truth_status": "unverified"
+    },
+    {
+      "claim_id": "mr-004",
+      "kind": "inference",
+      "interpretation": "The narrator speculates that relays may monitor travelers.",
+      "source_id": "notion:4128c067-daa4-81fe-a010-fd3cc75575df",
+      "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+      "evidence_quote": "The threads may be listening.",
+      "byte_start": 17815,
+      "byte_end": 17844,
+      "review_status": "pending_independent_review",
+      "truth_status": "unverified"
+    },
+    {
+      "claim_id": "mr-005",
+      "kind": "fictional_lore",
+      "interpretation": "The narrator describes destruction of the Bahak system.",
+      "source_id": "notion:4128c067-daa4-81fe-a010-fd3cc75575df",
+      "source_sha256": "3e08e40c1a500f638cbd67297d10e0c355b2281f1df66b9125b88a049c68cb41",
+      "evidence_quote": "The blast consumed the entire Bahak system.",
+      "byte_start": 17150,
+      "byte_end": 17193,
+      "review_status": "pending_independent_review",
+      "truth_status": "unverified"
+    }
+  ]
+}
