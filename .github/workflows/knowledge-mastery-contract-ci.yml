@@ -16,6 +16,8 @@ on:
       - 'tests/test_knowledge_mastery_cycle.py'
       - 'tools/knowledge_mastery_source_verify.py'
       - 'tests/test_knowledge_mastery_source_verify.py'
+      - 'src/nexus_sandbox/knowledge_mastery_claims.py'
+      - 'tests/test_knowledge_mastery_claims.py'
       - '.github/workflows/knowledge-mastery-contract-ci.yml'
   workflow_dispatch:
 permissions: {}
