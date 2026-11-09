@@ -16,7 +16,7 @@ from .transcript_live_handoff import Observed
 
 def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                        output_name, analysis, expected_owner, request,
-                       allow_create=False):
+                       allow_create=False, analysis_gate=None):
     """One locally serialized attempt; unknown create outcomes never retry.
 
     Ports: archive_read -> indexed observation; cortex_get -> module or None;
@@ -30,10 +30,33 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     prepared = json.loads(json.dumps(prepared))
     desired = ('NEXUS_SOURCE_PAGE=' + source_page + '\nNEXUS_SOURCE_SHA256='
                + source_sha256 + '\n' + analysis)
-    binding = json.dumps(dict(prepared=prepared, source_page=source_page,
+    gate_fingerprint = None
+    gate_binding = None
+    gate_domains = None
+    gate_report = None
+    if analysis_gate is not None:
+        from .analysis_evidence import validate_analysis_evidence
+        if (type(analysis_gate) is not dict or set(analysis_gate) !=
+                {'binding', 'required_domains', 'report'}
+                or type(analysis_gate['required_domains']) is not tuple):
+            raise ValueError('Exact structural analysis gate required')
+        gate_binding = json.loads(json.dumps(analysis_gate['binding'], allow_nan=False))
+        gate_domains = analysis_gate['required_domains']
+        gate_report = json.loads(json.dumps(analysis_gate['report'], allow_nan=False))
+        gate_fingerprint = validate_analysis_evidence(
+            gate_binding, gate_domains, gate_report)
+        if (gate_binding['source_id'] != source_page
+                or gate_binding['source_sha256'] != source_sha256
+                or gate_binding['output_id'] != output_name
+                or gate_report['output_text'] != desired):
+            raise ValueError('Analysis gate does not bind this source and output')
+    binding_data = dict(prepared=prepared, source_page=source_page,
         source_sha256=source_sha256, output_name=output_name,
         output_sha256=hashlib.sha256(desired.encode('utf-8')).hexdigest(),
-        expected_owner=expected_owner), sort_keys=True)
+        expected_owner=expected_owner)
+    if gate_fingerprint is not None:
+        binding_data['analysis_evidence_sha256'] = gate_fingerprint
+    binding = json.dumps(binding_data, sort_keys=True)
     with open(str(journal_path) + '.lock', 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         db = sqlite3.connect(journal_path)
@@ -72,6 +95,14 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                         or not isinstance(value.get('content'), str)
                         or (pinned_id and value['id'] != pinned_id)):
                     raise ValueError('Cortex identity/owner mismatch')
+                if gate_fingerprint is not None:
+                    # Pin the assessment in the journal and bind it to the actual
+                    # fresh provider text; metadata authenticity stays host-owned.
+                    fresh_report = json.loads(json.dumps(gate_report))
+                    fresh_report['output_text'] = value['content']
+                    if validate_analysis_evidence(
+                            gate_binding, gate_domains, fresh_report) != gate_fingerprint:
+                        raise ValueError('Saved analysis evidence mismatch')
                 observed_id = value['id']
                 return Observed(key, value['content'])
 
@@ -102,8 +133,14 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                 db.commit()
             # VERIFIED is accepted only after another fresh full source/output
             # read on replay. No journal status alone establishes completion.
-            return dict(handoff=asdict(result), create_requests=writes,
+            receipt = dict(handoff=asdict(result), create_requests=writes,
                         module_id=observed_id, output_sha256=json.loads(binding)['output_sha256'],
                         audit_promotion=False, unattended_readiness=False)
+            if gate_fingerprint is not None:
+                receipt['analysis_evidence_sha256'] = gate_fingerprint
+                receipt['analysis_evidence_status'] = (
+                    'STRUCTURAL_READBACK_MATCHED'
+                    if result.status == 'READBACK_MATCHED' else 'PRECHECK_ONLY')
+            return receipt
         finally:
             db.close()

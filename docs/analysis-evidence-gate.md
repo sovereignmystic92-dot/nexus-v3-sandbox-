@@ -56,3 +56,40 @@ Existing processing-pipeline tests must also pass. Provider-level acceptance and
 independent review remain separate. On an uncertain outcome, inspect the retained
 checkpoint and actual destination; do not rerun the non-resumable flow blindly.
 Rollback is reverting these source/test/doc changes; retain real receipts.
+
+## Supervised live-host preparation
+
+The existing `execute_supervised` now optionally accepts `analysis_gate` with
+exactly binding, required_domains (tuple), and report. The gate binding's
+source_id/source_sha256 must match the exact Notion source; output_id is the
+pinned Cortex destination **name**, while the existing host separately verifies
+native module ID, owner, version and complete content. The report output_text
+must be the exact saved content, including the host's NEXUS_SOURCE_PAGE and
+NEXUS_SOURCE_SHA256 prefix lines. Its SHA-256 is the binding's output_sha256.
+
+The gate is validated before any provider request. Its report fingerprint becomes
+part of the same existing durable execution journal binding. Changing or removing
+the gate, changing its assessed domains/evidence, or adding it to an older
+ungated journal fails binding before provider access. Do not discard/reset a
+journal to bypass this hold; new read-only assessment work needs a separately
+named, declared test transaction after checking the existing output.
+
+Every actual cortex_get callback then validates the report against the freshly
+returned provider content before the journal can reach VERIFIED. An unsuccessful
+handoff reports PRECHECK_ONLY; only a matched readback reports
+STRUCTURAL_READBACK_MATCHED. The latter remains structural evidence, not factual
+or independent-review acceptance. The assessment is pinned in journal metadata;
+the host remains responsible for ensuring it accurately describes the saved
+analysis and for separately persisting/readback-verifying the receipt.
+
+Existing CLI configuration remains unchanged and does not accept this sidecar.
+A supervised Chat Python host can invoke the API directly with its authenticated
+request callback. No provider credentials enter the code or sidecar. This prepares
+a bounded test when the owner supplies a new transcript; it is not a standing
+auto-ingestion installation or permission to generate missing evidence.
+
+The already scheduled November 9 pilot has a separate gate-assessment instruction:
+inspect the exact checked candidate first, exercise only the authorized read-only
+scope when supported, or record BLOCKED/NOT_TESTED and continue its original
+checkpoint-resume test. The pilot must not rewrite the existing analysis to pass
+the gate or count its replay as a fresh qualifying ingestion.
