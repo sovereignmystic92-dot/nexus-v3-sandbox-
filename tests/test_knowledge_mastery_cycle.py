@@ -79,5 +79,52 @@ class LearningCycleTests(unittest.TestCase):
         self.assertEqual(result.reason, "UNRESOLVED_CONTRADICTION")
         self.assertEqual(result.provider_writes, 0)
 
+
+    def test_mass_relays_offline_cycle_blocks_without_authenticated_route(self):
+        # Transcript text is evidence of what was said, not of an authenticated
+        # Notion readback, independent reviewer, or Cortex installation.
+        from tools.knowledge_mastery_policy import assess
+        data = fixture()
+        receipt = dict(
+            subject_id="mass-relays-primary-quantum-entanglement",
+            evaluation_id="mass-relays:source-excerpt:2",
+            outcome="pass", source_integrity_status="unverified",
+            review_independence_status="unverified",
+            evidence_refs=["pasted-mass-relays-excerpt"],
+            source_refs=["chat-transcript-excerpt"],
+            contradiction_refs=[], mastery_level=2,
+        )
+        assessment = assess([receipt], subject_id=receipt["subject_id"])
+        self.assertEqual(assessment["demonstrated_level"], 0)
+        self.assertEqual(assessment["blocked"][0]["reason"], "unverified_source")
+        data["assessment"] = assessment
+        data["candidate"]["subject_id"] = receipt["subject_id"]
+        data["candidate"]["mastery_level"] = 0
+        data["candidate"]["evaluation_ids"] = [receipt["evaluation_id"]]
+        data["archive_readback_verified"] = False
+        data["cortex_authority_verified"] = False
+        decision = prepare_learning_cycle(**data)
+        self.assertEqual(decision.status, "BLOCKED")
+        self.assertEqual(decision.provider_writes, 0)
+        self.assertEqual(decision.constitutional_changes, 0)
+
+    def test_synthetic_full_cycle_requires_external_promotion(self):
+        # This is an intentionally synthetic control, not a live source receipt.
+        from tools.knowledge_mastery_policy import assess
+        data = fixture()
+        receipt = dict(
+            subject_id="topic", evaluation_id="e1", outcome="pass",
+            source_integrity_status="verified",
+            review_independence_status="verified",
+            evidence_refs=["proof"], source_refs=["s1"],
+            contradiction_refs=[], mastery_level=2,
+        )
+        data["assessment"] = assess([receipt], subject_id="topic")
+        decision = prepare_learning_cycle(**data)
+        self.assertEqual(decision.status, "CANDIDATE_READY_FOR_EXTERNAL_REVIEW")
+        self.assertEqual(decision.next_action,
+                         "VERIFY_AUTHENTICATED_CORTEX_READBACK_BEFORE_PROMOTION")
+        self.assertEqual(decision.provider_writes, 0)
+
 if __name__=="__main__":
     unittest.main()
