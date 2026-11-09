@@ -53,6 +53,35 @@ The caller must implement and review the request callable. Published-audio
 accuracy, analysis quality, independent Gemini review, total host loss, remote
 CAS, five real ingestion runs and audit closure are outside this entrypoint.
 
-Rollback: remove this module, its unit tests and this document. Preserve any
+## Private command protocol
+
+Run `PYTHONPATH=src python -m nexus_sandbox.transcript_supervised_cli --config
+/private/mission.json --journal /private/execution.sqlite` as one command.
+The config has exactly prepared, source_page, source_sha256, output_name,
+analysis and expected_owner. Default mode is read-only. Add `--allow-create`
+only for a separately authorized exact-destination create. A config field
+cannot turn writes on.
+
+The command emits one JSON line per host request: type=request, monotonically
+increasing integer id, operation and payload. The private trusted dispatcher
+performs that connector call and replies with exactly id, ok=true and value.
+An explicit ok=false response stops; never translate it to absence. A final
+type=result contains the execution receipt; exit 0 requires READBACK_MATCHED.
+Failures exit 2. No provider error bodies are printed. Keep stdin/stdout private:
+requests can contain analysis. This is an IPC channel, not public job logging.
+
+Config and individual messages are bounded to 1 MiB. Duplicate keys,
+nonfinite JSON, wrong reply IDs, unexpected fields, EOF, unsolicited extra
+messages and incomplete host response delivery after 45 seconds stop execution.
+The deadline covers partial response delivery too. Retain the journal
+after any interruption. No credential or endpoint settings are accepted.
+
+Six subprocess protocol tests cover real process reopen/replay, committed
+create with response EOF and reconciliation, mismatched response identity,
+failed host response, unexpected config fields and read-only default. These
+are local synthetic process tests, not live provider timeout evidence. A seventh
+pipe test verifies that a partial response cannot defeat the total deadline.
+
+Rollback: remove the host/CLI modules, their unit tests and this document. Preserve any
 real execution journals/receipts for reconciliation; do not replay uncertain
 creates under a new journal.
