@@ -9,6 +9,7 @@ import fcntl
 import hashlib
 import json
 import sqlite3
+from pathlib import Path
 
 from .transcript_archived_handoff import run_archived_handoff
 from .transcript_live_handoff import Observed
@@ -17,6 +18,42 @@ from .transcript_live_handoff import Observed
 def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                        output_name, analysis, expected_owner, request,
                        allow_create=False, analysis_gate=None):
+    """Standard source-processing entrypoint: structural gate is mandatory.
+
+    Missing/malformed evidence fails before journal or provider access. Old
+    ungated journals use reconcile_legacy_supervised; never reset a journal.
+    """
+    if analysis_gate is None:
+        raise ValueError('Structural analysis gate required')
+    return _execute_supervised(journal_path=journal_path, prepared=prepared,
+        source_page=source_page, source_sha256=source_sha256,
+        output_name=output_name, analysis=analysis, expected_owner=expected_owner,
+        request=request, allow_create=allow_create, analysis_gate=analysis_gate)
+
+
+def reconcile_legacy_supervised(*, journal_path, prepared, source_page,
+                                source_sha256, output_name, analysis,
+                                expected_owner, request, reason, evidence_ref):
+    """Observe an existing ungated journal; no provider creates or gate claim.
+
+    The trusted host owns authorization. Reason/reference record its basis;
+    they are not a credential or a new authorization grant. Journal intent may
+    be reconciled, but no new journal/transaction is initialized here.
+    """
+    if any(type(v) is not str or not v.strip() or len(v) > 512
+           for v in (reason, evidence_ref)):
+        raise ValueError('Bounded legacy reason and evidence reference required')
+    return _execute_supervised(journal_path=journal_path, prepared=prepared,
+        source_page=source_page, source_sha256=source_sha256,
+        output_name=output_name, analysis=analysis, expected_owner=expected_owner,
+        request=request, allow_create=False,
+        legacy_reconciliation=dict(reason=reason, evidence_ref=evidence_ref))
+
+
+def _execute_supervised(*, journal_path, prepared, source_page, source_sha256,
+                        output_name, analysis, expected_owner, request,
+                        allow_create=False, analysis_gate=None,
+                        legacy_reconciliation=None):
     """One locally serialized attempt; unknown create outcomes never retry.
 
     Ports: archive_read -> indexed observation; cortex_get -> module or None;
@@ -24,7 +61,10 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     A None from cortex_get must mean confirmed exact-name absence in the
     host-selected account, never a search miss or an inaccessible module.
     """
-    if type(allow_create) is not bool or not expected_owner:
+    if (type(allow_create) is not bool or not expected_owner
+            or (analysis_gate is None and legacy_reconciliation is None)
+            or (legacy_reconciliation is not None
+                and (allow_create or analysis_gate is not None))):
         raise ValueError('explicit grant and expected owner required')
     # Freeze caller inputs before any callback. Bind journal to output bytes.
     prepared = json.loads(json.dumps(prepared))
@@ -59,13 +99,25 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     binding = json.dumps(binding_data, sort_keys=True)
     with open(str(journal_path) + '.lock', 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        db = sqlite3.connect(journal_path)
+        # mode=rw refuses missing journals. It must never silently create a
+        # replacement for lost legacy intent, even under the exception route.
+        db = (sqlite3.connect(Path(journal_path).resolve().as_uri() + '?mode=rw',
+                              uri=True) if legacy_reconciliation is not None
+              else sqlite3.connect(journal_path))
         try:
             db.execute('PRAGMA synchronous=FULL')
-            db.execute('CREATE TABLE IF NOT EXISTS execution '
-                       '(singleton INTEGER PRIMARY KEY CHECK(singleton=1), '
-                       'binding TEXT NOT NULL, state TEXT NOT NULL, module_id TEXT)')
+            if legacy_reconciliation is None:
+                db.execute('CREATE TABLE IF NOT EXISTS execution '
+                           '(singleton INTEGER PRIMARY KEY CHECK(singleton=1), '
+                           'binding TEXT NOT NULL, state TEXT NOT NULL, module_id TEXT)')
             prior = db.execute('SELECT binding,state,module_id FROM execution').fetchone()
+            if legacy_reconciliation is not None and not prior:
+                raise ValueError('Existing legacy transaction required')
+            if prior and (prior[1] not in ('PREPARED', 'INTENT', 'VERIFIED')
+                    or (prior[1] == 'VERIFIED' and
+                        (type(prior[2]) is not str or not prior[2]))
+                    or (prior[1] != 'VERIFIED' and prior[2] is not None)):
+                raise ValueError('Invalid journal state; reconcile custody')
             if prior and prior[0] != binding:
                 raise ValueError('journal binding changed')
             if not prior:
@@ -136,6 +188,11 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
             receipt = dict(handoff=asdict(result), create_requests=writes,
                         module_id=observed_id, output_sha256=json.loads(binding)['output_sha256'],
                         audit_promotion=False, unattended_readiness=False)
+            receipt['execution_mode'] = ('LEGACY_READONLY_RECONCILIATION'
+                if legacy_reconciliation is not None else 'GATED')
+            if legacy_reconciliation is not None:
+                receipt['legacy_reconciliation'] = legacy_reconciliation
+                receipt['analysis_evidence_status'] = 'NOT_ASSESSED_LEGACY_RECONCILIATION'
             if gate_fingerprint is not None:
                 receipt['analysis_evidence_sha256'] = gate_fingerprint
                 receipt['analysis_evidence_status'] = (

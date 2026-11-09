@@ -5,7 +5,8 @@ import tempfile
 import unittest
 
 from nexus_sandbox.transcript_ingestion_gate import prepare_transcript
-from nexus_sandbox.transcript_supervised_host import execute_supervised
+from nexus_sandbox.transcript_supervised_host import execute_supervised, reconcile_legacy_supervised
+from supervised_test_support import seed_legacy
 
 
 class QualitySupervisedHostTests(unittest.TestCase):
@@ -122,10 +123,86 @@ class QualitySupervisedHostTests(unittest.TestCase):
         self.assertEqual(self.calls, [])
 
     def test_existing_ungated_journal_cannot_be_silently_upgraded(self):
-        self.run_host(analysis_gate=None)
+        seed_legacy(self.path, prepared=self.prepared, source_page=self.page,
+            source_sha256=self.sha, output_name='fixture', analysis=self.analysis,
+            expected_owner='owner')
         self.calls.clear()
         with self.assertRaises(ValueError):
             self.run_host(allow_create=False)
+        self.assertEqual(self.calls, [])
+
+    def reconcile(self, **overrides):
+        args = dict(journal_path=self.path, prepared=self.prepared,
+            source_page=self.page, source_sha256=self.sha, output_name='fixture',
+            analysis=self.analysis, expected_owner='owner', request=self.request,
+            reason='Recover prior source-bound intent', evidence_ref='owner:synthetic')
+        args.update(overrides)
+        return reconcile_legacy_supervised(**args)
+
+    def seed(self, **overrides):
+        args = dict(prepared=self.prepared, source_page=self.page,
+            source_sha256=self.sha, output_name='fixture', analysis=self.analysis,
+            expected_owner='owner')
+        args.update(overrides)
+        seed_legacy(self.path, **args)
+
+    def test_default_missing_gate_has_no_provider_or_journal_effect(self):
+        with self.assertRaises(ValueError):
+            self.run_host(analysis_gate=None)
+        self.assertEqual(self.calls, [])
+        self.assertFalse(self.path.exists())
+
+    def test_legacy_missing_journal_cannot_initialize(self):
+        with self.assertRaises(Exception):
+            self.reconcile()
+        self.assertFalse(self.path.exists())
+        self.assertEqual(self.calls, [])
+
+    def test_legacy_exact_existing_output_reconciles_without_quality_claim(self):
+        self.seed()
+        self.module = dict(id='legacy',name='fixture',owner='owner',version=1,
+                           content=self.desired)
+        result = self.reconcile()
+        self.assertEqual(result['handoff']['status'], 'READBACK_MATCHED')
+        self.assertEqual(result['create_requests'], 0)
+        self.assertEqual(result['analysis_evidence_status'],
+                         'NOT_ASSESSED_LEGACY_RECONCILIATION')
+        self.assertEqual(result['legacy_reconciliation']['evidence_ref'], 'owner:synthetic')
+        self.assertNotIn('cortex_create', self.calls)
+
+    def test_legacy_absence_never_releases_pending_intent(self):
+        self.seed()
+        result = self.reconcile()
+        self.assertEqual(result['handoff']['status'], 'BLOCKED')
+        self.assertNotIn('cortex_create', self.calls)
+        import sqlite3
+        with sqlite3.connect(self.path) as db:
+            self.assertEqual(db.execute('SELECT state FROM execution').fetchone()[0], 'INTENT')
+
+    def test_legacy_cannot_strip_gate_from_existing_gated_journal(self):
+        self.run_host()
+        self.calls.clear()
+        with self.assertRaises(ValueError):
+            self.reconcile()
+        self.assertEqual(self.calls, [])
+
+    def test_legacy_rebinding_and_missing_basis_reject_before_provider(self):
+        self.seed()
+        for overrides in ({'reason':''}, {'evidence_ref':None}, {'analysis':'changed'}):
+            with self.assertRaises(ValueError):
+                self.reconcile(**overrides)
+        self.assertEqual(self.calls, [])
+
+    def test_corrupt_legacy_journal_state_cannot_be_relabelled_verified(self):
+        self.seed(state='CORRUPT')
+        with self.assertRaises(ValueError):
+            self.reconcile()
+        self.assertEqual(self.calls, [])
+
+    def test_verified_legacy_journal_requires_pinned_identity(self):
+        self.seed(state='VERIFIED', module_id=None)
+        with self.assertRaises(ValueError):
+            self.reconcile()
         self.assertEqual(self.calls, [])
 
     def test_actual_changed_provider_content_never_verifies(self):

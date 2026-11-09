@@ -6,7 +6,7 @@ import select
 import sys
 import time
 
-from .transcript_supervised_host import execute_supervised
+from .transcript_supervised_host import execute_supervised, reconcile_legacy_supervised
 
 
 LIMIT = 1024 * 1024
@@ -54,6 +54,8 @@ def main(argv=None):
     parser.add_argument('--config', required=True)
     parser.add_argument('--journal', required=True)
     parser.add_argument('--allow-create', action='store_true')
+    parser.add_argument('--reconcile-legacy-reason')
+    parser.add_argument('--reconcile-legacy-evidence')
     args = parser.parse_args(argv)
     counter = 0
 
@@ -84,10 +86,26 @@ def main(argv=None):
         if len(raw) > LIMIT:
             raise ValueError('config too large')
         config = _decode(raw)
-        if not isinstance(config, dict) or set(config) != FIELDS:
+        legacy = (args.reconcile_legacy_reason is not None
+                  or args.reconcile_legacy_evidence is not None)
+        expected_fields = FIELDS if legacy else FIELDS | {'analysis_gate'}
+        if type(config) is not dict or set(config) != expected_fields:
             raise ValueError('unexpected config fields')
-        result = execute_supervised(journal_path=args.journal, request=request,
-                                    allow_create=args.allow_create, **config)
+        if legacy:
+            if args.allow_create:
+                raise ValueError('legacy reconciliation cannot create')
+            result = reconcile_legacy_supervised(journal_path=args.journal,
+                request=request, reason=args.reconcile_legacy_reason,
+                evidence_ref=args.reconcile_legacy_evidence, **config)
+        else:
+            gate = config['analysis_gate']
+            if (type(gate) is not dict or set(gate) !=
+                    {'binding', 'required_domains', 'report'}
+                    or type(gate['required_domains']) is not list):
+                raise ValueError('exact JSON analysis gate required')
+            gate['required_domains'] = tuple(gate['required_domains'])
+            result = execute_supervised(journal_path=args.journal, request=request,
+                                        allow_create=args.allow_create, **config)
         emit(dict(type='result', result=result))
         return 0 if result['handoff']['status'] == 'READBACK_MATCHED' else 2
     except Exception:

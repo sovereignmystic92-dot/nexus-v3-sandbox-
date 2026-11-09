@@ -1,13 +1,16 @@
 # Supervised Chat host for archived transcript handoffs
 
-This opt-in composition adds a reusable `execute_supervised` entrypoint around
+This composition provides the standard gated `execute_supervised` entrypoint around
 PR #284's `run_archived_handoff`. It installs no service, schedule, GitHub
 workflow, credentials or provider endpoint. Review PR #284 first. The host must
 supply authenticated calls; this module cannot authenticate itself.
 
 Provide a private, owned, durable journal path, the independently pinned source
 receipt/chunks, exact Notion page, Cortex name, expected owner, analysis and an
-explicit create grant. The function invokes `request(operation, payload)`:
+explicit create grant, plus the complete `analysis_gate` sidecar described in
+analysis-evidence-gate.md. Missing/malformed evidence is rejected before journal
+or provider access, including read-only calls. The function invokes
+`request(operation, payload)`:
 
 | Operation | Host action / response |
 | --- | --- |
@@ -57,8 +60,12 @@ CAS, five real ingestion runs and audit closure are outside this entrypoint.
 
 Run `PYTHONPATH=src python -m nexus_sandbox.transcript_supervised_cli --config
 /private/mission.json --journal /private/execution.sqlite` as one command.
-The config has exactly prepared, source_page, source_sha256, output_name,
-analysis and expected_owner. Default mode is read-only. Add `--allow-create`
+The standard config has exactly prepared, source_page, source_sha256, output_name,
+analysis, expected_owner and analysis_gate. In JSON the gate has exactly binding,
+required_domains (a list) and report. The CLI validates this envelope and converts
+the domain list to the API's tuple; the same host guard validates its contents.
+Default write mode is read-only, with structural analysis checks still mandatory.
+Add `--allow-create`
 only for a separately authorized exact-destination create. A config field
 cannot turn writes on.
 
@@ -82,6 +89,34 @@ failed host response, unexpected config fields and read-only default. These
 are local synthetic process tests, not live provider timeout evidence. A seventh
 pipe test verifies that a partial response cannot defeat the total deadline.
 
-Rollback: remove the host/CLI modules, their unit tests and this document. Preserve any
-real execution journals/receipts for reconciliation; do not replay uncertain
-creates under a new journal.
+Rollback: revert the default-gate change to restore the earlier host/CLI
+interface. Preserve real execution journals/receipts for reconciliation; do not
+replay uncertain creates under a new journal or edit their binding to downgrade
+the recorded assessment.
+
+## Existing ungated journals
+
+For an explicitly authorized recovery of an older ungated transaction, use the
+separate Python `reconcile_legacy_supervised` function with nonempty `reason`
+and `evidence_ref`, or the CLI with both `--reconcile-legacy-reason` and
+`--reconcile-legacy-evidence`. That exception config has only the original six
+fields; it must not contain analysis_gate, and cannot use `--allow-create`.
+
+The exception requires an existing transaction in an existing journal with the
+exact original binding. It cannot initialize a journal, downgrade a gated one,
+create a provider record, overwrite output, or retry an uncertain effect. An
+existing exact output may reconcile INTENT to VERIFIED in the local journal.
+Missing/conflicting source/output remains blocked. Losing the journal requires
+operator reconciliation, never creating a substitute through this path.
+
+Receipts record execution_mode=LEGACY_READONLY_RECONCILIATION, the reason and
+evidence reference, and analysis_evidence_status=NOT_ASSESSED_LEGACY_RECONCILIATION.
+A successful readback/exit code on this path establishes observation/recovery,
+not completed analysis or structural-gate acceptance. Reasons record the trusted
+host's authority basis; they do not grant provider permissions.
+
+The ordinary API and CLI now fail closed without the gate, but arbitrary Chat
+sessions and third-party callers are not automatically intercepted. Generic
+pipeline/handoff primitives are lower-level components, not an approved bypass
+for new qualifying transcript processing. The host still supplies authenticated
+calls, honest domain assessment, fresh evidence and durable receipt readback.

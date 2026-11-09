@@ -5,6 +5,7 @@ import unittest
 
 from nexus_sandbox.transcript_ingestion_gate import prepare_transcript
 from nexus_sandbox.transcript_supervised_host import execute_supervised
+from supervised_test_support import make_gate
 
 
 class SupervisedHostTests(unittest.TestCase):
@@ -17,6 +18,7 @@ class SupervisedHostTests(unittest.TestCase):
         self.module = None
         self.calls = []
         self.fault = None
+        self.gate = make_gate(self.page, self.sha, 'fixture', 'Synthetic derived result')
 
     def request(self, op, data):
         self.calls.append(op)
@@ -43,7 +45,7 @@ class SupervisedHostTests(unittest.TestCase):
         args = dict(journal_path=Path(self.tmp.name)/'run.sqlite', prepared=self.prepared,
                     source_page=self.page, source_sha256=self.sha, output_name='fixture',
                     analysis='Synthetic derived result', expected_owner='owner',
-                    request=self.request, allow_create=True)
+                    request=self.request, allow_create=True, analysis_gate=self.gate)
         args.update(overrides)
         return execute_supervised(**args)
 
