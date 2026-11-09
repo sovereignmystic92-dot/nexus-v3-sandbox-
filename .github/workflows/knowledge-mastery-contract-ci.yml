@@ -6,6 +6,8 @@ on:
       - 'tests/test_knowledge_mastery_schema.py'
       - 'tests/test_knowledge_mastery_policy.py'
       - 'tools/knowledge_mastery_policy.py'
+      - 'src/nexus_sandbox/knowledge_mastery_cortex_bridge.py'
+      - 'tests/test_knowledge_mastery_cortex_bridge.py'
       - '.github/workflows/knowledge-mastery-contract-ci.yml'
   workflow_dispatch:
 permissions: {}
