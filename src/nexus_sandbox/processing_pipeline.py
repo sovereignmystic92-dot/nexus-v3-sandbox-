@@ -157,3 +157,59 @@ def run(run_id, executors, save_checkpoint, read_checkpoint):
     return Result('COMPLETE', confirmed[-1].stage, None,
                   'All required stage receipts and checkpoint readbacks verified', confirmed)
 
+
+def run_quality_checked(run_id, executors, save_checkpoint, read_checkpoint, *,
+                        analysis_binding, required_domains,
+                        read_analysis_evidence):
+    """Opt-in structural quality guard around the existing non-resumable runner.
+
+    Before PERSISTED, validate a source/output-bound report for every domain in
+    the host's independently determined required set. After the original final
+    readback, require a fresh report with exactly the same evidence digest.
+    Source acquisition, permissions, domain selection, factual/semantic review,
+    durable custody and report authenticity remain host responsibilities.
+    This entrypoint is not automatically wired into Chat or live provider hosts.
+    On interruption inspect retained checkpoints; never blindly replay effects.
+    """
+    from .analysis_evidence import validate_analysis_plan, validate_analysis_evidence
+
+    # Freeze trusted inputs before any stage or callback can change them.
+    binding = copy.deepcopy(analysis_binding)
+    domains = copy.deepcopy(required_domains)
+    validate_analysis_plan(binding, domains)
+    if binding['run_id'] != run_id or not callable(read_analysis_evidence):
+        raise ValueError('Bound run and analysis evidence reader required')
+    if (type(executors) is not dict or set(executors) != set(STAGES)
+            or any(not callable(x) for x in executors.values())):
+        raise ValueError('All seven executors required')
+    guarded = dict(executors)
+    original_persist = guarded['PERSISTED']
+    original_final = guarded['READBACK_VERIFIED']
+    evidence_digest = None
+
+    def evidence(phase):
+        report = read_analysis_evidence(phase)
+        return validate_analysis_evidence(binding, domains, report)
+
+    def persist(prior):
+        nonlocal evidence_digest
+        evidence_digest = evidence('PRE_PERSISTENCE')
+        receipt = original_persist(prior)
+        if not valid(receipt, run_id, 'PERSISTED'):
+            return receipt
+        return Receipt(run_id, 'PERSISTED', True, receipt.evidence_refs +
+                       ('analysis-evidence-sha256:' + evidence_digest,))
+
+    def complete(prior):
+        receipt = original_final(prior)
+        if not valid(receipt, run_id, 'READBACK_VERIFIED'):
+            return receipt
+        if evidence('POST_READBACK') != evidence_digest:
+            raise ValueError('Saved analysis evidence changed; reconcile only')
+        return Receipt(run_id, 'READBACK_VERIFIED', True, receipt.evidence_refs +
+                       ('analysis-evidence-sha256:' + evidence_digest,))
+
+    guarded['PERSISTED'] = persist
+    guarded['READBACK_VERIFIED'] = complete
+    return run(run_id, guarded, save_checkpoint, read_checkpoint)
+
