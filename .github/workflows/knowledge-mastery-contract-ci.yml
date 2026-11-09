@@ -22,5 +22,5 @@ jobs:
       - name: Validate schema and run contract tests
         run: |
           python3 -m json.tool schemas/knowledge_mastery_receipt_v0.1.json >/dev/null
-          python3 -m unittest discover -s tests -p 'test_knowledge_mastery_*.py' -v
+          PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_knowledge_mastery_*.py' -v
 # No secrets, external provider calls, writes, or mastery promotion.
