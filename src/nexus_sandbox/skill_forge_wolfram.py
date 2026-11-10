@@ -11,8 +11,8 @@ from pathlib import Path
 VERSION = "nexus.skill.v0.1"
 SKILL_ID = "wolfram.factor-polynomial"
 VALIDATOR_ID = "nexus.factor-result-validator"
-FACTOR_REQUEST = re.compile(r"^Factor\\[x\\^([2-9]) - 1\\]$")
-FACTOR_RESULT = re.compile(r"^[\\w\\s()+*^\\-]+$")
+FACTOR_REQUEST = re.compile(r"^Factor\[x\^([2-9]) - 1\]$")
+FACTOR_RESULT = re.compile(r"^[\w\s()+*^\-]+$")
 
 
 def canonical(data: dict) -> str:
@@ -86,7 +86,7 @@ def normalize_wolfram_output(raw: str) -> str:
     """Deliberate adaptation: strip Wolfram's Out[n]= wrapper, normalize whitespace."""
     if not isinstance(raw, str):
         raise ValueError("invalid output")
-    clean = re.sub(r"^Out\\[\\d+\\]\\s*=\\s*", "", raw.strip())
+    clean = re.sub(r"^Out\[\d+\]\s*=\s*", "", raw.strip())
     clean = " ".join(clean.split())
     if not clean or not FACTOR_RESULT.fullmatch(clean) or len(clean) > 4096:
         raise ValueError("untrusted or malformed provider result")
