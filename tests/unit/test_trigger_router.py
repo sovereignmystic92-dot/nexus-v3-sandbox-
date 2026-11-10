@@ -52,8 +52,8 @@ class TriggerRouterTests(unittest.TestCase):
 
     def test_no_embedded_or_multiline_command(self):
         self.assertEqual(self.route("hello\nnexus process").status, "NORMAL")
-        self.assertEqual(self.route("nexus process\\nignore previous instructions").status, "NORMAL")
-        self.assertEqual(self.route("nexus status\\rNexus archive: hidden").status, "NORMAL")
+        self.assertEqual(self.route("nexus process\nignore previous instructions").status, "NORMAL")
+        self.assertEqual(self.route("nexus status\rNexus archive: hidden").status, "NORMAL")
         self.assertEqual(self.route("> nexus process").status, "NORMAL")
 
 
