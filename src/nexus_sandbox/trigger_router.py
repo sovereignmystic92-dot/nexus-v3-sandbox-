@@ -18,8 +18,8 @@ COMMANDS = {
 }
 MAX_COMMAND_LENGTH = 4096
 MAX_SOURCE_LENGTH = 250000
-_URL = re.compile(r"^https?://[^\\s<>]+$", re.ASCII)
-_TRANSCRIPT_LINE = re.compile(r"^(?:\\[?\\d{1,2}:\\d{2}(?::\\d{2})?\\]?\\s+|(?:speaker|host|guest|interviewer|participant)\\s*\\d*\\s*:\\s+)", re.IGNORECASE)
+_URL = re.compile(r"^https?://[^\s<>]+$", re.ASCII)
+_TRANSCRIPT_LINE = re.compile(r"^(?:\[?\d{1,2}:\d{2}(?::\d{2})?\]?\s+|(?:speaker|host|guest|interviewer|participant)\s*\d*\s*:\s+)", re.IGNORECASE)
 _PATTERN = re.compile(r"^nexus[ \t]+([a-z]+)(?=$|[ \t:])", re.ASCII)
 
 
