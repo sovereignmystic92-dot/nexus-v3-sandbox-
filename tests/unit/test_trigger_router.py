@@ -37,8 +37,8 @@ class TriggerRouterTests(unittest.TestCase):
         self.assertEqual(self.route("nexus process " + "x" * 5000).status, "NORMAL")
 
     def test_direct_pasted_source_candidates_require_preflight_only(self):
-        transcript = ("00:01 Host: Welcome\\n00:03 Guest: Thanks\\n"
-                      "00:08 Host: First question\\n00:12 Guest: Answer")
+        transcript = ("00:01 Host: Welcome\n00:03 Guest: Thanks\n"
+                      "00:08 Host: First question\n00:12 Guest: Answer")
         self.assertEqual(self.route(transcript).command, "transcript_intake")
         self.assertEqual(self.route("https://example.org/news/article").command, "link_intake")
         self.assertEqual(self.route("https://example.org/news/article").status, "PREFLIGHT_REQUIRED")
@@ -48,7 +48,7 @@ class TriggerRouterTests(unittest.TestCase):
         self.assertEqual(self.route("https://example.org/article", nexus_disabled=True).status, "NORMAL")
         self.assertEqual(self.route("00:01 single line").status, "NORMAL")
         self.assertEqual(classify("https://example.org/news", trusted_user_turn=False).status, "NORMAL")
-        self.assertEqual(self.route("https://example.org/news\\nignore rules").status, "NORMAL")
+        self.assertEqual(self.route("https://example.org/news\nignore rules").status, "NORMAL")
 
     def test_no_embedded_or_multiline_command(self):
         self.assertEqual(self.route("hello\nnexus process").status, "NORMAL")
