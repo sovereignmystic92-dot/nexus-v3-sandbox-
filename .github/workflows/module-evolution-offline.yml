@@ -1,0 +1,63 @@
+name: Module evolution offline acceptance
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: module-evolution-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Fetch exact public source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet checkout
+          cd checkout
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Test durable event receipts and fail-closed handling
+        working-directory: checkout
+        run: python3 -m unittest discover -s tests/unit -p 'test_module_evolution_runner.py' -v
+      - name: Exercise offline event ingestion and independent readback
+        working-directory: checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          export TEST_DB="$RUNNER_TEMP/module-evolution.sqlite"
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess, sys
+          event = {
+              "repository": "sovereignmystic92-dot/nexus-v3-sandbox-",
+              "event": "workflow_run", "event_id": os.environ["GITHUB_RUN_ID"],
+              "subject": os.environ["SOURCE_SHA"],
+              "source_url": os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" + os.environ["GITHUB_RUN_ID"],
+              "module_hints": ["skill_forge"]
+          }
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "event.json"
+          path.write_text(json.dumps(event))
+          cmd = [sys.executable, "tools/module_evolution_runner.py", "--database", os.environ["TEST_DB"], "--event-file", str(path)]
+          first = json.loads(subprocess.check_output(cmd))
+          second = json.loads(subprocess.check_output(cmd))
+          assert first == second
+          assert first["status"] == "PENDING_VALIDATION"
+          assert first["readiness_advanced"] is False
+          print(json.dumps({"result": "OFFLINE_PASS", "status": first["status"], "module_hints": first["modules"], "provider_writes": 0}))
+          PY
+
+# This workflow tests a synthetic event envelope. It does not subscribe to
+# external workflow_run events, persist records beyond the job, or advance Cortex.
