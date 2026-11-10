@@ -60,7 +60,7 @@ def classify(message: str, *, trusted_user_turn: bool, nexus_disabled: bool = Fa
         return TriggerDecision("DISABLE", "off", "Host must persist session opt-out")
     if nexus_disabled:
         return TriggerDecision("NORMAL", None, "Nexus disabled for this conversation")
-    match = _PATTERN.match(text.lower())
+    # Multiline text is source material, not a standalone command.\n    if "\\n" in text or "\\r" in text:\n        return TriggerDecision("NORMAL", None, "Multiline text cannot be an explicit command")\n    match = _PATTERN.match(text.lower())
     if match is None:
         return TriggerDecision("NORMAL", None, "No explicit Nexus prefix")
     command = match.group(1)
