@@ -68,6 +68,14 @@ class RealSourceCLITests(unittest.TestCase):
         self.assertEqual(receipt["workflow_run_id"],"123")
         self.assertEqual(receipt["source_sha256"],hashlib.sha256(self.raw.encode()).hexdigest())
         self.assertFalse(receipt["durable_receipt_verified"])
+    def test_pasted_revision_boundary_whitespace_is_normalized(self):
+        status,out,err=self.invoke(revision="    rev1 \t\n")
+        self.assertEqual((status,self.calls),(0,1))
+        self.assertEqual(json.loads(out)["event_id"],"e1")
+    def test_internal_revision_whitespace_still_holds(self):
+        status,out,err=self.invoke(revision="rev 1")
+        self.assertEqual((status,self.calls),(2,0))
+        self.assertEqual(out,"")
     def test_approval_denial_precedes_source_and_model(self):
         status,out,err=self.invoke(approved="false")
         self.assertEqual((status,self.reads,self.calls),(2,0,0))
