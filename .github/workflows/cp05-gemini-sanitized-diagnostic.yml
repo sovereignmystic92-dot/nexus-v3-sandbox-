@@ -1,6 +1,17 @@
 name: CP05 Gemini sanitized shell diagnostic
 on:
   workflow_dispatch:
+    inputs:
+      gemini_review_approved:
+        description: 'Authorize sending fixed public CP05 metadata to Gemini'
+        required: true
+        type: boolean
+        default: false
+      gemini_cost_approved:
+        description: 'Authorize one Gemini API call under current project cost terms'
+        required: true
+        type: boolean
+        default: false
 permissions: {}
 concurrency:
   group: cp05-gemini-sanitized-diagnostic
@@ -9,12 +20,17 @@ jobs:
   diagnostic:
     if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    environment: notion-sandbox
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Generate safe diagnostic envelope
+      - name: Generate safe diagnostic envelope and optional Gemini review
+        env:
+          CP05_GEMINI_REVIEW_APPROVED: ${{ inputs.gemini_review_approved }}
+          CP05_GEMINI_COST_APPROVED: ${{ inputs.gemini_cost_approved }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python3 -I tools/cp05_gemini_sanitized_diagnostic.py
-# This first stage intentionally makes no Gemini or Socra API call.
+# Gemini only receives fixed public metadata when both dispatch approvals are true; no Socra calls.
 # Never expose SOCRA_CLIENT_SECRET or raw account/installation metadata.
