@@ -1,0 +1,25 @@
+name: CP05 NYC Cortex diagnostic (read-only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run fail-closed host connectivity diagnostic
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m nexus_sandbox.cp05_nyc_diagnostic | tee cp05-nyc-diagnostic.json
+      - name: Preserve diagnostic receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp05-nyc-readonly-diagnostic
+          path: cp05-nyc-diagnostic.json
+          if-no-files-found: warn
