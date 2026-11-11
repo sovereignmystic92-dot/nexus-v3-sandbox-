@@ -1,3 +1,7 @@
+## Current operating reference — November 8, 2026
+
+Start with the [Nexus operating baseline and rule-to-code review](docs/nexus-operating-baseline-20261108.md) for the current roles, source/output destinations, active versus historical rules, implemented boundaries and unresolved work. Its [source-bound rule map](docs/nexus-rule-implementation-map.json) is a review index, not executable policy or a compliance certificate. Dated acceptance/test results below retain their original scope; they are not a current system-wide verdict.
+
 # Nexus foundation audit sandbox
 
 Public, synthetic-only repository: `sovereignmystic92-dot/nexus-v3-sandbox-`.

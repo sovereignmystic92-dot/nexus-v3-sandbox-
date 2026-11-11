@@ -34,3 +34,6 @@ PR #210's Cortex workflow must not be treated as authenticated success until the
 
 ## Activation limitation
 This file configures repository instructions for Codex when Codex is invoked on the repo. It does not itself install a Codex GitHub Action, grant repository access, create a scheduled task, or cause Codex to run automatically.
+
+## Current rules and implementation index
+Read [the November 8 operating baseline](docs/nexus-operating-baseline-20261108.md) and its source-bound rule map when reconciling current Nexus behavior with legacy documentation. They index existing governing sources and implementation gaps; they are not new authority, authentication, automatic startup, full compliance, v4 promotion, or permission to activate deferred work. Recheck current applicable source/mission decisions before acting.
