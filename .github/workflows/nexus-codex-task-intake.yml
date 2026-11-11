@@ -1,0 +1,68 @@
+name: Nexus Codex task intake
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Existing GitHub issue number containing an owner-approved, bounded engineering task"
+        required: true
+        type: string
+permissions:
+  issues: read
+  contents: read
+concurrency:
+  group: nexus-codex-intake-${{ inputs.issue_number }}
+  cancel-in-progress: false
+jobs:
+  validate-handoff:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ inputs.issue_number }}
+    steps:
+      - name: Validate task and produce durable intake receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, urllib.request
+          from pathlib import Path
+          number = os.environ["ISSUE_NUMBER"]
+          if not re.fullmatch(r"[1-9][0-9]{0,7}", number):
+              raise SystemExit("BLOCKED_INVALID_ISSUE_NUMBER")
+          repo = os.environ["GH_REPO"]
+          request = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/issues/{number}",
+              headers={"Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+                       "Accept": "application/vnd.github+json",
+                       "User-Agent": "nexus-codex-task-intake"})
+          try:
+              with urllib.request.urlopen(request, timeout=15) as response:
+                  issue = json.load(response)
+          except Exception:
+              raise SystemExit("BLOCKED_ISSUE_LOOKUP")
+          if "pull_request" in issue or issue.get("state") != "open":
+              raise SystemExit("BLOCKED_NOT_OPEN_ISSUE")
+          labels = {x["name"] for x in issue.get("labels", [])}
+          if "nexus:codex-approved" not in labels:
+              raise SystemExit("BLOCKED_NO_OWNER_APPROVAL_LABEL")
+          body = issue.get("body") or ""
+          required = ("## Goal", "## Scope", "## Acceptance criteria", "## Safety boundaries")
+          if any(h not in body for h in required):
+              raise SystemExit("BLOCKED_INCOMPLETE_HANDOFF")
+          receipt = {"result":"INTAKE_VALIDATED_ONLY",
+                     "issue_number":int(number),"issue_url":issue["html_url"],
+                     "evidence":"workflow_dispatch issue metadata",
+                     "codex_execution":"NOT_CONFIGURED",
+                     "provider_writes":0}
+          Path("codex-intake-receipt.json").write_text(json.dumps(receipt, indent=2)+"\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(f"### Nexus Codex task intake\n\nValidated issue #{number}. **Codex was not executed.** Configure a supported Codex execution integration separately.\n")
+          print("INTAKE_VALIDATED_ONLY — Codex execution not configured")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codex-intake-receipt-${{ inputs.issue_number }}
+          path: codex-intake-receipt.json
+          retention-days: 30
