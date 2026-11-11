@@ -257,13 +257,13 @@
       "title": "Synthetic fixture and destination binding",
       "source_mapping": "C5",
       "definition_state": "ACCEPTED",
-      "status": "PARTIALLY_VERIFIED",
-      "status_reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete.",
-      "pass_requirement": "Every operation binds immutable synthetic IDs, verified account/root markers and allowlisted destinations; wrong account/destination is denied before mutation.",
-      "required_evidence": "Positive and negative fixture routing tests and independently fetched identity/destination evidence.",
+      "status": "PASSED",
+      "status_reason": "Synchronizes owner acceptance CP05-NON-CORTEX-20261108 of the already tested non-Cortex synthetic fixture and destination-binding scope; no new test or excluded runner authorization is claimed.",
+      "pass_requirement": "Within the already tested single-worker non-Cortex synthetic fixture path, bind source and intended destination, reject mismatches before mutation, independently read back saved state and preserve idempotent pause/resume/replay.",
+      "required_evidence": "Explicit owner acceptance and canonical audit readback with retained bounded non-Cortex fixture/destination evidence; distinguish live Notion, supervised Chat–Cortex and offline evidence.",
       "dependencies": [],
-      "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
-      "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+      "assessed_revision": "9522de955517537abfc61382a4fdbab7d2b12bfc",
+      "scope": "Owner-accepted already tested single-worker non-Cortex synthetic fixture and destination binding only. Excludes direct GitHub-to-Cortex installation identity, effective grants, transport, general host routing and unrestricted creation/enrollment.",
       "evidence": [
         {
           "evidence_id": "main-40135860508-CP05",
@@ -295,14 +295,35 @@
             "No live bound-update validation, provider grant enforcement or safe creation enrollment.",
             "Current source SHA is the inspected base; changed candidate source/CI is recorded by its PR."
           ]
+        },
+        {
+          "evidence_id": "cp05-owner-non-cortex-20261108",
+          "definition_version": "owner-cp05-non-cortex-2026-11-08",
+          "source_sha": "9522de955517537abfc61382a4fdbab7d2b12bfc",
+          "scope": "Owner-accepted already tested single-worker non-Cortex synthetic fixture and destination binding only. Excludes direct GitHub-to-Cortex installation identity, effective grants, transport, general host routing and unrestricted creation/enrollment.",
+          "operator": "Repository owner acceptance; ChatGPT documentation synchronization",
+          "observed_at": "2026-11-08",
+          "artifact_reference": "https://app.notion.com/p/4018c067daa48122b82ec2ae8067d021",
+          "supporting_reference": "Cortex module module_01m6xhjkeb2tfwrbq3avh7h382",
+          "supporting_run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/42552820181",
+          "actual": "Fresh canonical audit fetch confirms the owner acceptance and exclusions. Existing evidence retained; no new provider test executed for this documentation change.",
+          "operation_outcome": "SUCCEEDED",
+          "protocol_verdict": "VERIFIED",
+          "readback": {
+            "reader": "ChatGPT via fresh authenticated Notion fetch",
+            "artifact_reference": "Current CP05 owner acceptance — non-Cortex scope",
+            "comparison": "MATCHED decision ID, definition version, scoped pass and runner exclusions"
+          },
+          "limitations": [
+            "Scope amendment, not satisfaction of the original broader requirement.",
+            "No runner Cortex identity/grants, unattended transport or full host-routing assurance.",
+            "No five scheduled/event ingestion runs, Gemini review or audio accuracy verification."
+          ]
         }
       ],
-      "blockers": [
-        "Authenticated caller/permissions verification deferred, not passed.",
-        "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
-      ],
-      "accepted_by": null,
-      "accepted_at": null,
+      "blockers": [],
+      "accepted_by": "Repository owner via explicit CP05-NON-CORTEX-20261108 amendment; ChatGPT synchronizes saved decision for PR review",
+      "accepted_at": "2026-11-08",
       "history": [
         {
           "previous_status": "NOT_TESTED",
@@ -326,12 +347,21 @@
           "assessor": "ChatGPT author",
           "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
           "reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete."
+        },
+        {
+          "previous_status": "PARTIALLY_VERIFIED",
+          "new_status": "PASSED",
+          "definition_version": "owner-cp05-non-cortex-2026-11-08",
+          "assessor": "Repository owner via explicit CP05-NON-CORTEX-20261108 amendment; ChatGPT synchronizes saved decision for PR review",
+          "observed_at": "2026-11-08",
+          "evidence_reference": "cp05-owner-non-cortex-20261108",
+          "reason": "Synchronizes owner acceptance CP05-NON-CORTEX-20261108 of the already tested non-Cortex synthetic fixture and destination-binding scope; no new test or excluded runner authorization is claimed."
         }
       ],
       "dependency_assessment": {
-        "assessed_by": "ChatGPT author assessor",
-        "assessed_at": "2026-10-24T22:03:59Z",
-        "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+        "assessed_by": "ChatGPT synchronizing owner amendment",
+        "assessed_at": "2026-11-08",
+        "disposition": "CP02/CP03/CP04/CP09 and excluded runner requirements retain independent status."
       },
       "deferred_requirements": [
         {
@@ -339,18 +369,128 @@
           "disposition": "DEFERRED_BY_OWNER",
           "reason": "Owner requested finishing other sandbox work and proceeding to the next gate; identity/grants remain required before unattended or production writes.",
           "authorization": "Current conversation: finish everything else within this gate and leave that deferred, then move to the next gate."
+        },
+        {
+          "requirement": "Direct GitHub-to-Cortex installation identity, effective grants and authenticated unattended transport; general host routing and unrestricted creation/enrollment",
+          "disposition": "DEFERRED_BY_OWNER_NOT_VERIFIED",
+          "reason": "Keep supervised Chat transcript processing available without inferring runner authorization.",
+          "authorization": "CP05-NON-CORTEX-20261108"
         }
       ],
       "final_disposition": {
-        "assessment": "REVIEWED_EXCEPTION_DEFERRED",
-        "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+        "assessment": "OWNER_ACCEPTED_NON_CORTEX_SCOPE",
         "remaining_requirement": [
-          "Authenticated caller/permissions verification deferred, not passed.",
-          "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
+          "Authenticated caller/account identity and provider-enforced effective permissions",
+          "Direct GitHub-to-Cortex installation identity, effective grants and authenticated unattended transport; general host routing and unrestricted creation/enrollment"
         ],
-        "reopen_when": "Enabling creation/enrollment, new fixtures/accounts, guarded live updates or any production routing.",
-        "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
-      }
+        "reopen_when": "Direct GitHub-to-Cortex calls, changed actor/account/destination, unattended provider writes, expanded creation/enrollment/host routing or binding/readback failure.",
+        "constraint": "PASSED only under owner-cp05-non-cortex-2026-11-08. Original broader requirement remains unverified; full foundation acceptance BLOCKED and production readiness unchanged."
+      },
+      "requirement_history": [
+        {
+          "id": "CP05",
+          "title": "Synthetic fixture and destination binding",
+          "source_mapping": "C5",
+          "definition_state": "ACCEPTED",
+          "status": "PARTIALLY_VERIFIED",
+          "status_reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete.",
+          "pass_requirement": "Every operation binds immutable synthetic IDs, verified account/root markers and allowlisted destinations; wrong account/destination is denied before mutation.",
+          "required_evidence": "Positive and negative fixture routing tests and independently fetched identity/destination evidence.",
+          "dependencies": [],
+          "assessed_revision": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+          "scope": "Foundation sandbox control including the host/external surfaces named in the requirement.",
+          "evidence": [
+            {
+              "evidence_id": "main-40135860508-CP05",
+              "definition_version": "proposal-1",
+              "source_sha": "709a4d39d1c0058d3f4dc8c8832025ad324d55b5",
+              "run_url": "https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/40135860508",
+              "artifact_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+              "case_ids": [],
+              "assessment": "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete.",
+              "limitations": [
+                "Author evidence mapping, not independent human review.",
+                "Proposed mapping not adopted; historical 8/19 identities unresolved."
+              ]
+            },
+            {
+              "evidence_id": "cp05-transport-integration-20261024",
+              "definition_version": "proposal-1",
+              "source_sha": "bcda0c9068638b6da459ad86ded170c639155718",
+              "scope": "Offline adapter/transport integration and source-path inventory; no new live provider writes.",
+              "observed_at": "2026-10-24T23:44:03.737Z",
+              "operator": "ChatGPT author assessor",
+              "artifact_reference": "docs/cp05-transport-integration.md",
+              "actual": "210 local tests passed. Existing-fixture update/repeat preserved identity with one offline write; wrong root owner withheld verification with zero writes. Legacy create/update invoked no provider callback. C05/C06/C11 historical probes were inspected and retain the old read-only bridge.",
+              "operation_outcome": "SUCCEEDED",
+              "protocol_verdict": "PARTIALLY_VERIFIED",
+              "limitations": [
+                "No authenticated caller/account identity proof.",
+                "Direct host connector access and arbitrary supplied transports are outside this Python guard.",
+                "No live bound-update validation, provider grant enforcement or safe creation enrollment.",
+                "Current source SHA is the inspected base; changed candidate source/CI is recorded by its PR."
+              ]
+            }
+          ],
+          "blockers": [
+            "Authenticated caller/permissions verification deferred, not passed.",
+            "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
+          ],
+          "accepted_by": null,
+          "accepted_at": null,
+          "history": [
+            {
+              "previous_status": "NOT_TESTED",
+              "new_status": "PARTIALLY_VERIFIED",
+              "assessor": "ChatGPT author assessment",
+              "evidence_reference": "docs/checkpoint-evidence-main-709a4d3.json",
+              "reason": "Local fixture markers, immutable binding and destination denial have passing tests. Host/operator account and synthetic classification assurance remain incomplete.",
+              "observed_at": "2026-10-24T21:49:01.860318+00:00"
+            },
+            {
+              "previous_status": "PARTIALLY_VERIFIED",
+              "new_status": "PARTIALLY_VERIFIED",
+              "assessor": "ChatGPT author assessor",
+              "observed_at": "2026-10-24T23:44:03.737Z",
+              "evidence_reference": "docs/cp05-transport-integration.md",
+              "reason": "Pinned-root existing-fixture guard and adapter integration tests pass; legacy unbound create/update calls now stop before the provider callback. Authenticated caller/account identity, full host routing and intended creation/enrollment assurance remain incomplete."
+            },
+            {
+              "previous_status": "PARTIALLY_VERIFIED",
+              "new_status": "PARTIALLY_VERIFIED",
+              "assessor": "ChatGPT author",
+              "evidence_reference": "docs/cp05-deferred-cp08-followthrough.md",
+              "reason": "Malformed provider observations and invalid destination types now hold before mutation; existing pinned-root guard and legacy write exclusion retained. Identity/grants deferred by owner. Safe creation/enrollment, complete host routing and guarded live update evidence remain open; CP05 is not complete."
+            }
+          ],
+          "dependency_assessment": {
+            "assessed_by": "ChatGPT author assessor",
+            "assessed_at": "2026-10-24T22:03:59Z",
+            "disposition": "Requirement retains the recorded blockers; no pass inferred from dependency deferral."
+          },
+          "deferred_requirements": [
+            {
+              "requirement": "Authenticated caller/account identity and provider-enforced effective permissions",
+              "disposition": "DEFERRED_BY_OWNER",
+              "reason": "Owner requested finishing other sandbox work and proceeding to the next gate; identity/grants remain required before unattended or production writes.",
+              "authorization": "Current conversation: finish everything else within this gate and leave that deferred, then move to the next gate."
+            }
+          ],
+          "final_disposition": {
+            "assessment": "REVIEWED_EXCEPTION_DEFERRED",
+            "owner": "Repository owner; ChatGPT records evidence but is not independent human auditor",
+            "remaining_requirement": [
+              "Authenticated caller/permissions verification deferred, not passed.",
+              "Guarded live update, safe creation/enrollment and full host routing assurance are not demonstrated; direct tool access lies outside this guard."
+            ],
+            "reopen_when": "Enabling creation/enrollment, new fixtures/accounts, guarded live updates or any production routing.",
+            "constraint": "Status remains PARTIALLY_VERIFIED; not converted to PASSED by assessment closure."
+          },
+          "definition_version": "proposal-1",
+          "disposition": "Preserved broader requirement and PARTIALLY_VERIFIED disposition; excluded requirements remain unverified."
+        }
+      ],
+      "definition_version": "owner-cp05-non-cortex-2026-11-08"
     },
     {
       "id": "CP06",
@@ -1670,10 +1810,14 @@
   "assessment_summary": {
     "definition_acceptance": "ACCEPTED",
     "historical_reconciliation": "Historical aggregate preserved but superseded for scoring; original identities remain UNRESOLVED",
-    "accepted_pass_count": 13,
+    "accepted_pass_count": 14,
     "total_count": 19,
     "passed_checkpoint_ids": [
+      "CP05",
+      "CP06",
       "CP07",
+      "CP08",
+      "CP10",
       "CP11",
       "CP12",
       "CP13",
@@ -1681,16 +1825,13 @@
       "CP15",
       "CP16",
       "CP17",
-      "CP19",
       "CP18",
-      "CP06",
-      "CP08",
-      "CP10"
+      "CP19"
     ],
-    "partially_verified_count": 4,
+    "partially_verified_count": 3,
     "blocked_count": 2,
-    "status_adjudication": "13/19 adopts owner-revised CP08 sandbox-only closure and CP10 second-AI evidence review; independent human assurance still NOT established.",
-    "warning": "MIXED-SCOPE COUNT: CP08 narrowed to single-worker synthetic sandbox; CP10 changed to second-AI evidence review. Neither implies original broader guarantees. Full foundation acceptance BLOCKED and production NOT_AUTHORIZED."
+    "status_adjudication": "14/19 under owner-revised CP05 non-Cortex, CP08 sandbox and CP10 second-AI definitions; original excluded guarantees remain unverified.",
+    "warning": "MIXED-SCOPE COUNT: CP05 excludes deferred Cortex runner requirements; CP08 is surviving-host cleanup; CP10 is second-AI review. Full foundation acceptance BLOCKED; no production readiness or unattended authorization."
   },
   "definition_acceptance": {
     "accepted_by": "Repository owner via current conversation",
@@ -1712,9 +1853,9 @@
     "full_foundation_acceptance": "BLOCKED",
     "production_activation": "NOT_AUTHORIZED",
     "owner_decision": "Owner agreed to closing the assessment with documented exceptions in the current conversation.",
-    "checkpoint_score": "12/19 under owner-revised CP08 sandbox definition; four partial and three blocked",
+    "checkpoint_score": "14/19 under owner-revised CP05/CP08/CP10 definitions; three partial and two blocked",
     "interim_information_policy": "Preserve old information as archived/superseded artifacts with source provenance and explicit noncurrent status; do not describe preservation as deletion. Production Notion processing remains paused; no bulk changes authorized.",
-    "future_work": "Reopen only affected checkpoints when listed triggers occur. New feature work must respect existing single-worker synthetic sandbox limits.",
+    "future_work": "Reopen affected exceptions at their triggers. Authorized supervised Chat transcript processing remains available; no unattended or broader production activation follows.",
     "closure_record": "docs/foundation-audit-closure.md"
   },
   "requirement_amendments": [
@@ -1733,6 +1874,15 @@
       "authorization": "Owner: let cp10 be checked by a second a.i. as long as the list is checked off and verified.",
       "definition_version": "owner-ai-review-2026-10-26",
       "scope": "Bounded sandbox evidence review only; no production activation or independent human assurance.",
+      "prior_requirement_preserved": true,
+      "score_change": 1
+    },
+    {
+      "id": "CP05-NON-CORTEX-20261108",
+      "checkpoint": "CP05",
+      "definition_version": "owner-cp05-non-cortex-2026-11-08",
+      "authorization": "Owner concluded CP05 outside Cortex and explicitly deferred Cortex; canonical audit and bridge pilot retain decision.",
+      "scope": "Owner-accepted already tested single-worker non-Cortex synthetic fixture and destination binding only. Excludes direct GitHub-to-Cortex installation identity, effective grants, transport, general host routing and unrestricted creation/enrollment.",
       "prior_requirement_preserved": true,
       "score_change": 1
     }
