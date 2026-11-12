@@ -1,0 +1,71 @@
+name: Chat Cortex source-ready offline acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'src/nexus_sandbox/chat_cortex_*.py'
+      - 'tests/test_chat_cortex_*.py'
+      - '.github/workflows/chat-cortex-source-ready-offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chat-cortex-source-ready-offline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate offline handoff contracts
+        run: |
+          python -m unittest discover -s tests -p 'test_chat_cortex_*.py' -v
+      - name: Publish redacted validation receipt
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REVISION: ${{ github.sha }}
+        run: |
+          mkdir -p evidence
+          python - <<'PY'
+          import json, os
+          data = {
+              "schema": "nexus.chat-cortex.offline-validation.v1",
+              "github_run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
+              "revision": os.environ["REVISION"],
+              "validation_status": os.environ["JOB_STATUS"],
+              "source_provider_readback_verified": False,
+              "source_ready_emitted": False,
+              "chat_invoked": False,
+              "cortex_called": False,
+              "cortex_write_verified": False,
+              "audit_gate_promoted": False,
+          }
+          with open("evidence/chat-cortex-offline-validation.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, sort_keys=True, indent=2)
+          PY
+      - name: Upload durable validation artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chat-cortex-offline-validation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/chat-cortex-offline-validation.json
+          if-no-files-found: error
+          retention-days: 30
