@@ -7,7 +7,7 @@ uncertain delivery.
 """
 from contextlib import closing
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import json
 import os
@@ -57,7 +57,8 @@ def _time(value):
         parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
     except ValueError as exc:
         raise ValueError('ISO-8601 observation time required') from exc
-    _require(parsed.tzinfo is not None, 'UTC-offset observation time required')
+    _require(parsed.tzinfo is not None and parsed.utcoffset() == timedelta(0),
+             'UTC observation time required')
 
 
 def encode(handoff):
@@ -214,6 +215,10 @@ class HandoffOutbox:
             if current == 'BLOCKED' and to_state == 'RECORDED':
                 _require(evidence_ref is not None,
                          'Reopening requires changed evidence or a satisfied trigger')
+            if current == 'ROUTING' and to_state == 'BLOCKED':
+                _require(evidence_ref is not None and readback_ref is not None
+                         and evidence_ref != readback_ref,
+                         'Uncertain delivery requires result and independent readback refs')
             expected = (hid, current, to_state, actor, evidence_ref, readback_ref,
                         observed_at_utc, detail)
             prior_event = self._event(db, event_id)
@@ -247,7 +252,7 @@ class HandoffOutbox:
         self.transition(hid, event_id=intent_event_id, to_state='ROUTING',
                         actor=actor, observed_at_utc=observed_at_utc)
         try:
-            result = deliver(item['binding'])
+            result = deliver(dict(handoff_id=hid, binding=item['binding']))
         except Exception:
             return self.read(hid)
         if type(result) is not dict or set(result) != {'delivery_ref'} \

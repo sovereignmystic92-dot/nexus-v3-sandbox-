@@ -53,7 +53,8 @@ class HandoffOutboxTests(unittest.TestCase):
             deliver=lambda binding: (seen.append(binding) or
                                       {'delivery_ref': 'github:issue:202#handoff'}))
         self.assertEqual(result['state'], 'ROUTED')
-        self.assertEqual(seen[0]['finding_id'], self.value.finding_id)
+        self.assertEqual(seen[0]['handoff_id'], self.recorded['handoff_id'])
+        self.assertEqual(seen[0]['binding']['finding_id'], self.value.finding_id)
 
     def test_uncertain_delivery_is_not_replayed(self):
         calls = []
@@ -68,6 +69,20 @@ class HandoffOutboxTests(unittest.TestCase):
             intent_event_id='route:intent:2', routed_event_id='route:saved:2',
             observed_at_utc=NOW, deliver=fail))
         self.assertEqual(len(calls), 1)
+        with self.assertRaises(ValueError):
+            self.box.transition(self.recorded['handoff_id'],
+                event_id='route:block:unverified', to_state='BLOCKED',
+                actor='synthetic:dispatcher', observed_at_utc=NOW,
+                blocker='Delivery acknowledgment lost',
+                reopen_trigger='Destination absence independently verified')
+        blocked = self.box.transition(self.recorded['handoff_id'],
+            event_id='route:block:verified', to_state='BLOCKED',
+            actor='synthetic:reconciler', observed_at_utc=NOW,
+            evidence_ref='destination:absence-result:1',
+            readback_ref='destination:absence-readback:1',
+            blocker='Destination confirmed no delivery',
+            reopen_trigger='Authorized delivery may be attempted again')
+        self.assertEqual(blocked['state'], 'BLOCKED')
 
     def test_block_and_reopen_preserve_history(self):
         blocked = self.move('BLOCKED', 1, blocker='Destination unavailable',
@@ -114,6 +129,12 @@ class HandoffOutboxTests(unittest.TestCase):
     def test_wrong_outbox_identity_is_held(self):
         with self.assertRaises(HandoffHold):
             HandoffOutbox(self.path, 'synthetic:other')
+
+    def test_non_utc_observation_time_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.box.transition(self.recorded['handoff_id'], event_id='event:local',
+                to_state='ROUTING', actor='synthetic:dispatcher',
+                observed_at_utc='2026-11-12T10:30:00-05:00')
 
 
 if __name__ == '__main__':

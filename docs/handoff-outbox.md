@@ -22,10 +22,12 @@ requires both a result evidence reference and a distinct independent-readback
 reference. Delivery and acceptance are never counted as completion.
 
 `deliver_one` is the bounded host integration point. It selects one recorded item,
-commits `ROUTING`, then invokes an injected callback. A successful callback must
-return exactly one bounded `delivery_ref`; otherwise the saved state remains
-uncertain and the outbox will not call it again. The host still authenticates the
-destination, actor, evidence, authority, and readback.
+commits `ROUTING`, then invokes an injected callback with the stable handoff ID and
+immutable binding. A successful callback must return exactly one bounded
+`delivery_ref`; otherwise the saved state remains uncertain and the outbox will not
+call it again. Moving an uncertain delivery to `BLOCKED` requires separate result
+and independent-readback references. The host still authenticates the destination,
+actor, evidence, authority, and readback.
 
 This change installs no listener, schedule, GitHub issue writer, Cortex transport,
 credential, provider authority, multiworker fencing, or production activation.
