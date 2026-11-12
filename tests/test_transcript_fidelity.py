@@ -1,4 +1,6 @@
 import unittest
+from nexus_sandbox.transcript_ingestion_gate import prepare_transcript, verify_archive
+from nexus_sandbox.transcript_event_replay import replay_transcript_events
 from nexus_sandbox.transcript_fidelity import build_receipt, split_transcript, verify_readback
 
 
@@ -39,6 +41,527 @@ class TranscriptFidelityTests(unittest.TestCase):
         receipt = build_receipt(raw)
         receipt["sha256"] = "0" * 64
         self.assertFalse(verify_readback(raw, [raw], receipt))
+
+class TranscriptReplayTests(unittest.TestCase):
+    digest = "a" * 64
+
+    def event(self, step, event_id=None, **overrides):
+        value = {"event_id": event_id or step, "step": step,
+                 "source_sha256": self.digest, "authorized": True, "evidence": True}
+        value.update(overrides)
+        return value
+
+    def test_replay_full_and_idempotent(self):
+        steps = ["source_verified", "archive_written", "archive_readback",
+                 "derived_written", "derived_readback"]
+        events = [self.event(step) for step in steps]
+        result = replay_transcript_events(events + [dict(events[2])], self.digest)
+        self.assertEqual(result["status"], "SYNTHETIC_COMPLETE")
+        self.assertIsNone(result["next_step"])
+        self.assertFalse(result["provider_writes"])
+        self.assertFalse(result["audit_promotion"])
+
+    def test_partial_failure_resumes_without_promotion(self):
+        events = [self.event("source_verified"), self.event("archive_written")]
+        result = replay_transcript_events(events, self.digest)
+        self.assertEqual(result["next_step"], "archive_readback")
+        self.assertEqual(result["status"], "SYNTHETIC_INCOMPLETE")
+        self.assertFalse(result["audit_promotion"])
+
+    def test_out_of_order_rejected(self):
+        with self.assertRaises(ValueError):
+            replay_transcript_events([self.event("archive_written")], self.digest)
+
+    def test_conflicting_replay_rejected(self):
+        event = self.event("source_verified")
+        with self.assertRaises(ValueError):
+            replay_transcript_events([event, dict(event, evidence=False)], self.digest)
+
+    def test_unauthorized_and_unverified_rejected(self):
+        for key in ("authorized", "evidence"):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                replay_transcript_events([self.event("source_verified", **{key: False})], self.digest)
+
+    def test_wrong_source_rejected(self):
+        with self.assertRaises(ValueError):
+            replay_transcript_events([self.event("source_verified", source_sha256="b"*64)], self.digest)
+
+
+
+class ArkshipReceiptReplayFixtureTests(unittest.TestCase):
+    """Pinned real-source metadata, synthetic events; no provider operations."""
+    digest = "9f0001d95812ede7be917e16989f074369050c8a29548d22f7838eb39e85c08e"
+    steps = ("source_verified", "archive_written", "archive_readback",
+             "derived_written", "derived_readback")
+
+    def event(self, step):
+        return {"event_id": "arkship-v1:" + step, "step": step,
+                "source_sha256": self.digest, "authorized": True, "evidence": True}
+
+    def test_verified_metadata_replay_to_completion(self):
+        events = [self.event(step) for step in self.steps]
+        result = replay_transcript_events(events, self.digest)
+        self.assertEqual(result["status"], "SYNTHETIC_COMPLETE")
+        self.assertFalse(result["provider_writes"])
+        self.assertFalse(result["audit_promotion"])
+
+    def test_resume_after_archive_readback(self):
+        events = [self.event(step) for step in self.steps[:3]]
+        self.assertEqual(replay_transcript_events(events, self.digest)["next_step"],
+                         "derived_written")
+        resumed = events + [self.event(step) for step in self.steps[3:]]
+        self.assertEqual(replay_transcript_events(resumed, self.digest)["status"],
+                         "SYNTHETIC_COMPLETE")
+
+    def test_replayed_archive_write_does_not_advance(self):
+        events = [self.event(step) for step in self.steps[:2]]
+        result = replay_transcript_events(events + [dict(events[-1])], self.digest)
+        self.assertEqual(result["completed_steps"], list(self.steps[:2]))
+        self.assertEqual(result["next_step"], "archive_readback")
+
+    def test_source_digest_mismatch_blocks(self):
+        with self.assertRaises(ValueError):
+            replay_transcript_events([self.event(self.steps[0])], "b" * 64)
+
+
+class IngestionGateTests(unittest.TestCase):
+    def test_prepare_and_verified_archive(self):
+        raw = ("Relay >> [music] 🌌  " + "\\n") * 1000
+        prepared = prepare_transcript(raw, 512)
+        self.assertEqual("".join(prepared["chunks"]), raw)
+        self.assertFalse(prepared["cortex_write_allowed"])
+        result = verify_archive(prepared, list(prepared["chunks"]))
+        self.assertEqual(result["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(result["next_step"], "BOUNDED_DERIVED_REVIEW")
+        self.assertFalse(result["cortex_write_allowed"])
+        self.assertFalse(result["audit_promotion"])
+
+    def test_archive_mismatch_blocks(self):
+        prepared = prepare_transcript("A  B [music] " * 200)
+        altered = [prepared["chunks"][0].replace("  ", " ", 1)]
+        result = verify_archive(prepared, altered)
+        self.assertEqual(result["state"], "BLOCKED_ARCHIVE_MISMATCH")
+        self.assertIsNone(result["next_step"])
+
+    def test_missing_chunk_blocks(self):
+        prepared = prepare_transcript("z" * 26000)
+        self.assertFalse(verify_archive(prepared, prepared["chunks"][:-1])["archive_readback_verified"])
+
+    def test_no_provider_authorization_on_success(self):
+        prepared = prepare_transcript("Mass Effect relay")
+        self.assertFalse(verify_archive(prepared, prepared["chunks"])["cortex_write_allowed"])
+
+
+
+class ArchiveResumeTests(unittest.TestCase):
+    def setUp(self):
+        self.p = prepare_transcript("🚀 [music] >>  A\n" * 100, 256)
+        self.sha = self.p["receipt"]["sha256"]
+
+    def observe(self, indices):
+        return {"complete": True, "destination": "notion:fixture",
+                "source_sha256": self.sha,
+                "chunks": [{"index": i, "text": self.p["chunks"][i]} for i in indices]}
+
+    def plan(self, observation, **kw):
+        from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+        return plan_archive_resume(self.p, "notion:fixture", observation,
+                                   expected_source_sha256=kw.get("sha", self.sha))
+
+    def test_partial_resume_and_noop_retry(self):
+        obs = self.observe([0])
+        plan = self.plan(obs)
+        self.assertEqual(plan["state"], "MISSING_CHUNKS")
+        self.assertEqual([c["index"] for c in plan["missing_chunks"]],
+                         list(range(1, len(self.p["chunks"]))))
+        obs["chunks"].extend(plan["missing_chunks"])
+        full = self.plan(obs)
+        self.assertEqual(full["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(full["missing_chunks"], [])
+        self.assertEqual(self.plan(obs), full)
+        for key in ("provider_writes_allowed", "cortex_write_allowed", "audit_promotion"):
+            self.assertFalse(full[key])
+
+    def test_unknown_write_outcome_requires_readback(self):
+        result = self.plan(None)
+        self.assertEqual(result["state"], "READBACK_REQUIRED")
+        self.assertEqual(result["missing_chunks"], [])
+        self.assertFalse(result["archive_readback_verified"])
+
+    def test_successful_write_with_lost_reply_not_repeated(self):
+        obs = self.observe(range(len(self.p["chunks"])))
+        self.assertEqual(self.plan(None)["state"], "READBACK_REQUIRED")
+        self.assertEqual(self.plan(obs)["missing_chunks"], [])
+
+    def test_empty_archive_plans_all_chunks(self):
+        self.assertEqual(len(self.plan(self.observe([]))["missing_chunks"]),
+                         len(self.p["chunks"]))
+
+    def test_wrong_binding_or_incomplete_readback_rejected(self):
+        for field, value in (("destination", "notion:other"),
+                             ("source_sha256", "0" * 64), ("complete", False),
+                             ("complete", 1), ("chunks", None)):
+            obs = self.observe([0])
+            obs[field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                self.plan(obs)
+
+    def test_duplicate_conflicting_unordered_and_bad_index_rejected(self):
+        for indices in ([0, 0], [1, 0]):
+            with self.subTest(indices=indices), self.assertRaises(ValueError):
+                self.plan(self.observe(indices))
+        for index, text in ((True, self.p["chunks"][0]), (-1, "x"),
+                            (len(self.p["chunks"]), "x"), (0, "altered")):
+            obs = self.observe([])
+            obs["chunks"] = [{"index": index, "text": text}]
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                self.plan(obs)
+
+    def test_pinned_source_cannot_be_replaced(self):
+        with self.assertRaises(ValueError):
+            self.plan(self.observe([]), sha="0" * 64)
+        self.p["receipt"]["byte_count"] += 1
+        with self.assertRaises(ValueError):
+            self.plan(self.observe([]))
+
+    def test_malformed_prepared_source_rejected(self):
+        from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+        for prepared in (None, {}, dict(self.p, receipt=None),
+                         dict(self.p, chunks=[])):
+            with self.subTest(prepared=prepared), self.assertRaises(ValueError):
+                plan_archive_resume(prepared, "notion:fixture", None,
+                                    expected_source_sha256=self.sha)
+
+
+    @unittest.skipUnless(__import__("sys").platform == "linux", "SIGKILL fixture requires Linux")
+    def test_process_kill_before_and_after_persisted_write(self):
+        """Actual owned-child kills; file-backed fake provider, no live API."""
+        import json
+        import os
+        from pathlib import Path
+        import signal
+        import subprocess
+        import sys
+        import tempfile
+        child = """
+import json, os, signal, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+root = Path(sys.argv[1])
+prepared = json.loads((root / 'prepared.json').read_text())
+snapshot = json.loads((root / 'provider.json').read_text())
+plan = plan_archive_resume(prepared, 'notion:fixture', snapshot,
+                          expected_source_sha256=prepared['receipt']['sha256'])
+if sys.argv[2] == 'before':
+    os.kill(os.getpid(), signal.SIGKILL)
+snapshot['chunks'].extend(plan['missing_chunks'])
+with (root / 'provider.json').open('w') as stream:
+    json.dump(snapshot, stream)
+    stream.flush()
+    os.fsync(stream.fileno())
+# Successful fake-provider write, lost reply and lost local process state.
+os.kill(os.getpid(), signal.SIGKILL)
+"""
+        restart = """
+import json, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import plan_archive_resume
+root = Path(sys.argv[1])
+prepared = json.loads((root / 'prepared.json').read_text())
+snapshot = json.loads((root / 'provider.json').read_text())
+print(json.dumps(plan_archive_resume(
+    prepared, 'notion:fixture', snapshot,
+    expected_source_sha256=prepared['receipt']['sha256'])))
+"""
+        # Run one missing chunk through each crash boundary in a fresh process.
+        for phase in ("before", "after"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                observed = self.observe(range(len(self.p["chunks"]) - 1))
+                (root / "prepared.json").write_text(json.dumps(self.p))
+                (root / "provider.json").write_text(json.dumps(observed))
+                env = dict(os.environ)
+                env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+                killed = subprocess.run([sys.executable, "-c", child, tmp, phase],
+                                        env=env, capture_output=True, timeout=10)
+                self.assertEqual(killed.returncode, -signal.SIGKILL, killed.stderr)
+                resumed = subprocess.run([sys.executable, "-c", restart, tmp],
+                                         env=env, capture_output=True, text=True,
+                                         check=True, timeout=10)
+                decision = json.loads(resumed.stdout)
+                if phase == "before":
+                    self.assertEqual(decision["state"], "MISSING_CHUNKS")
+                    self.assertEqual([c["index"] for c in decision["missing_chunks"]],
+                                     [len(self.p["chunks"]) - 1])
+                else:
+                    self.assertEqual(decision["state"], "ARCHIVE_VERIFIED")
+                    self.assertEqual(decision["missing_chunks"], [])
+                    saved = json.loads((root / "provider.json").read_text())["chunks"]
+                    self.assertEqual(len(saved), len(self.p["chunks"]))
+                self.assertFalse(decision["provider_writes_allowed"])
+                self.assertFalse(decision["audit_promotion"])
+
+
+class ArchiveRecoveryHostTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.path = str(Path(self.tmp.name) / "journal.sqlite")
+        self.p = prepare_transcript("A" * 600, 256)
+        self.sha = self.p["receipt"]["sha256"]
+        self.saved = []
+        self.writes = []
+
+    def read(self, destination, sha):
+        return {"complete": True, "destination": destination, "source_sha256": sha,
+                "chunks": [dict(c) for c in self.saved]}
+
+    def write(self, destination, sha, index, text):
+        self.writes.append(index)
+        self.saved.append({"index": index, "text": text})
+
+    def run_attempt(self, **kwargs):
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        ports = dict(read_archive=self.read, write_chunk=self.write,
+                     authorize_write=lambda *args: True)
+        ports.update(kwargs)
+        return ArchiveRecoveryHost(self.path).attempt(
+            self.p, "fixture", expected_source_sha256=self.sha, **ports)
+
+    def test_one_chunk_per_attempt_then_verified_noop(self):
+        self.assertEqual(self.run_attempt()["state"], "MISSING_CHUNKS")
+        self.assertEqual(self.writes, [0])
+        self.run_attempt()
+        self.assertEqual(self.run_attempt()["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(self.run_attempt()["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(self.writes, [0, 1, 2])
+
+    def test_committed_write_lost_reply_reconciles_after_reopen(self):
+        def lost(*args):
+            self.write(*args)
+            raise TimeoutError("lost reply")
+        with self.assertRaises(TimeoutError):
+            self.run_attempt(write_chunk=lost)
+        self.run_attempt()
+        self.assertEqual(self.writes, [0, 1])
+
+    def test_absent_uncertain_write_blocks_until_settled(self):
+        def failed(*args):
+            raise TimeoutError("unknown")
+        with self.assertRaises(TimeoutError):
+            self.run_attempt(write_chunk=failed)
+        with self.assertRaises(ValueError):
+            self.run_attempt()
+        self.assertEqual(self.writes, [])
+        self.run_attempt(confirm_absent=lambda *args: True)
+        self.assertEqual(self.writes, [0])
+
+    def test_unauthorized_has_no_side_effect(self):
+        with self.assertRaises(PermissionError):
+            self.run_attempt(authorize_write=lambda *args: False)
+        self.assertEqual(self.writes, [])
+
+    def test_rebound_journal_rejected_before_provider(self):
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        self.run_attempt()
+        with self.assertRaises(ValueError):
+            ArchiveRecoveryHost(self.path).attempt(
+                self.p, "other", expected_source_sha256=self.sha,
+                read_archive=lambda *args: self.fail("must not read rebound target"),
+                write_chunk=self.write, authorize_write=lambda *args: True)
+
+    def test_incomplete_readback_never_writes(self):
+        with self.assertRaises(ValueError):
+            self.run_attempt(read_archive=lambda *args: {"complete": False})
+        self.assertEqual(self.writes, [])
+
+    def test_local_lock_excludes_second_worker(self):
+        import fcntl
+        with open(self.path + ".lock", "a") as held:
+            fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaises(BlockingIOError):
+                self.run_attempt()
+        self.assertEqual(self.writes, [])
+
+    def test_intent_is_durable_before_callback(self):
+        import sqlite3
+        def inspect(*args):
+            with sqlite3.connect(self.path) as db:
+                self.assertEqual(db.execute(
+                    "SELECT state,chunk_index FROM archive_events ORDER BY id DESC LIMIT 1"
+                ).fetchone(), ("WRITE_INTENT", 0))
+            self.write(*args)
+        self.run_attempt(write_chunk=inspect)
+
+
+    @unittest.skipUnless(__import__("sys").platform == "linux", "Linux lock/crash fixture")
+    def test_host_kill_after_provider_commit_reopens_journal_without_duplicate(self):
+        import json
+        import os
+        from pathlib import Path
+        import signal
+        import subprocess
+        import sys
+        root = Path(self.tmp.name)
+        (root / "provider.json").write_text("[]")
+        script = """
+import json, os, signal, sys
+from pathlib import Path
+from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost, prepare_transcript
+root = Path(sys.argv[1])
+p = prepare_transcript('one chunk')
+sha = p['receipt']['sha256']
+def read(dest, sha):
+    return {'complete': True, 'destination': dest, 'source_sha256': sha,
+            'chunks': json.loads((root / 'provider.json').read_text())}
+def write(dest, sha, index, text):
+    chunks = json.loads((root / 'provider.json').read_text())
+    chunks.append({'index': index, 'text': text})
+    with (root / 'provider.json').open('w') as stream:
+        json.dump(chunks, stream)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.kill(os.getpid(), signal.SIGKILL)
+r = ArchiveRecoveryHost(str(root / 'crash.sqlite')).attempt(
+    p, 'fixture', expected_source_sha256=sha, read_archive=read,
+    write_chunk=write, authorize_write=lambda *args: True)
+print(json.dumps(r))
+"""
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+        first = subprocess.run([sys.executable, "-c", script, str(root)],
+                               env=env, capture_output=True, timeout=10)
+        self.assertEqual(first.returncode, -signal.SIGKILL, first.stderr)
+        second = subprocess.run([sys.executable, "-c", script, str(root)],
+                                env=env, capture_output=True, text=True, timeout=10)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual(json.loads(second.stdout)["state"], "ARCHIVE_VERIFIED")
+        self.assertEqual(len(json.loads((root / "provider.json").read_text())), 1)
+
+
+
+class NotionArchivePortTests(unittest.TestCase):
+    destination = "12345678-1234-1234-1234-123456789abc"
+
+    def setUp(self):
+        import copy
+        from types import SimpleNamespace
+        from nexus_sandbox.transcript_ingestion_gate import NotionArchivePort
+        self.p = prepare_transcript("🚀[music] >>  A\n" * 1000, 12000)
+        self.sha = self.p["receipt"]["sha256"]
+        self.blocks = []
+        self.requests = []
+        self.list_override = None
+
+        def listing(**kw):
+            if self.list_override:
+                return self.list_override(**kw)
+            return {"results": copy.deepcopy(self.blocks), "has_more": False,
+                    "next_cursor": None}
+
+        def append(**kw):
+            self.requests.append(copy.deepcopy(kw))
+            child = copy.deepcopy(kw["children"][0])
+            child.update(id=f"00000000-0000-0000-0000-{len(self.requests):012d}",
+                         parent={"type": "page_id", "page_id": self.destination},
+                         has_children=False, archived=False, in_trash=False)
+            position = kw["position"]
+            if position["type"] == "start":
+                self.blocks.insert(0, child)
+            else:
+                at = next(i for i, b in enumerate(self.blocks)
+                          if b["id"] == position["after_block"]["id"])
+                self.blocks.insert(at + 1, child)
+            return {"results": [child]}
+        self.client = SimpleNamespace(blocks=SimpleNamespace(
+            children=SimpleNamespace(list=listing, append=append)))
+        self.port = NotionArchivePort(self.client, self.p, self.destination,
+                                     expected_source_sha256=self.sha)
+
+    def write(self, i):
+        self.port.write_chunk(self.destination, self.sha, i, self.p["chunks"][i])
+
+    def test_unicode_roundtrip_rich_text_limits_and_noop(self):
+        for i in range(len(self.p["chunks"])):
+            self.write(i)
+        obs = self.port.read_archive(self.destination, self.sha)
+        self.assertEqual("".join(c["text"] for c in obs["chunks"]), "".join(self.p["chunks"]))
+        count = len(self.requests)
+        self.write(0)
+        self.assertEqual(len(self.requests), count)
+        for req in self.requests:
+            for part in req["children"][0]["code"]["rich_text"]:
+                self.assertLessEqual(len(part["text"]["content"].encode("utf-16-le")) // 2, 2000)
+
+    def test_sparse_gap_inserted_in_logical_order(self):
+        self.write(1)
+        self.write(0)
+        obs = self.port.read_archive(self.destination, self.sha)
+        self.assertEqual([c["index"] for c in obs["chunks"]], [0, 1])
+        self.assertEqual(self.requests[-1]["position"], {"type": "start"})
+
+    def test_paginated_read(self):
+        import copy
+        self.write(0)
+        self.write(1)
+        calls = []
+        def pages(**kw):
+            calls.append(kw)
+            if "start_cursor" not in kw:
+                return {"results": copy.deepcopy(self.blocks[:1]), "has_more": True,
+                        "next_cursor": "second"}
+            return {"results": copy.deepcopy(self.blocks[1:]), "has_more": False}
+        self.list_override = pages
+        self.assertEqual(len(self.port.read_archive(self.destination, self.sha)["chunks"]), 2)
+        self.assertEqual(calls[1]["start_cursor"], "second")
+
+    def test_repeated_cursor_and_malformed_listing_fail(self):
+        for response in ({"results": [], "has_more": True, "next_cursor": "repeat"},
+                         {"results": [], "has_more": True},
+                         {"results": [], "has_more": 0}):
+            self.list_override = lambda **kw: response
+            with self.subTest(response=response), self.assertRaises(ValueError):
+                self.port.read_archive(self.destination, self.sha)
+
+    def test_foreign_or_duplicate_block_rejected(self):
+        import copy
+        self.write(0)
+        original = copy.deepcopy(self.blocks)
+        for change in ("parent", "caption", "duplicate"):
+            self.blocks = copy.deepcopy(original)
+            if change == "parent":
+                self.blocks[0]["parent"]["page_id"] = "00000000-0000-0000-0000-000000000000"
+            elif change == "caption":
+                self.blocks[0]["code"]["caption"][0]["text"]["content"] = "{}"
+            else:
+                self.blocks.append(copy.deepcopy(self.blocks[0]))
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.port.read_archive(self.destination, self.sha)
+
+    def test_wrong_payload_or_binding_never_appends(self):
+        for dest, sha, index, text in (
+                (self.destination, self.sha, 0, "changed"),
+                (self.destination, "0"*64, 0, self.p["chunks"][0]),
+                ("00000000-0000-0000-0000-000000000000", self.sha, 0, self.p["chunks"][0])):
+            with self.assertRaises(ValueError):
+                self.port.write_chunk(dest, sha, index, text)
+        self.assertEqual(self.requests, [])
+
+    def test_real_host_wiring_with_mocked_notion_client(self):
+        import tempfile
+        from pathlib import Path
+        from nexus_sandbox.transcript_ingestion_gate import ArchiveRecoveryHost
+        with tempfile.TemporaryDirectory() as tmp:
+            host = ArchiveRecoveryHost(str(Path(tmp) / "state.sqlite"))
+            for _ in range(len(self.p["chunks"]) + 1):
+                result = host.attempt(
+                    self.p, self.destination, expected_source_sha256=self.sha,
+                    read_archive=self.port.read_archive,
+                    write_chunk=self.port.write_chunk, authorize_write=lambda *args: True)
+            self.assertEqual(result["state"], "ARCHIVE_VERIFIED")
+            self.assertEqual(len(self.requests), len(self.p["chunks"]))
 
 
 if __name__ == "__main__":

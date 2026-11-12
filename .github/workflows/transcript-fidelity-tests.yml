@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'src/nexus_sandbox/transcript_fidelity.py'
+      - 'src/nexus_sandbox/transcript_ingestion_gate.py'
+      - 'src/nexus_sandbox/transcript_event_replay.py'
       - 'tests/test_transcript_fidelity.py'
       - '.github/workflows/transcript-fidelity-tests.yml'
   workflow_dispatch:

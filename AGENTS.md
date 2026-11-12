@@ -18,6 +18,7 @@ These instructions apply to Codex and other coding agents working in this reposi
 6. Preserve existing production settings, existing secrets, provenance, idempotency, and retry/reconciliation guarantees. Minimize changes and keep an explicit rollback path.
 7. For unattended or triggered work, use bounded missions, least-privilege GitHub permissions, concurrency/idempotency controls, durable receipts, and explicit stop conditions. An agent prompt or GitHub issue alone is not proof that an unattended Codex runner is installed.
 8. Do not self-certify independent review. Surface unresolved blockers and exact human actions required.
+9. For new qualifying transcript processing, use `execute_supervised` with a complete `analysis_gate`, or its CLI with the same sidecar. Missing evidence is a blocker; do not replace the entrypoint with generic pipeline/handoff primitives to bypass it. Older ungated journals may use only the separately authorized `reconcile_legacy_supervised` provider-read-only recovery with reason/evidence recorded; never reset a journal to remove a hold. This guidance does not install automatic invocation in arbitrary Chat sessions.
 
 ## Standard engineering handoff
 For each Codex task, report:
