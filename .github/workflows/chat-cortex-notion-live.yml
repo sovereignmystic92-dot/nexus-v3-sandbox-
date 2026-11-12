@@ -40,13 +40,15 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           REVISION: ${{ github.sha }}
+          DESTINATION_MODULE: "Nexus CP05 — Chat–Cortex Bridge Pilot 2026-11-08"
+          HANDOFF_REFERENCE: https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/issues/263
         run: |
           mkdir -p evidence
           python -m nexus_sandbox.chat_cortex_source_artifact \
             --markdown source-private/notion.md \
             --metadata source-private/metadata.json \
-            --destination-module cortex-review \
-            --authorization-reference https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/issues/202 \
+            --destination-module "$DESTINATION_MODULE" \
+            --authorization-reference "$HANDOFF_REFERENCE" \
             --github-run-id "$RUN_ID" \
             --github-run-attempt "$RUN_ATTEMPT" \
             --github-sha "$REVISION" \
