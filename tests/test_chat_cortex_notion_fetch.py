@@ -22,7 +22,7 @@ class NotionFetchTests(unittest.TestCase):
         self.assertIn("## Raw chunk 0", markdown)
         self.assertIn("```txt\nabc\n```", markdown)
         self.assertEqual(metadata["source_revision"], "2026-11-12T20:00:00Z")
-        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(calls), 4)
     def test_unknown_blocks_fail_closed(self):
         def api(path, token):
             if path.startswith("pages/"):
