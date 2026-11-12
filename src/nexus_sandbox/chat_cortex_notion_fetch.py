@@ -48,6 +48,11 @@ def fetch_canonical(token, *, api=request_json):
         cursor = data.get("next_cursor")
         if not cursor:
             raise ValueError("Notion pagination cursor missing")
+    # Detect edits during paginated retrieval; do not certify a moving source.
+    final_page = api("pages/" + SOURCE_ID, token)
+    if (final_page.get("id", "").replace("-", "") != SOURCE_ID.replace("-", "")
+            or final_page.get("last_edited_time") != revision):
+        raise ValueError("Notion source changed during readback")
     lines = []
     for block in blocks:
         kind = block.get("type")
