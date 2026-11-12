@@ -1,0 +1,63 @@
+name: Chat Cortex verified Notion source handoff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chat-cortex-notion-live-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: src
+      PYTHONDONTWRITEBYTECODE: '1'
+      NOTION_TOKEN: ${{ secrets.NEXUS_NOTION_READ_TOKEN }}
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Notion read-only credential
+        run: |
+          if [ -z "$NOTION_TOKEN" ]; then
+            echo "::error::NEXUS_NOTION_READ_TOKEN is not configured; fail closed."
+            exit 1
+          fi
+      - name: Retrieve complete canonical source
+        run: python -m nexus_sandbox.chat_cortex_notion_fetch
+      - name: Verify source and create redacted handoff
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          REVISION: ${{ github.sha }}
+        run: |
+          mkdir -p evidence
+          python -m nexus_sandbox.chat_cortex_source_artifact \
+            --markdown source-private/notion.md \
+            --metadata source-private/metadata.json \
+            --destination-module cortex-review \
+            --authorization-reference https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/issues/202 \
+            --github-run-id "$RUN_ID" \
+            --github-run-attempt "$RUN_ATTEMPT" \
+            --github-sha "$REVISION" \
+            --output evidence/source-ready.json
+      - name: Upload redacted SOURCE_READY receipt only
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-source-ready-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/source-ready.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Delete temporary raw source
+        if: always()
+        run: rm -rf source-private
