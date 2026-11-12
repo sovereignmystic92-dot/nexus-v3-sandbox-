@@ -2,10 +2,6 @@ name: Chat Cortex verified Notion source handoff
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [synchronize]
-    branches: [feature/chat-cortex-handoff-ci-20261112]
-    paths: ['.github/workflows/chat-cortex-notion-live.yml']
 
 permissions:
   contents: read
@@ -16,11 +12,6 @@ concurrency:
 
 jobs:
   verify-and-publish:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.number == 306 &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.head_ref == 'feature/chat-cortex-notion-readback-20261112')
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
@@ -31,7 +22,6 @@ jobs:
       - name: Checkout exact revision
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -49,7 +39,7 @@ jobs:
         env:
           RUN_ID: ${{ github.run_id }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
-          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+          REVISION: ${{ github.sha }}
           DESTINATION_MODULE: "Nexus CP05 — Chat–Cortex Bridge Pilot 2026-11-08"
           HANDOFF_REFERENCE: https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/issues/263
         run: |
