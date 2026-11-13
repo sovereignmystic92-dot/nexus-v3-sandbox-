@@ -1,0 +1,64 @@
+name: Codex Actions authentication smoke test
+on:
+  workflow_dispatch:
+    inputs:
+      authorize_one_api_call:
+        description: 'Authorize one bounded OpenAI API smoke run and its usage cost'
+        type: boolean
+        required: true
+        default: false
+permissions: {}
+concurrency:
+  group: nexus-codex-authentication-smoke
+  cancel-in-progress: false
+jobs:
+  authenticate:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main' && github.actor == 'sovereignmystic92-dot' && github.triggering_actor == github.actor && github.run_attempt == 1 && inputs.authorize_one_api_call == true
+    runs-on: ubuntu-24.04
+    environment: codex-smoke
+    timeout-minutes: 5
+    steps:
+      - name: Require dedicated API credential
+        env:
+          CODEX_KEY: ${{ secrets.NEXUS_CODEX_SMOKE_API_KEY }}
+        run: |
+          test -n "$CODEX_KEY" || { echo 'Codex smoke credential unavailable'; exit 1; }
+      - name: Run fixed read-only Codex prompt
+        uses: openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675
+        with:
+          openai-api-key: ${{ secrets.NEXUS_CODEX_SMOKE_API_KEY }}
+          allow-users: sovereignmystic92-dot
+          sandbox: read-only
+          safety-strategy: drop-sudo
+          codex-args: '["--ephemeral","--skip-git-repo-check"]'
+          prompt: 'Return exactly NEXUS_CODEX_AUTH_SMOKE_OK as plain text. Use no tools.'
+          output-file: ${{ runner.temp }}/nexus-codex-smoke-output.txt
+      - name: Validate marker and produce normalized receipt
+        env:
+          ACTION_REVISION: 'bdf19a4a223ec2549a3e2274a0cf61556bc07675'
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          output = Path(os.environ["RUNNER_TEMP"]) / "nexus-codex-smoke-output.txt"
+          if output.read_bytes().rstrip(b"\r\n") != b"NEXUS_CODEX_AUTH_SMOKE_OK":
+              raise SystemExit("Codex smoke response did not match the expected marker")
+          receipt = {
+              "status": "AUTHENTICATED_SMOKE_PASS",
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "workflow_sha": os.environ["GITHUB_SHA"],
+              "action_sha": os.environ["ACTION_REVISION"],
+              "marker_matched": True,
+          }
+          Path("codex-auth-receipt.json").write_text(json.dumps(receipt) + "\n", encoding="utf-8")
+          PY
+      - name: Upload normalized receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: codex-auth-receipt-${{ github.run_id }}
+          path: codex-auth-receipt.json
+          if-no-files-found: error
+          retention-days: 14
