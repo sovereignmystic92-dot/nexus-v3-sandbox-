@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'nexus-codex-authentication-smoke.yml': ('codex-smoke', {'NEXUS_CODEX_SMOKE_API_KEY'}),
     'notion-archive-live-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'notion-gemini-pinned-source-review.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN', 'GEMINI_API_KEY'}),
     'cp05-socra-installed-principal-identity.yml': (None, {'SOCRA_CLIENT_ID', 'SOCRA_CLIENT_SECRET', 'SOCRA_PRINCIPAL_ID', 'SOCRA_EXPECTED_DIRECTORY_ID'}),
