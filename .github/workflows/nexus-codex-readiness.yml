@@ -1,0 +1,69 @@
+name: Nexus Codex dispatch readiness (manual, read-only)
+
+# This workflow deliberately does NOT launch Codex or access Cortex.
+# It checks that an approved assignment is bound to the expected source revision.
+on:
+  workflow_dispatch:
+    inputs:
+      assignment:
+        description: 'Approved assignment identifier'
+        required: true
+        type: choice
+        options:
+          - cortex-single-writer-307
+      expected_sha:
+        description: 'Exact reviewed commit SHA on the trusted branch'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+concurrency:
+  group: nexus-codex-readiness-${{ inputs.assignment }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout trusted workflow revision
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate assignment and immutable revision
+        env:
+          ASSIGNMENT: ${{ inputs.assignment }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          ACTUAL_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$EVENT_NAME" = "workflow_dispatch"
+          test "$REPOSITORY" = "sovereignmystic92-dot/nexus-v3-sandbox-"
+          test "$ASSIGNMENT" = "cortex-single-writer-307"
+          [[ "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$EXPECTED_SHA" = "$ACTUAL_SHA"
+          echo "ASSIGNMENT_BOUND: $ASSIGNMENT"
+          echo "TRUSTED_SHA: $ACTUAL_SHA"
+      - name: Emit read-only evidence and explicit block
+        env:
+          ASSIGNMENT: ${{ inputs.assignment }}
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' "status=BLOCKED_CODEX_INTEGRATION_UNVERIFIED" "assignment=$ASSIGNMENT" "run_id=$RUN_ID" "commit=$SHA" "codex_invoked=false" "cortex_write=false" "audit_gate_pass=false" > codex-readiness.txt
+          cat codex-readiness.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload bounded readiness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-readiness-${{ github.run_id }}
+          path: codex-readiness.txt
+          retention-days: 14
+
+# Promotion to an executable Codex runner requires a separate reviewed change:
+# verified integration, explicit cost authorization, least privilege, independent CI.
