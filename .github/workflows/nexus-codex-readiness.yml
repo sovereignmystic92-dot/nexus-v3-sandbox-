@@ -16,8 +16,7 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: read
+permissions: {}
 concurrency:
   group: nexus-codex-readiness-${{ inputs.assignment }}
   cancel-in-progress: false
@@ -27,10 +26,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout trusted workflow revision
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+      - name: Checkout trusted workflow revision without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+          GIT_CONFIG_NOSYSTEM: '1'
+          GIT_CONFIG_GLOBAL: /dev/null
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet checkout
+          git -C checkout -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git -C checkout checkout --detach --quiet FETCH_HEAD
+          test "$(git -C checkout rev-parse HEAD)" = "$SOURCE_SHA"
       - name: Validate assignment and immutable revision
         env:
           ASSIGNMENT: ${{ inputs.assignment }}
