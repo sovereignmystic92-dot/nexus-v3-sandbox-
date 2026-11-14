@@ -1,4 +1,7 @@
 """Reproducible offline Skill Forge tests: python -m unittest discover -s tests/unit -p 'test_skill_forge_wolfram.py' -v"""
+import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -36,6 +39,46 @@ class SkillForgeWolframTests(unittest.TestCase):
             approved=True)
         self.assertTrue(result["validated"])
         self.assertEqual(len(result["skills"]), 2)
+
+    def test_fresh_process_retrieves_catalog_and_composes_second_fixture(self):
+        exported = self.db.export()
+        script = """
+import json
+import sys
+from nexus_sandbox.skill_forge_wolfram import (
+    FactorRequest, SkillLibrary, execute_composed,
+)
+
+library = SkillLibrary(sys.argv[1])
+try:
+    result = execute_composed(
+        library, FactorRequest("Factor[x^2 - 1]"),
+        lambda _: "Out[2]= (x - 1)*(x + 1)", approved=True,
+    )
+    print(json.dumps({"catalog": library.export(), "result": result}))
+finally:
+    library.close()
+"""
+        self.db.close()
+        try:
+            process = subprocess.run(
+                [sys.executable, "-c", script, str(self.path)],
+                check=True, capture_output=True, text=True, timeout=10,
+            )
+        finally:
+            self.db = SkillLibrary(self.path)
+        evidence = json.loads(process.stdout)
+        self.assertEqual(evidence["catalog"], exported)
+        self.assertEqual(evidence["result"]["result"], "(x - 1)*(x + 1)")
+        self.assertEqual(evidence["result"]["skills"], [SKILL_ID, VALIDATOR_ID])
+        self.assertTrue(evidence["result"]["validated"])
+
+    def test_reject_valid_factors_for_a_different_request(self):
+        with self.assertRaises(ValueError):
+            execute_composed(
+                self.db, FactorRequest("Factor[x^2 - 1]"),
+                lambda _: "(x-1)*(x+1)*(x^2+1)", approved=True,
+            )
 
     def test_modification_normalizes_output(self):
         self.assertEqual(normalize_wolfram_output(" Out[17]=   (x - 1) * (x + 1) "), "(x - 1) * (x + 1)")

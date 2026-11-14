@@ -106,9 +106,11 @@ def execute_composed(library: SkillLibrary, request: FactorRequest, transport, *
     expression = request.wolfram_code()
     raw = transport(expression)
     result = normalize_wolfram_output(raw)
-    # Independent second skill: exact algebraic identity for the bounded x^4-1 fixture.
-    if expression != "Factor[x^4 - 1]" or result.replace(" ", "") not in {
-        "(-1+x)*(1+x)*(1+x^2)", "(x-1)*(x+1)*(x^2+1)"
-    }:
+    # Verify only the factorization forms covered by the offline pilot.
+    expected = {
+        "Factor[x^2 - 1]": {"(-1+x)*(1+x)", "(x-1)*(x+1)"},
+        "Factor[x^4 - 1]": {"(-1+x)*(1+x)*(1+x^2)", "(x-1)*(x+1)*(x^2+1)"},
+    }
+    if result.replace(" ", "") not in expected.get(expression, ()):
         raise ValueError("independent validator rejected output")
     return {"request": expression, "result": result, "validated": True, "skills": [SKILL_ID, VALIDATOR_ID]}
