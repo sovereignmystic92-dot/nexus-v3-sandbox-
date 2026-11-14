@@ -51,5 +51,7 @@ class ModuleEvolutionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 module.evaluate(path, event(module_hints=["trading_platform"]))
 
+from test_module_evolution_snapshot import SnapshotTests  # Include cross-job checkpoint tests in CI
+
 if __name__ == "__main__":
     unittest.main()
