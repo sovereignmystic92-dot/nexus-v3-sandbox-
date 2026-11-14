@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'nexus-fresh-transcript-pilot.yml': ('nexus-transcript-pilot', {'NEXUS_NOTION_READ_TOKEN'}),
     'nexus-codex-authentication-smoke.yml': ('codex-smoke', {'NEXUS_CODEX_SMOKE_API_KEY'}),
     'notion-archive-live-probe.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN'}),
     'notion-gemini-pinned-source-review.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN', 'GEMINI_API_KEY'}),
