@@ -1,0 +1,62 @@
+name: Nexus supervised history continuity verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      current_run_id:
+        description: 'Completed daily observation run ID (must have a predecessor)'
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  verify:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+      NEXUS_GITHUB_READ_TOKEN: ${{ secrets.NEXUS_GITHUB_READ_TOKEN }}
+      TARGET_RUN_ID: ${{ inputs.current_run_id }}
+    steps:
+      - name: Validate inputs and read-only secret presence
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          if [[ -z "$NEXUS_GITHUB_READ_TOKEN" ]]; then
+            echo "Dedicated read-only Actions secret not configured" >&2
+            exit 1
+          fi
+      - name: Fetch pinned public source without checkout credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init --quiet checkout
+          cd checkout
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Verify two daily-run checkpoints
+        working-directory: checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nexus-history-verification"
+          python3 tools/module_evolution_live_verify.py \
+            --current-run-id "$TARGET_RUN_ID" \
+            --output "$RUNNER_TEMP/nexus-history-verification/checkpoint.json" \
+            --evidence "$RUNNER_TEMP/nexus-history-verification/evidence.json"
+      - name: Publish verification evidence only on success
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-supervised-history-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/nexus-history-verification/checkpoint.json
+            ${{ runner.temp }}/nexus-history-verification/evidence.json
+          if-no-files-found: error
+          retention-days: 7
+
+# Manual verification only. Does not change scheduled observations or Cortex.

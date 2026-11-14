@@ -1,0 +1,84 @@
+name: Nexus module daily observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * *'
+
+permissions: {}
+
+jobs:
+  daily-observation:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+      NEXUS_GITHUB_READ_TOKEN: ${{ secrets.NEXUS_GITHUB_READ_TOKEN }}
+    steps:
+      - name: Fetch pinned public source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet checkout
+          cd checkout
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Recover predecessor and reconcile current daily observation
+        working-directory: checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$NEXUS_GITHUB_READ_TOKEN"
+          mkdir -p "$RUNNER_TEMP/nexus-daily"
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess, sys
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / "nexus-daily"
+          event = {
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "event": "workflow_run",
+              "event_id": os.environ["GITHUB_RUN_ID"] + "-" + os.environ["GITHUB_RUN_ATTEMPT"],
+              "subject": os.environ["SOURCE_SHA"],
+              "source_url": os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" + os.environ["GITHUB_RUN_ID"],
+              "module_hints": []
+          }
+          event_file = output / "event.json"
+          event_file.write_text(json.dumps(event), encoding="utf-8")
+          checkpoint = output / "checkpoint.json"
+          evidence = output / "receipt.json"
+          subprocess.check_call([
+              sys.executable, "tools/module_evolution_scheduled_runner.py",
+              "--current-run-id", os.environ["GITHUB_RUN_ID"],
+              "--event-file", str(event_file),
+              "--output", str(checkpoint),
+              "--evidence", str(evidence),
+          ])
+          receipt = json.loads(evidence.read_text(encoding="utf-8"))
+          assert receipt["historical_artifact_verified"] is True
+          assert receipt["total_receipts"] == receipt["previous_receipts"] + 1
+          assert receipt["cortex_persisted"] is False
+          assert receipt["readiness_advanced"] is False
+          report = subprocess.check_output([
+              sys.executable, "tools/module_evolution_daily_report.py",
+              "--snapshot", str(checkpoint)
+          ], text=True)
+          (output / "report.json").write_text(report, encoding="utf-8")
+          assert json.loads(report)["verified_advancements"] == 0
+          print(report)
+          PY
+      - name: Publish bounded observation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-module-daily-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/nexus-daily/event.json
+            ${{ runner.temp }}/nexus-daily/receipt.json
+            ${{ runner.temp }}/nexus-daily/checkpoint.json
+            ${{ runner.temp }}/nexus-daily/report.json
+          if-no-files-found: error
+          retention-days: 7
+
+# Each run requires an authenticated, verified predecessor and reconciles one new observation.
+# Missing/failed history fails closed; no bootstrap, external subscription, or Cortex write.
