@@ -31,8 +31,15 @@ def _validate_row(row):
     required = ("repository", "event", "event_id", "subject")
     if envelope.get("repository") != "sovereignmystic92-dot/nexus-v3-sandbox-" or envelope.get("event") not in EVENTS:
         raise ValueError("untrusted repository/event")
-    if any(not isinstance(envelope.get(k), str) or not envelope[k] for k in required):
+    if any(not isinstance(envelope.get(k), str) or not envelope[k].strip() for k in required):
         raise ValueError("missing receipt identity")
+    if not isinstance(envelope.get("source_url"), str) or not envelope["source_url"].strip():
+        raise ValueError("missing receipt provenance")
+    hints = envelope.get("module_hints", [])
+    if not isinstance(hints, list) or any(not isinstance(m, str) or m not in MODULES for m in hints):
+        raise ValueError("invalid module routing")
+    if modules != sorted(set(hints)):
+        raise ValueError("module hints and receipt disagree")
     expected = hashlib.sha256(json.dumps([envelope[k] for k in required], separators=(",", ":")).encode()).hexdigest()
     if expected != key or modules != sorted(set(modules)) or any(m not in MODULES for m in modules):
         raise ValueError("receipt mismatch")
