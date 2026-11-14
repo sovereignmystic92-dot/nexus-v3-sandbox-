@@ -1,0 +1,108 @@
+name: Module evolution cross-run readback (manual, read-only)
+
+# Available for manual dispatch only after this workflow is merged to the
+# default branch. No automatic untrusted workflow_run execution is enabled.
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Completed module evolution offline run ID"
+        required: true
+        type: string
+      expected_sha:
+        description: "Exact 40-character source commit SHA"
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  readback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Validate source run identity and download checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          mkdir -p evidence
+          gh api "repos/$REPO/actions/runs/$SOURCE_RUN_ID" > run.json
+          python3 - <<'PY'
+          import json, os
+          run = json.load(open("run.json"))
+          assert run["id"] == int(os.environ["SOURCE_RUN_ID"])
+          assert run["head_sha"] == os.environ["EXPECTED_SHA"]
+          assert run["name"] == "Module evolution offline acceptance"
+          assert run["path"] == ".github/workflows/module-evolution-offline.yml"
+          assert run["head_repository"]["full_name"] == os.environ["REPO"]
+          assert run["status"] == "completed" and run["conclusion"] == "success"
+          assert run["repository"]["full_name"] == os.environ["REPO"]
+          assert run["event"] in ("pull_request", "push")
+          print("Verified source run identity, SHA, workflow and conclusion")
+          PY
+          gh run download "$SOURCE_RUN_ID" --repo "$REPO" \
+            --name "module-evolution-offline-$SOURCE_RUN_ID" --dir evidence
+          test -s evidence/checkpoint.json
+          test -s evidence/receipt.json
+      - name: Restore snapshot and verify independent readback
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, sqlite3
+          snapshot = json.loads(pathlib.Path("evidence/checkpoint.json").read_text())
+          receipt = json.loads(pathlib.Path("evidence/receipt.json").read_text())
+          assert snapshot["payload"]["schema"] == "module_evolution_snapshot_v1"
+          payload = snapshot["payload"]
+          canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+          assert hashlib.sha256(canonical.encode()).hexdigest() == snapshot["sha256"]
+          rows = payload["receipts"]
+          assert isinstance(rows, list) and len(rows) == 1
+          item = rows[0]
+          assert set(item) == {"event_key", "event_json", "modules_json", "status"}
+          event = json.loads(item["event_json"])
+          assert event["repository"] == os.environ["REPO"]
+          assert event["event"] == "workflow_run"
+          assert event["event_id"] == os.environ["SOURCE_RUN_ID"]
+          assert event["subject"] == os.environ["EXPECTED_SHA"]
+          assert set(event["module_hints"]) == {"skill_forge"}
+          assert json.loads(item["modules_json"]) == sorted(set(event["module_hints"]))
+          assert event["source_url"] == (
+              "https://github.com/" + os.environ["REPO"] + "/actions/runs/" + os.environ["SOURCE_RUN_ID"])
+          expected_key = hashlib.sha256(json.dumps(
+              [event[k] for k in ("repository", "event", "event_id", "subject")],
+              separators=(",", ":")).encode()).hexdigest()
+          assert expected_key == item["event_key"] == receipt["event_key"]
+          assert item["status"] == receipt["status"] == "PENDING_VALIDATION"
+          assert json.loads(item["modules_json"]) == receipt["modules"] == ["skill_forge"]
+          assert receipt["readiness_advanced"] is False
+          assert receipt["evidence_class"] == "offline"
+          with sqlite3.connect("recovered.sqlite") as db:
+              db.execute("CREATE TABLE event_receipts (event_key TEXT PRIMARY KEY, event_json TEXT NOT NULL, modules_json TEXT NOT NULL, status TEXT NOT NULL)")
+              db.execute("INSERT INTO event_receipts VALUES (?,?,?,?)",
+                         tuple(item[k] for k in ("event_key", "event_json", "modules_json", "status")))
+          with sqlite3.connect("recovered.sqlite") as db:
+              restored = db.execute("SELECT event_key, status FROM event_receipts").fetchall()
+          assert restored == [(expected_key, "PENDING_VALIDATION")]
+          print(json.dumps({"result": "CROSS_RUN_READBACK_PASS",
+                            "source_run": os.environ["SOURCE_RUN_ID"],
+                            "snapshot_sha256": snapshot["sha256"],
+                            "readiness_advanced": False,
+                            "provider_writes": 0}))
+          PY
+
+# This is a bounded manual acceptance workflow, not continuous persistence.
+# Never use downloaded artifacts as executable code.
