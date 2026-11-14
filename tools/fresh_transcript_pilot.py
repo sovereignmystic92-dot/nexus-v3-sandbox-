@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 PAGE = "4188c067-daa4-8134-9cda-f30c901aa875"
@@ -51,12 +52,17 @@ def main():
     token = os.environ.get("NOTION_TOKEN")
     if not token:
         raise SystemExit("NOTION_READ_CREDENTIAL_UNAVAILABLE")
+    stage = "page_metadata"
     try:
         page = read_notion("pages/" + PAGE, token)
+        stage = "child_blocks"
         children = read_notion("blocks/" + PAGE + "/children?page_size=100", token)
         verify(page, children)
+        stage = "page_metadata_readback"
         if read_notion("pages/" + PAGE, token).get("last_edited_time") != REVISION:
             raise ValueError("SOURCE_REVISION_CHANGED")
+    except HTTPError as exc:
+        raise SystemExit(f"NOTION_SOURCE_BLOCKED: {stage} HTTP_{exc.code}") from None
     except Exception as exc:
         code = str(exc) if type(exc) is ValueError and str(exc).isupper() else type(exc).__name__
         raise SystemExit("NOTION_SOURCE_BLOCKED: " + code) from None
