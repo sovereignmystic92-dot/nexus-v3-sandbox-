@@ -30,7 +30,7 @@ jobs:
           allow-users: sovereignmystic92-dot
           sandbox: read-only
           safety-strategy: drop-sudo
-          codex-args: '["--ephemeral","--skip-git-repo-check"]'
+          codex-args: '["--ephemeral"]'
           prompt: 'Return exactly NEXUS_CODEX_AUTH_SMOKE_OK as plain text. Use no tools.'
           output-file: ${{ runner.temp }}/nexus-codex-smoke-output.txt
       - name: Validate marker and produce normalized receipt
