@@ -32,7 +32,9 @@ jobs:
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
       - name: Test durable event receipts and fail-closed handling
         working-directory: checkout
-        run: python3 -m unittest discover -s tests/unit -p 'test_module_evolution_runner.py' -v
+        run: |
+          python3 -m unittest discover -s tests/unit -p 'test_module_evolution_runner.py' -v
+          python3 -m unittest discover -s tests/unit -p 'test_dot_nexus_adapter.py' -v
       - name: Exercise offline event ingestion and independent readback
         working-directory: checkout
         shell: bash
