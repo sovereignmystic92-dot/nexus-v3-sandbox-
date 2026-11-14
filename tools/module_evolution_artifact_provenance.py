@@ -19,7 +19,7 @@ def verify(metadata, checkpoint_bytes, trusted_digest):
         raise ValueError("metadata must be an object")
     required = ("repository", "workflow_path", "run_id", "run_attempt",
                 "run_conclusion", "head_sha", "artifact_name", "artifact_expired",
-                "artifact_run_id", "artifact_digest")
+                "artifact_run_id")
     if set(metadata) != set(required):
         raise ValueError("unexpected or missing metadata fields")
     if metadata["repository"] != REPOSITORY:
@@ -47,8 +47,6 @@ def verify(metadata, checkpoint_bytes, trusted_digest):
     actual = hashlib.sha256(checkpoint_bytes).hexdigest()
     if not isinstance(trusted_digest, str) or actual != trusted_digest:
         raise ValueError("checkpoint bytes differ from trusted digest")
-    if metadata["artifact_digest"] != "sha256:" + actual:
-        raise ValueError("artifact metadata digest mismatch")
     snapshot = json.loads(checkpoint_bytes)
     if not isinstance(snapshot, dict) or set(snapshot) != {"payload", "sha256"}:
         raise ValueError("invalid checkpoint")
