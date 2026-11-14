@@ -26,8 +26,8 @@ def validate_evidence(archive, expected_zip_sha256):
     payload = checkpoint.get("payload")
     if not isinstance(payload, dict) or payload.get("schema") != "module_evolution_snapshot_v1":
         raise ValueError("unexpected checkpoint schema")
-    from module_evolution_snapshot import canonical_bytes
-    digest = hashlib.sha256(canonical_bytes(payload)).hexdigest()
+    from module_evolution_snapshot import canonical
+    digest = hashlib.sha256(canonical(payload).encode()).hexdigest()
     if checkpoint.get("sha256") != digest or evidence.get("checkpoint_sha256") != digest:
         raise ValueError("checkpoint integrity mismatch")
     receipts = payload.get("receipts")
@@ -39,7 +39,7 @@ def validate_evidence(archive, expected_zip_sha256):
     previous, target = evidence.get("previous_run_id"), evidence.get("target_run_id")
     if type(previous) is not int or type(target) is not int or previous >= target:
         raise ValueError("invalid run ordering")
-    if [e.get("event_id") for e in events] != [str(previous) + "-1", str(target) + "-1"]:
+    if {e.get("event_id") for e in events} != {str(previous) + "-1", str(target) + "-1"}:
         raise ValueError("run receipts do not match evidence")
     if any(e.get("repository") != "sovereignmystic92-dot/nexus-v3-sandbox-" or
            e.get("event") != "workflow_run" for e in events):
