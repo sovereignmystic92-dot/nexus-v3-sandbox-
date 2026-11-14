@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
+from types import SimpleNamespace
 
 from nexus_sandbox.skill_forge_wolfram import (
     SkillLibrary, FactorRequest, SKILL_ID, VALIDATOR_ID, manifest, execute_composed,
@@ -36,7 +37,6 @@ class SkillForgeWolframTests(unittest.TestCase):
         self.assertEqual(self.db.get(VALIDATOR_ID)["dependencies"], [SKILL_ID])
         result = execute_composed(
             self.db, FactorRequest("Factor[x^4 - 1]"),
-            lambda expression: "Out[1]= (-1 + x)*(1 + x)*(1 + x^2)",
             approved=True)
         self.assertTrue(result["validated"])
         self.assertEqual(len(result["skills"]), 2)
@@ -53,8 +53,7 @@ from nexus_sandbox.skill_forge_wolfram import (
 library = SkillLibrary(sys.argv[1])
 try:
     result = execute_composed(
-        library, FactorRequest("Factor[x^2 - 1]"),
-        lambda _: "Out[2]= (x - 1)*(x + 1)", approved=True,
+        library, FactorRequest("Factor[x^2 - 1]"), approved=True,
     )
     print(json.dumps({"catalog": library.export(), "result": result}))
 finally:
@@ -114,6 +113,35 @@ finally:
                 transport.assert_not_called()
             finally:
                 library.close()
+
+    def test_invalid_approval_and_request_never_reach_transport(self):
+        transport = Mock()
+        with self.assertRaises(PermissionError):
+            execute_composed(self.db, FactorRequest("Factor[x^2 - 1]"), transport, approved="false")
+        with self.assertRaises(ValueError):
+            execute_composed(self.db, SimpleNamespace(wolfram_code=lambda: "invalid"), transport, approved=True)
+        transport.assert_not_called()
+
+    def test_catalog_rejects_incomplete_manifest(self):
+        for field in ("version", "contract", "input_schema", "output_schema",
+                      "fixtures", "evidence_refs", "adapter_path", "dependency_versions"):
+            with self.subTest(field=field):
+                data = dict(self.a)
+                del data[field]
+                with self.assertRaises(ValueError):
+                    self.db.register(data)
+
+    def test_catalog_retains_unavailable_skill(self):
+        data = dict(self.a, id="wolfram.factor-provider", readiness="unavailable")
+        self.db.register(data)
+        self.assertEqual(self.db.get(data["id"]), data)
+
+    def test_validator_accepts_reordered_factors(self):
+        result = execute_composed(
+            self.db, FactorRequest("Factor[x^4 - 1]"),
+            lambda _: "Out[1]= (1+x^2)*(x+1)*(-1+x)", approved=True,
+        )
+        self.assertTrue(result["validated"])
 
     def test_reject_conflicting_identity(self):
         changed = dict(self.a, capability="silently replaced")
