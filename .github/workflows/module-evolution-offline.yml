@@ -58,6 +58,20 @@ jobs:
           assert first == second
           assert first["status"] == "PENDING_VALIDATION"
           assert first["readiness_advanced"] is False
+          # Export a portable checkpoint and restore it in a separate process
+          # and database. This is still job-local; no cross-run store is claimed.
+          export = [sys.executable, "-c",
+                    "import sys; sys.path.insert(0, 'tools'); from module_evolution_snapshot import save_snapshot; save_snapshot(sys.argv[1], sys.argv[2])",
+                    os.environ["TEST_DB"], str(path.with_suffix(".snapshot.json"))]
+          subprocess.check_call(export)
+          recovered = str(path.with_suffix(".restored.sqlite"))
+          restore = [sys.executable, "-c",
+                     "import sys; sys.path.insert(0, 'tools'); from module_evolution_snapshot import load_snapshot; assert load_snapshot(sys.argv[1], sys.argv[2]) == 1",
+                     recovered, str(path.with_suffix(".snapshot.json"))]
+          subprocess.check_call(restore)
+          restored = json.loads(subprocess.check_output(
+              [sys.executable, "tools/module_evolution_runner.py", "--database", recovered, "--event-file", str(path)]))
+          assert restored == first
           print(json.dumps({"result": "OFFLINE_PASS", "status": first["status"], "module_hints": first["modules"], "provider_writes": 0}))
           PY
 
