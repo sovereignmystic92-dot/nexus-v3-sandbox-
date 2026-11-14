@@ -70,6 +70,19 @@ class DotAdapterTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     adapter.normalize(item)
 
+    def test_changed_replay_same_idempotency_key_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "events.sqlite"
+            original = adapter.normalize(proposal())
+            modified = adapter.normalize(proposal(subject="Different untrusted claim"))
+            self.assertEqual(original["subject"], modified["subject"])
+            self.assertNotEqual(original["proposal_digest"], modified["proposal_digest"])
+            runner.evaluate(path, original)
+            with self.assertRaisesRegex(ValueError, "collision or changed payload"):
+                runner.evaluate(path, modified)
+            with sqlite3.connect(path) as db:
+                self.assertEqual(db.execute("SELECT count(*) FROM event_receipts").fetchone()[0], 1)
+
     def test_proposal_does_not_advance_readiness(self):
         with tempfile.TemporaryDirectory() as tmp:
             receipt = runner.evaluate(Path(tmp) / "events.sqlite", adapter.normalize(proposal()))
