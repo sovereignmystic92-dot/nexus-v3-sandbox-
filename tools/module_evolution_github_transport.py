@@ -74,7 +74,8 @@ def archive_get(path, token, opener=None):
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
         raise ValueError("invalid archive redirect")
     allowed_hosts = ("objects.githubusercontent.com", "pipelines.actions.githubusercontent.com",
-                     "productionresultssa0.blob.core.windows.net")
+                     "productionresultssa0.blob.core.windows.net",
+                     "productionresultssa16.blob.core.windows.net")
     if parsed.hostname not in allowed_hosts:
         raise ValueError("untrusted artifact redirect host: " + parsed.hostname)
     # Token-free request to the signed artifact URL. Do not reuse API headers.
