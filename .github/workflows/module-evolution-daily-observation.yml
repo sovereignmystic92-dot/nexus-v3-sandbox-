@@ -1,0 +1,70 @@
+name: Nexus module daily observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 9 * * *'
+
+permissions: {}
+
+jobs:
+  daily-observation:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - name: Fetch pinned public source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet checkout
+          cd checkout
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Record actual scheduled run and report observations
+        working-directory: checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nexus-daily"
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess, sys
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / "nexus-daily"
+          event = {
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "event": "workflow_run",
+              "event_id": os.environ["GITHUB_RUN_ID"] + "-" + os.environ["GITHUB_RUN_ATTEMPT"],
+              "subject": os.environ["SOURCE_SHA"],
+              "source_url": os.environ["GITHUB_SERVER_URL"] + "/" + os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" + os.environ["GITHUB_RUN_ID"],
+              "module_hints": []
+          }
+          event_file = output / "event.json"
+          event_file.write_text(json.dumps(event), encoding="utf-8")
+          db = output / "observations.sqlite"
+          checkpoint = output / "checkpoint.json"
+          receipt = subprocess.check_output([sys.executable, "tools/module_evolution_runner.py", "--database", str(db), "--event-file", str(event_file)], text=True)
+          (output / "receipt.json").write_text(receipt, encoding="utf-8")
+          subprocess.check_call([sys.executable, "-c", "import sys; sys.path.insert(0,'tools'); from module_evolution_snapshot import save_snapshot; save_snapshot(sys.argv[1],sys.argv[2])", str(db), str(checkpoint)])
+          report = subprocess.check_output([sys.executable, "tools/module_evolution_daily_report.py", "--snapshot", str(checkpoint)], text=True)
+          (output / "report.json").write_text(report, encoding="utf-8")
+          assert json.loads(report)["verified_advancements"] == 0
+          print(report)
+          PY
+      - name: Publish bounded observation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-module-daily-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/nexus-daily/event.json
+            ${{ runner.temp }}/nexus-daily/receipt.json
+            ${{ runner.temp }}/nexus-daily/checkpoint.json
+            ${{ runner.temp }}/nexus-daily/report.json
+          if-no-files-found: error
+          retention-days: 7
+
+# Each run records only its own GitHub run observation.
+# No historical cross-run import, external event subscription, or Cortex write.
