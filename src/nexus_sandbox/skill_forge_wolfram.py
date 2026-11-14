@@ -1,6 +1,7 @@
 """Offline plugin-derived Skill Forge pilot. No network or provider writes."""
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 import hashlib
 import json
@@ -22,7 +23,27 @@ FACTOR_TEXT_SCHEMA = {"type": "string", "maxLength": 4096}
 REQUEST_SCHEMA = {"type": "string", "enum": list(FIXTURES)}
 EVIDENCE = "tests/unit/test_skill_forge_wolfram.py"
 WOLFRAM_FACTOR = "https://reference.wolfram.com/language/ref/Factor.html"
+AGENT_TOOLS = "https://reference.wolfram.com/language/Wolfram/AgentTools/tutorial/QuickStartforAICodingApplications.html"
 FACTOR_RESULT = re.compile(r"^[\w\s()+*^\-]+$")
+
+
+PILOT_SCHEMAS = {
+    SKILL_ID: (REQUEST_SCHEMA, FACTOR_TEXT_SCHEMA),
+    VALIDATOR_ID: ({
+        "type": "object",
+        "required": ["request", "result"],
+        "properties": {"request": REQUEST_SCHEMA, "result": FACTOR_TEXT_SCHEMA},
+    }, {"type": "boolean"}),
+}
+
+
+def validate_pilot_contract(data: dict, skill_id: str) -> None:
+    for field in ("upstream", "provenance"):
+        if not isinstance(data.get(field), str) or not data[field].strip():
+            raise ValueError(f"invalid manifest {field}")
+    expected_input, expected_output = PILOT_SCHEMAS[skill_id]
+    if data.get("input_schema") != expected_input or data.get("output_schema") != expected_output:
+        raise ValueError(f"incompatible schemas for {skill_id}")
 
 
 def canonical(data: dict) -> str:
@@ -30,15 +51,12 @@ def canonical(data: dict) -> str:
 
 
 def manifest(skill_id: str, *, upstream: str, capability: str, dependencies: list[str] | None = None) -> dict:
-    validator = skill_id == VALIDATOR_ID
     deps = dependencies or []
+    input_schema, output_schema = PILOT_SCHEMAS.get(skill_id, (REQUEST_SCHEMA, FACTOR_TEXT_SCHEMA))
     return {
-        "contract": WOLFRAM_FACTOR if not validator else "Expand factors and compare coefficients to x^n - 1.",
-        "input_schema": ({
-            "type": "object", "required": ["request", "result"],
-            "properties": {"request": REQUEST_SCHEMA, "result": FACTOR_TEXT_SCHEMA},
-        } if validator else REQUEST_SCHEMA),
-        "output_schema": ({"type": "boolean"} if validator else FACTOR_TEXT_SCHEMA),
+        "contract": "Expand factors and compare coefficients to x^n - 1." if skill_id == VALIDATOR_ID else WOLFRAM_FACTOR,
+        "input_schema": deepcopy(input_schema),
+        "output_schema": deepcopy(output_schema),
         "fixtures": list(FIXTURES),
         "evidence_refs": [EVIDENCE],
         "adapter_path": "src/nexus_sandbox/skill_forge_wolfram.py",
@@ -48,9 +66,34 @@ def manifest(skill_id: str, *, upstream: str, capability: str, dependencies: lis
         "dependencies": deps,
         "readiness": "offline-tested-only",
         "provider_permissions": [],
-        "provenance": "https://reference.wolfram.com/language/Wolfram/AgentTools/tutorial/QuickStartforAICodingApplications",
+        "provenance": WOLFRAM_FACTOR if skill_id == SKILL_ID else EVIDENCE,
         "limitations": "Locally computed fixtures; Wolfram runtime access requires separate verification",
     }
+
+
+def unavailable_wolfram_manifests() -> list[dict]:
+    """Catalog documented tools whose MCP schemas and execution are outside the pilot."""
+    tools = {
+        "WolframLanguageEvaluator": "Evaluate Wolfram Language with a licensed runtime",
+        "WolframLanguageContext": "Search Wolfram resources",
+        "ReadNotebook": "Read Wolfram notebooks as Markdown",
+        "WriteNotebook": "Create Wolfram notebooks from Markdown",
+        "SymbolDefinition": "Look up Wolfram symbol definitions",
+        "CodeInspector": "Inspect Wolfram Language code",
+        "TestReport": "Run Wolfram Language test files",
+    }
+    return [
+        {
+            "schema": VERSION, "id": f"wolfram.mcp.{name}", "version": PILOT_SKILL_VERSION,
+            "upstream": name, "capability": capability, "contract": AGENT_TOOLS,
+            "provenance": AGENT_TOOLS, "readiness": "unavailable",
+            "limitations": "Requires a verified Wolfram MCP installation and permission review",
+            "adapter_path": None, "input_schema": None, "output_schema": None,
+            "fixtures": [], "evidence_refs": [AGENT_TOOLS],
+            "dependencies": [], "dependency_versions": {}, "provider_permissions": [],
+        }
+        for name, capability in tools.items()
+    ]
 
 
 class SkillLibrary:
@@ -70,16 +113,21 @@ class SkillLibrary:
         deps = data.get("dependencies")
         if not isinstance(deps, list) or any(not isinstance(d, str) or not d for d in deps):
             raise ValueError("invalid dependencies")
-        for field in ("version", "contract", "adapter_path"):
-            if not isinstance(data.get(field), str) or not data[field]:
+        for field in ("version", "contract", "upstream", "provenance"):
+            if not isinstance(data.get(field), str) or not data[field].strip():
                 raise ValueError(f"invalid manifest {field}")
-        for field in ("input_schema", "output_schema"):
-            if not isinstance(data.get(field), dict) or not data[field].get("type"):
-                raise ValueError(f"invalid manifest {field}")
+        if data["readiness"] == "offline-tested-only":
+            if data["id"] not in PILOT_SCHEMAS:
+                raise ValueError("unknown executable skill")
+            validate_pilot_contract(data, data["id"])
+            if not isinstance(data.get("adapter_path"), str) or not data["adapter_path"].strip():
+                raise ValueError("invalid manifest adapter_path")
         for field in ("fixtures", "evidence_refs"):
-            if not isinstance(data.get(field), list) or not all(
-                isinstance(value, str) and value for value in data[field]
-            ) or not data[field]:
+            values = data.get(field)
+            required = field == "evidence_refs" or data["readiness"] == "offline-tested-only"
+            if not isinstance(values, list) or (required and not values) or not all(
+                isinstance(value, str) and value for value in values
+            ):
                 raise ValueError(f"invalid manifest {field}")
         versions = data.get("dependency_versions")
         if not isinstance(versions, dict) or set(versions) != set(deps) or not all(
@@ -174,6 +222,8 @@ def execute_composed(
     if any(skill["readiness"] != "offline-tested-only" or skill["provider_permissions"] != []
            for skill in (first, second)):
         raise PermissionError("skill not approved for offline fixture")
+    validate_pilot_contract(first, SKILL_ID)
+    validate_pilot_contract(second, VALIDATOR_ID)
     if any(skill.get("version") != PILOT_SKILL_VERSION for skill in (first, second)):
         raise ValueError("incompatible skill version")
     if (first["dependencies"] or second["dependencies"] != [SKILL_ID]

@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 from nexus_sandbox.skill_forge_wolfram import (
     SkillLibrary, FactorRequest, SKILL_ID, VALIDATOR_ID, manifest, execute_composed,
-    normalize_wolfram_output,
+    normalize_wolfram_output, unavailable_wolfram_manifests,
 )
 
 
@@ -131,10 +131,31 @@ finally:
                 with self.assertRaises(ValueError):
                     self.db.register(data)
 
-    def test_catalog_retains_unavailable_skill(self):
-        data = dict(self.a, id="wolfram.factor-provider", readiness="unavailable")
-        self.db.register(data)
-        self.assertEqual(self.db.get(data["id"]), data)
+    def test_catalog_retains_documented_unavailable_tools(self):
+        entries = unavailable_wolfram_manifests()
+        for entry in entries:
+            self.db.register(entry)
+            self.assertEqual(self.db.get(entry["id"]), entry)
+            self.assertEqual(entry["readiness"], "unavailable")
+            self.assertIsNone(entry["input_schema"])
+        self.assertIn("WolframLanguageEvaluator", {entry["upstream"] for entry in entries})
+
+    def test_catalog_rejects_incompatible_schema_and_missing_provenance(self):
+        for change in ({"input_schema": {"type": "number"}},
+                       {"output_schema": {"type": "array"}},
+                       {"upstream": None}, {"provenance": ""}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.db.register(dict(self.b, **change))
+
+    def test_existing_incompatible_descriptor_cannot_execute(self):
+        legacy = dict(self.b, input_schema={"type": "number"})
+        with self.db.db:
+            self.db.db.execute("UPDATE skills SET manifest=? WHERE id=?",
+                               (json.dumps(legacy), VALIDATOR_ID))
+        transport = Mock()
+        with self.assertRaisesRegex(ValueError, "incompatible schemas"):
+            execute_composed(self.db, FactorRequest("Factor[x^2 - 1]"), transport, approved=True)
+        transport.assert_not_called()
 
     def test_validator_accepts_reordered_factors(self):
         result = execute_composed(
