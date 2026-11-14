@@ -22,6 +22,7 @@
   "nexus-codex-authentication-smoke.yml": "3e3a0a3e2c6882e7c55eaee0da949db765275a9005b9653d35c722969fc87231",
   "nexus-codex-readiness.yml": "dc316443f4d6eb2099d942865503b99b53ddc28e1679091bcacf18222123e09a",
   "nexus-cp03-cp04-evidence.yml": "bc48aefab9681a832c24d180be137af20c2cf32d6929b81a93fc694572288882",
+  "nexus-fresh-transcript-pilot.yml": "50289e61f159a4e29bf7a77794496ad7341aa56321bb15c6530a1f3cf12f677c",
   "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
   "nexus-gemini-live-transcript-readonly.yml": "15467fcd89e01c87491a448ca0897f8598890df63d32ae81bd99deed365868cb",
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
