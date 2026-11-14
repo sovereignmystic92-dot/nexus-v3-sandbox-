@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock
 
 from nexus_sandbox.skill_forge_wolfram import (
     SkillLibrary, FactorRequest, SKILL_ID, VALIDATOR_ID, manifest, execute_composed,
@@ -90,6 +91,29 @@ finally:
     def test_reject_unsafe_code(self):
         with self.assertRaises(ValueError):
             FactorRequest("Run[\"curl example.com\"]").wolfram_code()
+
+    def test_unsupported_input_never_reaches_transport(self):
+        transport = Mock()
+        with self.assertRaises(ValueError):
+            execute_composed(
+                self.db, FactorRequest("Factor[x^3 - 1]"), transport, approved=True,
+            )
+        transport.assert_not_called()
+
+    def test_incompatible_skill_version_never_reaches_transport(self):
+        with tempfile.TemporaryDirectory() as directory:
+            library = SkillLibrary(Path(directory) / "skills.sqlite")
+            try:
+                library.register(self.a)
+                library.register(dict(self.b, version="2.0.0"))
+                transport = Mock()
+                with self.assertRaisesRegex(ValueError, "incompatible skill version"):
+                    execute_composed(
+                        library, FactorRequest("Factor[x^2 - 1]"), transport, approved=True,
+                    )
+                transport.assert_not_called()
+            finally:
+                library.close()
 
     def test_reject_conflicting_identity(self):
         changed = dict(self.a, capability="silently replaced")

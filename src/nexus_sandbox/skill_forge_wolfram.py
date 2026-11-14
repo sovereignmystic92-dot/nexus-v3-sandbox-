@@ -9,9 +9,13 @@ import sqlite3
 from pathlib import Path
 
 VERSION = "nexus.skill.v0.1"
+PILOT_SKILL_VERSION = "0.1.0"
 SKILL_ID = "wolfram.factor-polynomial"
 VALIDATOR_ID = "nexus.factor-result-validator"
-FACTOR_REQUEST = re.compile(r"^Factor\[x\^([2-9]) - 1\]$")
+EXPECTED_FACTORS = {
+    "Factor[x^2 - 1]": {"(-1+x)*(1+x)", "(x-1)*(x+1)"},
+    "Factor[x^4 - 1]": {"(-1+x)*(1+x)*(1+x^2)", "(x-1)*(x+1)*(x^2+1)"},
+}
 FACTOR_RESULT = re.compile(r"^[\w\s()+*^\-]+$")
 
 
@@ -21,7 +25,7 @@ def canonical(data: dict) -> str:
 
 def manifest(skill_id: str, *, upstream: str, capability: str, dependencies: list[str] | None = None) -> dict:
     return {
-        "schema": VERSION, "id": skill_id, "version": "0.1.0",
+        "schema": VERSION, "id": skill_id, "version": PILOT_SKILL_VERSION,
         "upstream": upstream, "capability": capability,
         "dependencies": dependencies or [],
         "readiness": "offline-tested-only",
@@ -51,10 +55,10 @@ class SkillLibrary:
         payload = canonical(data)
         digest = hashlib.sha256(payload.encode()).hexdigest()
         with self.db:
-            old = self.db.execute("SELECT digest FROM skills WHERE id=?", (data["id"],)).fetchone()
-            if old and old[0] != digest:
-                raise ValueError("conflicting skill identity")
             self.db.execute("INSERT OR IGNORE INTO skills VALUES (?,?,?)", (data["id"], digest, payload))
+            old = self.db.execute("SELECT digest FROM skills WHERE id=?", (data["id"],)).fetchone()
+            if old[0] != digest:
+                raise ValueError("conflicting skill identity")
         return digest
 
     def get(self, skill_id: str) -> dict:
@@ -77,7 +81,7 @@ class FactorRequest:
 
     def wolfram_code(self) -> str:
         """Strict bounded subset; never evaluate arbitrary user-supplied code."""
-        if not FACTOR_REQUEST.fullmatch(self.expression):
+        if not isinstance(self.expression, str) or self.expression not in EXPECTED_FACTORS:
             raise ValueError("unsupported or unsafe expression")
         return self.expression
 
@@ -101,16 +105,14 @@ def execute_composed(library: SkillLibrary, request: FactorRequest, transport, *
     second = library.get(VALIDATOR_ID)
     if first["readiness"] != "offline-tested-only" or second["readiness"] != "offline-tested-only":
         raise PermissionError("skill not approved for offline fixture")
-    if second["dependencies"] != [SKILL_ID]:
+    if any(skill.get("version") != PILOT_SKILL_VERSION for skill in (first, second)):
+        raise ValueError("incompatible skill version")
+    if first["dependencies"] or second["dependencies"] != [SKILL_ID]:
         raise ValueError("unresolved or incompatible composition")
     expression = request.wolfram_code()
     raw = transport(expression)
     result = normalize_wolfram_output(raw)
     # Verify only the factorization forms covered by the offline pilot.
-    expected = {
-        "Factor[x^2 - 1]": {"(-1+x)*(1+x)", "(x-1)*(x+1)"},
-        "Factor[x^4 - 1]": {"(-1+x)*(1+x)*(1+x^2)", "(x-1)*(x+1)*(x^2+1)"},
-    }
-    if result.replace(" ", "") not in expected.get(expression, ()):
+    if result.replace(" ", "") not in EXPECTED_FACTORS[expression]:
         raise ValueError("independent validator rejected output")
     return {"request": expression, "result": result, "validated": True, "skills": [SKILL_ID, VALIDATOR_ID]}
