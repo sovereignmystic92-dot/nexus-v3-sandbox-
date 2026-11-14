@@ -72,8 +72,26 @@ jobs:
           restored = json.loads(subprocess.check_output(
               [sys.executable, "tools/module_evolution_runner.py", "--database", recovered, "--event-file", str(path)]))
           assert restored == first
+          # Produce an immutable job artifact; a future run must independently
+          # authenticate, download, verify, and import before trusting it.
+          artifact_dir = pathlib.Path(os.environ["RUNNER_TEMP"]) / "module-evolution-evidence"
+          artifact_dir.mkdir(exist_ok=True)
+          (artifact_dir / "checkpoint.json").write_bytes(path.with_suffix(".snapshot.json").read_bytes())
+          (artifact_dir / "receipt.json").write_text(json.dumps(first, sort_keys=True) + "\\n")
           print(json.dumps({"result": "OFFLINE_PASS", "status": first["status"], "module_hints": first["modules"], "provider_writes": 0}))
           PY
+
+      - name: Publish offline checkpoint artifact for future verified readback
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-evolution-offline-${{ github.run_id }}
+          path: ${{ runner.temp }}/module-evolution-evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+# Artifact publication does not constitute a verified cross-run readback.
+# Future readers must verify the workflow identity, run SHA, provenance,
+# and snapshot digest before importing any artifact.
 
 # This workflow tests a synthetic event envelope. It does not subscribe to
 # external workflow_run events, persist records beyond the job, or advance Cortex.
