@@ -26,7 +26,8 @@ def _validate_row(row):
     modules = json.loads(modules_json)
     if not isinstance(envelope, dict) or not isinstance(modules, list):
         raise ValueError("invalid receipt")
-    from module_evolution_runner import MODULES, EVENTS
+    MODULES = ("skill_forge", "personal_growth_forge", "field_journal", "civilization_engine", "trading_platform")
+    EVENTS = ("push", "pull_request", "issues", "workflow_run")
     required = ("repository", "event", "event_id", "subject")
     if envelope.get("repository") != "sovereignmystic92-dot/nexus-v3-sandbox-" or envelope.get("event") not in EVENTS:
         raise ValueError("untrusted repository/event")
