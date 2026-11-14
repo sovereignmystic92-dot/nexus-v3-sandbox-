@@ -14,6 +14,7 @@ jobs:
     timeout-minutes: 5
     env:
       SOURCE_SHA: ${{ github.sha }}
+      NEXUS_GITHUB_READ_TOKEN: ${{ secrets.NEXUS_GITHUB_READ_TOKEN }}
     steps:
       - name: Fetch pinned public source without credentials
         shell: bash
@@ -25,11 +26,12 @@ jobs:
           git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
           git checkout --detach --quiet FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-      - name: Record actual scheduled run and report observations
+      - name: Recover predecessor and reconcile current daily observation
         working-directory: checkout
         shell: bash
         run: |
           set -euo pipefail
+          test -n "$NEXUS_GITHUB_READ_TOKEN"
           mkdir -p "$RUNNER_TEMP/nexus-daily"
           python3 - <<'PY'
           import json, os, pathlib, subprocess, sys
@@ -44,12 +46,24 @@ jobs:
           }
           event_file = output / "event.json"
           event_file.write_text(json.dumps(event), encoding="utf-8")
-          db = output / "observations.sqlite"
           checkpoint = output / "checkpoint.json"
-          receipt = subprocess.check_output([sys.executable, "tools/module_evolution_runner.py", "--database", str(db), "--event-file", str(event_file)], text=True)
-          (output / "receipt.json").write_text(receipt, encoding="utf-8")
-          subprocess.check_call([sys.executable, "-c", "import sys; sys.path.insert(0,'tools'); from module_evolution_snapshot import save_snapshot; save_snapshot(sys.argv[1],sys.argv[2])", str(db), str(checkpoint)])
-          report = subprocess.check_output([sys.executable, "tools/module_evolution_daily_report.py", "--snapshot", str(checkpoint)], text=True)
+          evidence = output / "receipt.json"
+          subprocess.check_call([
+              sys.executable, "tools/module_evolution_scheduled_runner.py",
+              "--current-run-id", os.environ["GITHUB_RUN_ID"],
+              "--event-file", str(event_file),
+              "--output", str(checkpoint),
+              "--evidence", str(evidence),
+          ])
+          receipt = json.loads(evidence.read_text(encoding="utf-8"))
+          assert receipt["historical_artifact_verified"] is True
+          assert receipt["total_receipts"] == receipt["previous_receipts"] + 1
+          assert receipt["cortex_persisted"] is False
+          assert receipt["readiness_advanced"] is False
+          report = subprocess.check_output([
+              sys.executable, "tools/module_evolution_daily_report.py",
+              "--snapshot", str(checkpoint)
+          ], text=True)
           (output / "report.json").write_text(report, encoding="utf-8")
           assert json.loads(report)["verified_advancements"] == 0
           print(report)
@@ -66,5 +80,5 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-# Each run records only its own GitHub run observation.
-# No historical cross-run import, external event subscription, or Cortex write.
+# Each run requires an authenticated, verified predecessor and reconciles one new observation.
+# Missing/failed history fails closed; no bootstrap, external subscription, or Cortex write.
