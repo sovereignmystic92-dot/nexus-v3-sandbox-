@@ -2,9 +2,19 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from tools.module_evolution_runner import evaluate
-from tools.module_evolution_snapshot import export_snapshot
-from tools.module_evolution_daily_report import summarize
+import importlib.util
+
+ROOT = Path(__file__).resolve().parents[2]
+
+def load(name, relative_path):
+    spec = importlib.util.spec_from_file_location(name, ROOT / relative_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+evaluate = load("daily_test_runner", "tools/module_evolution_runner.py").evaluate
+export_snapshot = load("daily_test_snapshot", "tools/module_evolution_snapshot.py").export_snapshot
+summarize = load("daily_test_report", "tools/module_evolution_daily_report.py").summarize
 
 
 class DailyReportTests(unittest.TestCase):
