@@ -77,7 +77,7 @@ jobs:
           artifact_dir = pathlib.Path(os.environ["RUNNER_TEMP"]) / "module-evolution-evidence"
           artifact_dir.mkdir(exist_ok=True)
           (artifact_dir / "checkpoint.json").write_bytes(path.with_suffix(".snapshot.json").read_bytes())
-          (artifact_dir / "receipt.json").write_text(json.dumps(first, sort_keys=True) + "\\n")
+          (artifact_dir / "receipt.json").write_text(json.dumps(first, sort_keys=True) + "\n")
           print(json.dumps({"result": "OFFLINE_PASS", "status": first["status"], "module_hints": first["modules"], "provider_writes": 0}))
           PY
 
