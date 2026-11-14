@@ -1,0 +1,29 @@
+{
+  "receipt_version": 1,
+  "batch_id": "haiti-csf-supervised-01",
+  "implementation_commit": "4a5c8f2bab3b50306047dfc8c3b98951401e83fc",
+  "source": {
+    "page_id": "4088c067-daa4-813b-b1f0-e1f1993120fb",
+    "revision": "2026-11-07T16:58:29.408Z",
+    "sha256": "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646",
+    "utf16_code_units": 20152,
+    "prior_digest_run": 42426734429
+  },
+  "execution": {
+    "mode": "supervised_local_real_source",
+    "prepare": "BATCH_PREPARED",
+    "replay": "BATCH_REPLAYED",
+    "readback_batch_count": 1,
+    "temporary_database_retained": false
+  },
+  "finding_refs": [
+    {
+      "finding_id": "e1271b26-3b5f-54fa-9451-e1d204372b49",
+      "payload_sha256": "5432b86031109d508bcf6fffbe06978c9ce155109db4cc85f240bc8da58dc136"
+    }
+  ],
+  "new_gemini_call": false,
+  "notion_writes": 0,
+  "cortex_writes": 0,
+  "audit_gate_promoted": false
+}
