@@ -51,6 +51,33 @@ class SnapshotTests(unittest.TestCase):
                 snapshot.import_snapshot(dst, value)
             self.assertFalse(dst.exists())
 
+    def test_recomputed_digest_cannot_mask_changed_module_routing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp) / "src.sqlite", Path(tmp) / "dst.sqlite"
+            runner.evaluate(src, event(1))
+            value = snapshot.export_snapshot(src)
+            value["payload"]["receipts"][0]["modules_json"] = '["field_journal"]'
+            value["sha256"] = __import__("hashlib").sha256(
+                snapshot.canonical(value["payload"]).encode()).hexdigest()
+            with self.assertRaisesRegex(ValueError, "module hints and receipt disagree"):
+                snapshot.import_snapshot(dst, value)
+            self.assertFalse(dst.exists())
+
+    def test_recomputed_digest_cannot_mask_missing_source_url(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp) / "src.sqlite", Path(tmp) / "dst.sqlite"
+            runner.evaluate(src, event(1))
+            value = snapshot.export_snapshot(src)
+            item = value["payload"]["receipts"][0]
+            payload = json.loads(item["event_json"])
+            payload["source_url"] = ""
+            item["event_json"] = snapshot.canonical(payload)
+            value["sha256"] = __import__("hashlib").sha256(
+                snapshot.canonical(value["payload"]).encode()).hexdigest()
+            with self.assertRaisesRegex(ValueError, "missing receipt provenance"):
+                snapshot.import_snapshot(dst, value)
+            self.assertFalse(dst.exists())
+
     def test_conflicting_existing_receipt_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
             src, dst = Path(tmp) / "src.sqlite", Path(tmp) / "dst.sqlite"
