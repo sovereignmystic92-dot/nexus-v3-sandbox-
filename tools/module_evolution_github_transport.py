@@ -75,6 +75,7 @@ def archive_get(path, token, opener=None):
         raise ValueError("invalid archive redirect")
     allowed_hosts = ("objects.githubusercontent.com", "pipelines.actions.githubusercontent.com",
                      "productionresultssa0.blob.core.windows.net",
+                     "productionresultssa7.blob.core.windows.net",
                      "productionresultssa16.blob.core.windows.net")
     if parsed.hostname not in allowed_hosts:
         raise ValueError("untrusted artifact redirect host: " + parsed.hostname)
