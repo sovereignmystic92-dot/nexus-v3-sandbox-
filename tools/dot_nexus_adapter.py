@@ -70,13 +70,16 @@ def normalize(proposal):
         if digest is not None and (not isinstance(digest, str) or len(digest) != 64
                                    or any(c not in "0123456789abcdef" for c in digest)):
             raise ValueError("invalid source digest")
-    # Derive an immutable subject hash; do not interpret proposal text as instructions.
-    identity = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    # Stable identity binds a repeated idempotency key to the same event key.
+    # The full payload digest is separately retained so changed replays fail closed.
+    identity = hashlib.sha256(json.dumps([agent, proposal["idempotency_key"]], separators=(",", ":")).encode("utf-8")).hexdigest()
+    proposal_digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
     return {
         "repository": REPO,
         "event": "issues",
         "event_id": "dot:" + agent + ":" + proposal["idempotency_key"],
         "subject": identity,
+        "proposal_digest": proposal_digest,
         "source_url": refs[0]["uri"],
         "module_hints": sorted(set(modules)),
     }
