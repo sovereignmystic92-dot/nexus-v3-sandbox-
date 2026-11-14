@@ -1,0 +1,79 @@
+name: Nexus supervised scheduled continuity rehearsal
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  continuity-rehearsal:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+      NEXUS_GITHUB_READ_TOKEN: ${{ secrets.NEXUS_GITHUB_READ_TOKEN }}
+    steps:
+      - name: Fetch pinned public source without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init --quiet checkout
+          cd checkout
+          git -c credential.helper= fetch --depth=1 https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-.git "$SOURCE_SHA"
+          git checkout --detach --quiet FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Rehearse authenticated recovery of latest successful daily observation
+        working-directory: checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$NEXUS_GITHUB_READ_TOKEN"
+          mkdir -p "$RUNNER_TEMP/nexus-continuity"
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+          sys.path.insert(0, "tools")
+          from module_evolution_github_transport import api_get, recover_run
+          from module_evolution_artifact_provenance import REPOSITORY, WORKFLOW
+          from module_evolution_history_selector import select_from_listing
+          token = os.environ["NEXUS_GITHUB_READ_TOKEN"]
+          root = "/repos/" + REPOSITORY + "/actions"
+          listing = api_get(root + "/workflows/" + WORKFLOW + "/runs?per_page=100&branch=main", token)
+          if type(listing.get("total_count")) is not int or listing["total_count"] > 100:
+              raise ValueError("bounded run listing required")
+          runs = listing.get("workflow_runs")
+          if not isinstance(runs, list) or len(runs) != listing["total_count"] or not runs:
+              raise ValueError("incomplete or empty daily history")
+          # Rehearsal is explicitly supervised; it does not claim to be a daily run.
+          from datetime import datetime, timezone
+          current = datetime.now(timezone.utc).isoformat()
+          latest = select_from_listing(listing, 0x7fffffffffffffff, current)
+          if latest is None:
+              raise ValueError("no successful daily predecessor")
+          result = recover_run(latest, token)
+          if result.get("archive_digest_verified") is not True:
+              raise ValueError("unverified archive")
+          provenance = result["provenance"]
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / "nexus-continuity"
+          (output / "checkpoint.json").write_bytes(result["checkpoint"])
+          evidence = {"evidence_class": "manual_rehearsal", "source_run_id": latest,
+                      "source_head_sha": provenance["head_sha"],
+                      "checkpoint_sha256": provenance["verified_checkpoint_sha256"],
+                      "archive_sha256": result["archive_sha256"],
+                      "readiness_advanced": False, "cortex_persisted": False,
+                      "scheduled_recovery_enabled": False}
+          (output / "evidence.json").write_text(json.dumps(evidence, sort_keys=True) + "\n")
+          print(json.dumps({"source_run_id": latest, "evidence_class": "manual_rehearsal"}))
+          PY
+      - name: Publish bounded rehearsal evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-continuity-rehearsal-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/nexus-continuity/checkpoint.json
+            ${{ runner.temp }}/nexus-continuity/evidence.json
+          if-no-files-found: error
+          retention-days: 7
+
+# Manual-only rehearsal. No schedule, Cortex write, or readiness promotion.
