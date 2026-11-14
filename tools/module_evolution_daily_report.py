@@ -6,8 +6,18 @@ import argparse
 import json
 from pathlib import Path
 import tempfile
-from tools.module_evolution_runner import MODULES
-from tools.module_evolution_snapshot import import_snapshot
+import importlib.util
+
+ROOT = Path(__file__).resolve().parents[1]
+
+def load(name, relative_path):
+    spec = importlib.util.spec_from_file_location(name, ROOT / relative_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+MODULES = load("daily_runner", "tools/module_evolution_runner.py").MODULES
+import_snapshot = load("daily_snapshot", "tools/module_evolution_snapshot.py").import_snapshot
 
 
 def summarize(snapshot):
