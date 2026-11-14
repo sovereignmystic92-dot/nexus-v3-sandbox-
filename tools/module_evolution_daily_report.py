@@ -5,8 +5,9 @@ Reports describe recorded observations, never readiness or verified progress.
 import argparse
 import json
 from pathlib import Path
+import tempfile
 from tools.module_evolution_runner import MODULES
-from tools.module_evolution_snapshot import load_snapshot
+from tools.module_evolution_snapshot import import_snapshot
 
 
 def summarize(snapshot):
@@ -36,7 +37,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--snapshot", required=True)
     args = parser.parse_args()
-    print(json.dumps(summarize(load_snapshot(Path(args.snapshot))), sort_keys=True))
+    snapshot = json.loads(Path(args.snapshot).read_text(encoding="utf-8"))
+    with tempfile.TemporaryDirectory() as temp:
+        import_snapshot(Path(temp) / "readback.sqlite", snapshot)
+    print(json.dumps(summarize(snapshot), sort_keys=True))
 
 
 if __name__ == "__main__":
