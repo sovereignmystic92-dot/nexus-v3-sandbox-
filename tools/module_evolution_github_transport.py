@@ -73,8 +73,10 @@ def archive_get(path, token, opener=None):
     parsed = urllib.parse.urlsplit(location)
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
         raise ValueError("invalid archive redirect")
-    if parsed.hostname == "api.github.com":
-        raise ValueError("redirect cannot target API host")
+    allowed_hosts = ("objects.githubusercontent.com", "pipelines.actions.githubusercontent.com",
+                     "productionresultssa0.blob.core.windows.net")
+    if parsed.hostname not in allowed_hosts:
+        raise ValueError("untrusted artifact redirect host")
     # Token-free request to the signed artifact URL. Do not reuse API headers.
     download = urllib.request.Request(location, headers={"User-Agent": "nexus-module-recovery"})
     with urllib.request.build_opener(NoRedirect).open(download, timeout=20) as response:
