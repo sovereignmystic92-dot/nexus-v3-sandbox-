@@ -1,0 +1,42 @@
+{
+  "receipt_version": 1,
+  "batch_id": "haiti-csf-three-domain-01",
+  "implementation_commit": "616eb0690673d9f0ebe4253a61f33e23aa574932",
+  "source": {
+    "page_id": "4088c067-daa4-813b-b1f0-e1f1993120fb",
+    "revision": "2026-11-07T16:58:29.408Z",
+    "sha256": "2f8ba596e3d4672f412487981390de6f3357a5a7156aefbc73a98cc42abcd646",
+    "utf16_code_units": 20152,
+    "prior_digest_run": 42426734429
+  },
+  "execution": {
+    "mode": "supervised_local_real_source",
+    "prepare": "BATCH_PREPARED",
+    "replay": "BATCH_REPLAYED",
+    "readback_batch_count": 1,
+    "retained_in_current_workspace": true,
+    "runner_access_verified": false
+  },
+  "finding_refs": [
+    {
+      "domain_id": "geo_dependencies",
+      "finding_id": "f7afcb50-34d3-5bcf-be06-fda0d8edfb9f",
+      "payload_sha256": "db6476f98d9d68e494bd04d26afaec4078bd928abf4ca1834fb02cafa0617898"
+    },
+    {
+      "domain_id": "gov_coordination",
+      "finding_id": "e1271b26-3b5f-54fa-9451-e1d204372b49",
+      "payload_sha256": "5432b86031109d508bcf6fffbe06978c9ce155109db4cc85f240bc8da58dc136"
+    },
+    {
+      "domain_id": "inf_supply",
+      "finding_id": "bfd45b7c-7e02-56e7-a7d5-5fc47ae03603",
+      "payload_sha256": "c20ca18613b5ebd3fee7e76ebf7c4102de2f963d2eaf4e9adeb9b23e0d8d58bf"
+    }
+  ],
+  "new_gemini_call": false,
+  "notion_writes": 0,
+  "cortex_writes": 0,
+  "audit_gate_promoted": false,
+  "candidate_status": "source_attributed_uncorroborated"
+}
