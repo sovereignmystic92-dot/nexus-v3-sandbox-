@@ -42,6 +42,8 @@ jobs:
           assert run["id"] == int(os.environ["SOURCE_RUN_ID"])
           assert run["head_sha"] == os.environ["EXPECTED_SHA"]
           assert run["name"] == "Module evolution offline acceptance"
+          assert run["path"] == ".github/workflows/module-evolution-offline.yml"
+          assert run["head_repository"]["full_name"] == os.environ["REPO"]
           assert run["status"] == "completed" and run["conclusion"] == "success"
           assert run["repository"]["full_name"] == os.environ["REPO"]
           assert run["event"] in ("pull_request", "push")
@@ -76,6 +78,8 @@ jobs:
           assert event["event"] == "workflow_run"
           assert event["event_id"] == os.environ["SOURCE_RUN_ID"]
           assert event["subject"] == os.environ["EXPECTED_SHA"]
+          assert set(event["module_hints"]) == {"skill_forge"}
+          assert json.loads(item["modules_json"]) == sorted(set(event["module_hints"]))
           assert event["source_url"] == (
               "https://github.com/" + os.environ["REPO"] + "/actions/runs/" + os.environ["SOURCE_RUN_ID"])
           expected_key = hashlib.sha256(json.dumps(
