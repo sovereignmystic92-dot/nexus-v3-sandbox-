@@ -32,8 +32,9 @@ def reconcile(previous, event, destination, expected_sha256):
         next_count = len(next_snapshot["payload"]["receipts"])
         if next_count not in (previous_count, previous_count + 1):
             raise ValueError("unexpected receipt delta")
-        # Atomic output: only publish after all validation and replay checks.
-        Path(destination).write_text(json.dumps(next_snapshot, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+        # Exclusive creation after validation; caller controls destination directory.
+        with Path(destination).open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(next_snapshot, sort_keys=True, separators=(",", ":")) + "\n")
     return {"previous_receipts": previous_count, "receipts": next_count,
             "new_receipts": next_count - previous_count, "checkpoint_sha256": next_digest,
             "event_key": receipt["event_key"], "readiness_advanced": False,
