@@ -2,11 +2,12 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 PAGE = "4188c067-daa4-8134-9cda-f30c901aa875"
-REVISION = "2026-11-14T07:55:36.051Z"
+REVISION = "2026-11-15T17:34:35.196Z"
 DIGEST = "f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8"
 
 
@@ -20,8 +21,15 @@ def read_notion(path, token):
 
 
 def verify(page, children):
-    if page.get("id") != PAGE or page.get("last_edited_time") != REVISION or children.get("has_more") is not False:
-        raise ValueError("SOURCE_REVISION_OR_COVERAGE_MISMATCH")
+    if page.get("id") != PAGE:
+        raise ValueError("SOURCE_PAGE_ID_MISMATCH")
+    revision = page.get("last_edited_time")
+    if revision != REVISION:
+        if isinstance(revision, str) and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z", revision):
+            print(f"NOTION_OBSERVED_EDIT_TIMESTAMP: {revision}", flush=True)
+        raise ValueError("SOURCE_REVISION_MISMATCH")
+    if children.get("has_more") is not False:
+        raise ValueError("SOURCE_COVERAGE_MISMATCH")
     chunks = []
     pending = False
     expected_code = False
