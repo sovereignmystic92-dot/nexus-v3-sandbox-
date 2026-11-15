@@ -1,6 +1,6 @@
 # Reviewed scope for scheduled Chat pickup
 
-For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revision 2026-11-14T07:55:36.051Z and raw SHA-256 f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. GitHub issue #202 is the mission tracker. The old Dirty Civilian fixture is excluded.
+For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revision 2026-11-15T17:34:35.196Z and raw SHA-256 f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. GitHub issue #202 is the mission tracker. The old Dirty Civilian fixture is excluded.
 
 1. Read the pinned workflow on main after PR #312 merges. Discover a successful native schedule run of that exact workflow on main and its source-ready artifact. Record run ID and attempt, event, commit and artifact ID. If the background host cannot enumerate scheduled runs or open the actual ZIP, report that specific blocker. An artifact listing, PR CI run or manually launched run is insufficient.
 2. Download and verify the artifact digest from GitHub and open source-ready.json. Require SOURCE_READY, event schedule, exact page ID/revision/digest, 21528 bytes, video bEjwo1yUK8c, run/attempt/commit matching the verified run, and exact destination name Nexus Analysis — 4188c067-daa4-8134-9cda-f30c901aa875 — f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. Independently read all four Notion chunks in order, require the pending flag and matching revision, and recompute the digest over their UTF-8 bytes joined without separators.
