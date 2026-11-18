@@ -7,7 +7,9 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 PAGE = "4188c067-daa4-8134-9cda-f30c901aa875"
-REVISION = "2026-11-15T17:34:35.196Z"
+# Exact REST API last_edited_time observed in scheduled run 44230859690.
+# The Chat Notion connector reports a different timestamp; do not substitute it.
+REVISION = "2026-11-15T17:34:00.000Z"
 DIGEST = "f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8"
 
 
