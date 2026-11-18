@@ -1,6 +1,6 @@
 # Reviewed scope for scheduled Chat pickup
 
-For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revision 2026-11-15T17:34:35.196Z and raw SHA-256 f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. GitHub issue #202 is the mission tracker. The old Dirty Civilian fixture is excluded.
+For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revision 2026-11-15T17:34:00.000Z and raw SHA-256 f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. GitHub issue #202 is the mission tracker. The old Dirty Civilian fixture is excluded.
 
 1. Read the pinned workflow on main after PR #312 merges. Discover a successful native schedule run of that exact workflow on main and its source-ready artifact. Record run ID and attempt, event, commit and artifact ID. If the background host cannot enumerate scheduled runs or open the actual ZIP, report that specific blocker. An artifact listing, PR CI run or manually launched run is insufficient.
 2. Download and verify the artifact digest from GitHub and open source-ready.json. Require SOURCE_READY, event schedule, exact page ID/revision/digest, 21528 bytes, video bEjwo1yUK8c, run/attempt/commit matching the verified run, and exact destination name Nexus Analysis — 4188c067-daa4-8134-9cda-f30c901aa875 — f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. Independently read all four Notion chunks in order, require the pending flag and matching revision, and recompute the digest over their UTF-8 bytes joined without separators.
@@ -9,3 +9,9 @@ For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revisi
 5. Stop processing this candidate once complete. Count at most one qualifying unattended ingestion. Report exact missing evidence and leave source queued on failure. Existing provider, cost and audit limits continue. No direct runner Cortex credentials are needed for this design.
 
 Activation requires review of this exact prompt, a deployed workflow, confirmed runner Notion page access, and an actual background runtime with supported artifact discovery and Cortex operations. Keep the readiness task paused until those conditions are established. No new scheduler is needed.
+
+## REST revision pin diagnostic — 2026-11-18
+
+Scheduled run [44230859690](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/44230859690) reached Notion and observed REST `last_edited_time` `2026-11-15T17:34:00.000Z`. The Chat Notion connector reports `2026-11-15T17:34:35.196Z` for the same page. The runner binds the exact REST value, without truncation or relaxed comparison. Independent Chat readback reassembled four chunks, 21,528 UTF-8 bytes, and recomputed the unchanged raw SHA-256 above. A successful post-fix REST verification remains required.
+
+This source already has a supervised Cortex analysis, recorded on issue #202. Use any source-ready pickup for reuse/replay only. Keep the Chat readiness schedule paused. A fresh unattended write requires a separate reviewed binding to the pending Isaac Arthur candidate and independently attributable background execution. This pin correction authorizes no Cortex writes or unattended acceptance. Rollback is to revert this revision-pin commit.
