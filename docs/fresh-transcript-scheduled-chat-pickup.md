@@ -1,17 +1,31 @@
-# Reviewed scope for scheduled Chat pickup
+# Scheduled Chat pickup — existing-output replay
 
-For this pilot use only Notion page 4188c067-daa4-8134-9cda-f30c901aa875, revision 2026-11-15T17:34:00.000Z and raw SHA-256 f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. GitHub issue #202 is the mission tracker. The old Dirty Civilian fixture is excluded.
+This candidate is restricted to read-only source verification and reuse of the existing Cortex analysis. Keep the Chat readiness task paused during review. A fresh unattended write requires a separate reviewed binding to the pending Isaac Arthur candidate.
 
-1. Read the pinned workflow on main after PR #312 merges. Discover a successful native schedule run of that exact workflow on main and its source-ready artifact. Record run ID and attempt, event, commit and artifact ID. If the background host cannot enumerate scheduled runs or open the actual ZIP, report that specific blocker. An artifact listing, PR CI run or manually launched run is insufficient.
-2. Download and verify the artifact digest from GitHub and open source-ready.json. Require SOURCE_READY, event schedule, exact page ID/revision/digest, 21528 bytes, video bEjwo1yUK8c, run/attempt/commit matching the verified run, and exact destination name Nexus Analysis — 4188c067-daa4-8134-9cda-f30c901aa875 — f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8. Independently read all four Notion chunks in order, require the pending flag and matching revision, and recompute the digest over their UTF-8 bytes joined without separators.
-3. Resolve the exact destination. Create one source-bound analysis via Chat's connected Cortex account only if the destination is free and the pilot scope is active. Keep source claims, corroboration, and unresolved questions distinct. If create collides or has uncertain outcome, recover by exact name and verify source binding and content. Preserve any mismatch and report the conflict. Do not update a shared module body or create a differently named copy.
-4. Independently read back module ID, full saved content, and the source binding. Record one redacted completion receipt on #202 using source ID + digest as the deduplication key, with exact GitHub run/artifact, Chat execution attribution and Cortex result. Independently read back the receipt. On replay retrieve and verify the existing output and receipt without another create. If invocation identity cannot be established independently, do not claim unattended acceptance.
-5. Stop processing this candidate once complete. Count at most one qualifying unattended ingestion. Report exact missing evidence and leave source queued on failure. Existing provider, cost and audit limits continue. No direct runner Cortex credentials are needed for this design.
+## Exact source and existing output
 
-Activation requires review of this exact prompt, a deployed workflow, confirmed runner Notion page access, and an actual background runtime with supported artifact discovery and Cortex operations. Keep the readiness task paused until those conditions are established. No new scheduler is needed.
+- Notion page: `4188c067-daa4-8134-9cda-f30c901aa875`.
+- Video: `bEjwo1yUK8c`, Matt Madigan, Alien Technology Just Arrived.
+- RAW v1: four chunks, 21,528 UTF-8 bytes, joined without separators.
+- SHA-256: `f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8`.
+- Exact REST `last_edited_time`: `2026-11-15T17:34:00.000Z`.
+- Chat connector observation: `2026-11-15T17:34:35.196Z`. Preserve this separately. It cannot satisfy the REST revision check.
+- Existing Cortex module: `module_01m7dte8edyhqkykrtzmczdjm9`.
+- Existing exact name: `Nexus Analysis — Alien Technology Just Arrived — Matt Madigan — bEjwo1yUK8c — RAW v1`.
+- Supervised receipt: [issue #202, comment 6883422224](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/issues/202#issuecomment-6883422224).
 
-## REST revision pin diagnostic — 2026-11-18
+## Replay procedure
 
-Scheduled run [44230859690](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/44230859690) reached Notion and observed REST `last_edited_time` `2026-11-15T17:34:00.000Z`. The Chat Notion connector reports `2026-11-15T17:34:35.196Z` for the same page. The runner binds the exact REST value, without truncation or relaxed comparison. Independent Chat readback reassembled four chunks, 21,528 UTF-8 bytes, and recomputed the unchanged raw SHA-256 above. A successful post-fix REST verification remains required.
+1. Inspect the deployed `.github/workflows/nexus-fresh-transcript-pilot.yml` and verifier at the native scheduled run's exact commit on main. Require the corrected REST pin. Record run ID, attempt, commit, event and artifact ID. PR validation and manually retried runs cannot establish a new native scheduled execution.
+2. Download the source-ready ZIP, verify its published digest, and inspect `source-ready.json`. Require SOURCE_READY, event schedule, matching run/attempt/commit, the exact page ID, REST revision, digest, 21,528 bytes and video ID above. The current artifact's `destination_module` value is the legacy proposed name `Nexus Analysis — 4188c067-daa4-8134-9cda-f30c901aa875 — f2122b71e7762479e026c7f4614378526410f1560bd560e1eadc03d6f0d2e0c8`. Verify that field as artifact identity only. Resolve Cortex through the existing module ID and name above.
+3. Independently read all four archived chunks and recompute their combined UTF-8 digest and byte count. The runner requires the archive's literal pending flag as a source-state assertion. That flag is stale relative to the supervised completion receipt and provides no authorization to create another analysis. Compare REST timestamps only with REST observations. Record the Chat connector timestamp separately, and stop if its observation differs from the separately recorded connector value.
+4. Retrieve the existing Cortex module by exact name and confirm its native ID, source page, RAW v1 digest and complete saved analysis. Search by page ID and video ID and reconcile any competing output. Missing, ambiguous or mismatched output is a blocker requiring investigation. This procedure has no create or update branch.
+5. Read the existing GitHub supervised receipt and match the source and module identities. Report this run as source verification and existing-output replay. Record any missing evidence and stop. A successful replay earns zero fresh unattended ingestion credit.
 
-This source already has a supervised Cortex analysis, recorded on issue #202. Use any source-ready pickup for reuse/replay only. Keep the Chat readiness schedule paused. A fresh unattended write requires a separate reviewed binding to the pending Isaac Arthur candidate and independently attributable background execution. This pin correction authorizes no Cortex writes or unattended acceptance. Rollback is to revert this revision-pin commit.
+## Runtime checks and acceptance order
+
+The verifier fetches metadata and child blocks from `https://api.notion.com/v1/` using Notion API version 2022-06-28. It checks exact metadata string equality against REVISION, complete child coverage, ordered chunk headings, four chunks, the literal pending flag, UTF-8 byte count and the full SHA-256. It reads page metadata again after verification and requires the same exact REST revision before writing the local metadata artifact. The script and scheduled workflow perform Notion reads and artifact publication. Cortex lookup/replay belongs to the separately invoked Chat controller.
+
+Scheduled run [44230859690](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/44230859690) observed the REST timestamp above. Independent Chat readback reassembled the archived bytes and matched their checksum. A successful post-fix native scheduled run remains an acceptance step after the reviewed fix reaches main. Code merge, scheduled source verification, replay verification and fresh unattended ingestion are recorded as separate outcomes.
+
+Rollback is to revert this PR's commits. Keep the readiness task paused until a separately reviewed activation scope is satisfied.
