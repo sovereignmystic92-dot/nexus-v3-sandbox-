@@ -170,6 +170,26 @@ class ConnectedHostTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.run_connected()
 
+    def test_receipt_reference_rejects_surrounding_whitespace(self):
+        key = self.save_pending()
+        for reference in ("", " ", " synthetic:receipt", "synthetic:receipt ", "\nreceipt"):
+            self.saved[key]["reference"] = reference
+            with self.subTest(reference=reference), self.assertRaises(ValueError):
+                self.run_connected()
+
+    def test_receipt_reference_rejects_oversized_identity(self):
+        key = self.save_pending()
+        self.saved[key]["reference"] = "x" * 513
+        with self.assertRaises(ValueError):
+            self.run_connected()
+
+    def test_receipt_reference_accepts_exact_length_boundary(self):
+        key = self.save_pending()
+        self.saved[key]["reference"] = "x" * 512
+        result = self.run_connected()
+        self.assertEqual(result["status"], "CONSUMER_PERSISTENCE_READBACK_MATCHED")
+        self.assertEqual(result["receipt_ref"], "x" * 512)
+
     def test_tampered_plan_rejected_before_provider_access(self):
         for field, value in (("source_key", "b" * 64), ("provider_called", 0),
                              ("status", "COMPLETE")):

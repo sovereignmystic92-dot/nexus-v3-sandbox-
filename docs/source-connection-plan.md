@@ -91,6 +91,8 @@ must freshly fetch that exact durable record and return exactly `reference`
 (its stable identity) and `content` (the exact UTF-8 JSON bytes). It must not
 return a cached `receipt_to_retain` or echo caller memory as independent evidence.
 The library validates the complete retained binding and native execution receipt.
+Receipt reference identities must be nonempty strings of at most 512 characters
+without surrounding whitespace. Invalid identities are rejected, not normalized.
 Only the historical integer `create_requests` count (0 or 1) may differ on
 read-only replay; other execution evidence must match. Duplicate JSON keys,
 nonfinite values and receipts over 1 MiB are rejected.
@@ -108,6 +110,15 @@ themselves. Hosts retain responsibility for provenance, fresh full pagination,
 grants, exact receipt destination identity, authorizations and journal custody.
 There is no distributed transaction or remote fence: concurrent mutation between
 observations remains outside this single-worker baseline.
+
+Host integration must allocate distinct `journal_path` and `output_name` values
+for each `(plan_id, consumer)` and retain the mapping before execution. The
+native journal does not include consumer identity: differing native bindings
+fail closed, but identical native bindings could reuse one journal. Do not
+assume the journal alone enforces cross-consumer allocation. The wrapper binds
+the consumer in its separate receipt and does not install that host allocator.
+The host must also verify that the pinned code and policy revisions correspond
+to the actual execution environment; supplied revision strings are not proof.
 
 ## Validation and rollback
 

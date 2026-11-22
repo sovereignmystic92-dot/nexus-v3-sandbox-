@@ -122,7 +122,9 @@ def execute_connected_supervised(*, plan, consumer, supervised_kwargs,
         return {**base, "status": "PENDING_RECEIPT", "receipt_to_retain": envelope,
                 "next_action": "SAVE_THEN_INDEPENDENTLY_READ_RETAINED_RECEIPT"}
     if (type(retained) is not dict or set(retained) != {"reference", "content"}
-            or type(retained["reference"]) is not str or not retained["reference"].strip()
+            or type(retained["reference"]) is not str
+            or not 0 < len(retained["reference"]) <= 512
+            or retained["reference"] != retained["reference"].strip()
             or type(retained["content"]) is not bytes
             or not 0 < len(retained["content"]) <= 1048576):
         raise ValueError("bounded exact retained receipt and identity required")
