@@ -56,6 +56,39 @@ def prepare_connection_plan(source_envelope, *, mission_id, code_revision,
                  "source_url": source["source_url"],
                  "source_revision": source["source_revision"],
                  "source_sha256": source["content_digest"]}
+    return _make_plan(reference, mission_id=mission_id,
+                      code_revision=code_revision, policy_revision=policy_revision)
+
+
+def validate_connection_plan(plan):
+    """Validate a retained, unchanged preparation plan; this is not authentication."""
+    if type(plan) is not dict or type(plan.get("source")) is not dict:
+        raise ValueError("connection plan required")
+    source = plan["source"]
+    fields = {"document_id", "source_url", "source_revision", "source_sha256"}
+    if set(source) != fields or not all(_text(value) for value in source.values()):
+        raise ValueError("exact source reference required")
+    try:
+        page = uuid.UUID(source["document_id"].removeprefix("notion:"))
+    except ValueError:
+        raise ValueError("canonical Notion identity required") from None
+    if (source["document_id"] != "notion:" + str(page)
+            or source["source_url"] != "https://app.notion.com/p/" + page.hex
+            or not re.fullmatch(r"[0-9a-f]{64}", source["source_sha256"])):
+        raise ValueError("source reference mismatch")
+    if (not _text(plan.get("mission_id")) or not _text(plan.get("policy_revision"))
+            or type(plan.get("code_revision")) is not str
+            or not re.fullmatch(r"[0-9a-f]{40}", plan["code_revision"])):
+        raise ValueError("pinned mission, code and policy required")
+    expected = _make_plan(source, mission_id=plan["mission_id"],
+                          code_revision=plan["code_revision"],
+                          policy_revision=plan["policy_revision"])
+    # Canonical serialization also distinguishes bools from numeric flags.
+    if json.dumps(plan, sort_keys=True, allow_nan=False) != json.dumps(expected, sort_keys=True):
+        raise ValueError("connection plan changed; reconcile before execution")
+
+
+def _make_plan(reference, *, mission_id, code_revision, policy_revision):
     source_key = _digest({"schema": SCHEMA, "source": reference})
     binding = {"schema": SCHEMA, "source_key": source_key,
                "mission_id": mission_id, "code_revision": code_revision,
