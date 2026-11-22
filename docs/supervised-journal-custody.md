@@ -109,10 +109,22 @@ Also run the supervised, connected and quality-host suites. These are local
 SQLite/subprocess and synthetic-port checks, not authenticated storage/provider,
 distributed fencing, host power loss or independent review evidence.
 
-Author validation on this change: 17 custody cases and the full local unit
-discovery passed (1,141 tests total), using `PYTHONPATH=src python -m unittest
+Author validation on this change: 21 custody cases and the full local unit
+discovery passed (1,145 tests total), using `PYTHONPATH=src python -m unittest
 discover -s tests/unit -p 'test_*.py' -q`. No hosted CI result, independently
 reviewed verdict, authenticated custody port or live provider write is inferred.
+
+## Independent static review follow-up
+
+The owner relayed a Gemini static review of revision
+`afa82b93bae57810da5cb0116190dca8d8c74309`: APPROVE_OFFLINE_CODE, with zero
+reviewer-executed tests and no hosted/live acceptance. One Medium coverage gap
+and three Low hardening findings were recorded. This follow-up adds retained
+connected-receipt re-entry coverage (VERIFIED generation 3 after first create,
+generation 5 after read-only re-entry, one create total); creates restored files
+atomically with mode 0600; copies both CAS arguments; and rejects nonfinite
+JSON constants during parsing. These changes require renewed exact-revision
+review. The documented provider-boundary race and single-worker scope remain.
 
 Rollback removes the opt-in module/tests/document; retain actual immutable
 objects, authoritative heads, local journals and uncertain intents. Existing

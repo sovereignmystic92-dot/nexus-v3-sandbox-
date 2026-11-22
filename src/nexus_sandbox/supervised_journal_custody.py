@@ -28,6 +28,10 @@ def _json(value):
                       ensure_ascii=False, allow_nan=False).encode('utf-8')
 
 
+def _reject_constant(value):
+    raise ValueError('Nonfinite custody JSON')
+
+
 def _text(value):
     return type(value) is str and 0 < len(value) <= 512 and value == value.strip()
 
@@ -110,7 +114,8 @@ class JournalCustody:
                     raise ValueError('Duplicate custody field')
                 result[key] = value
             return result
-        obj = json.loads(content, object_pairs_hook=pairs)
+        obj = json.loads(content, object_pairs_hook=pairs,
+                         parse_constant=_reject_constant)
         if (type(obj) is not dict or set(obj) != {'schema', 'key', 'binding',
                 'generation', 'previous', 'journal_sha256', 'journal_b64'}
                 or obj['schema'] != SCHEMA or obj['key'] != self.key
@@ -148,7 +153,7 @@ class JournalCustody:
         if not _text(reference) or self.read(reference) != content:
             raise ValueError('Independent retained-object readback required')
         new = dict(generation=obj['generation'], reference=reference, sha256=_hash(content))
-        if self.cas(self.key, previous, new) is not True:
+        if self.cas(self.key, json.loads(_json(previous)), json.loads(_json(new))) is not True:
             raise ValueError('Custody CAS failed; reconcile')
         if self.current() != new:
             raise ValueError('Custody pointer readback mismatch')
@@ -164,8 +169,8 @@ class JournalCustody:
         path = Path(path)
         # Exclusive creation refuses files and symlinks. Caller must use this
         # same allocated path for the native host, under single-worker custody.
-        with path.open('xb') as stream:
-            os.chmod(path, 0o600)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, 'wb') as stream:
             stream.write(journal)
             stream.flush()
             os.fsync(stream.fileno())

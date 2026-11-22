@@ -1,6 +1,7 @@
 """Synthetic storage/provider ports; no authentication or live acceptance."""
 import copy
 import base64
+import hashlib
 import json
 from pathlib import Path
 import sqlite3
@@ -8,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from nexus_sandbox.supervised_journal_custody import (
     JournalCustody, execute_custodied_supervised, expected_binding,
@@ -265,6 +267,84 @@ t.run_host(initialize=True)
             read_retained_receipt=lambda work_key: None)
         self.assertEqual(result['execution']['status'], 'PENDING_RECEIPT')
         self.assertEqual(self.creates, 1)
+
+    def test_connected_retained_receipt_reentry_verifies_and_retains_final_journal(self):
+        from nexus_sandbox.source_connection_plan import prepare_connection_plan
+        from nexus_sandbox.supervised_journal_custody import execute_custodied_connected, _inspect
+        envelope = dict(document_id='notion:' + self.args['source_page'],
+            source_url='https://app.notion.com/p/' + self.args['source_page'].replace('-', ''),
+            source_revision='synthetic-revision', transcript=''.join(self.args['prepared']['chunks']),
+            expected_sha256=self.args['source_sha256'])
+        plan = prepare_connection_plan(envelope, mission_id='synthetic-test',
+                                       code_revision='a' * 40, policy_revision='synthetic-policy')
+        retained = None
+        reads = []
+        def receipt_reader(work_key):
+            reads.append(work_key)
+            return copy.deepcopy(retained)
+        def run(initialize):
+            return execute_custodied_connected(custody=self.store.custody(self.binding),
+                initialize=initialize, plan=plan, consumer='csf',
+                supervised_kwargs=dict(self.args, request=self.request, allow_create=initialize),
+                read_source_reference=lambda document_id: copy.deepcopy(plan['source']),
+                read_retained_receipt=receipt_reader)
+        pending = run(True)
+        self.assertEqual(pending['execution']['status'], 'PENDING_RECEIPT')
+        self.assertEqual(pending['custody_head']['generation'], 3)
+        retained = dict(reference='synthetic:retained-execution-receipt',
+            content=json.dumps(pending['execution']['receipt_to_retain']).encode())
+        before = len(reads)
+        result = run(False)
+        connected = result['execution']
+        self.assertEqual(connected['status'], 'CONSUMER_PERSISTENCE_READBACK_MATCHED')
+        self.assertEqual(connected['receipt_sha256'], hashlib.sha256(retained['content']).hexdigest())
+        self.assertGreaterEqual(len(reads) - before, 2)
+        self.assertEqual(result['custody_head']['generation'], 5)
+        custody = self.store.custody(self.binding)
+        self.assertEqual(_inspect(custody.load(custody.current()), self.binding),
+                         ('VERIFIED', 'synthetic-module'))
+        self.assertEqual(self.creates, 1)
+
+    def test_cas_mutating_its_arguments_cannot_change_local_heads(self):
+        original = self.store.cas
+        def mutating(key, previous, new):
+            result = original(key, previous, new)
+            if previous is not None:
+                previous.clear()
+            new['generation'] = 999
+            return result
+        self.store.cas = mutating
+        result = self.run_host(initialize=True)
+        self.assertEqual(result['custody_head'], self.store.pointer)
+        self.assertEqual(result['custody_head']['generation'], 3)
+        self.assertEqual(self.creates, 1)
+
+    def test_restore_creates_private_file_under_permissive_umask(self):
+        import os
+        import stat
+        self.run_host(initialize=True)
+        restored = Path(self.tmp.name) / 'private.sqlite'
+        previous_umask = os.umask(0)
+        try:
+            with mock.patch('nexus_sandbox.supervised_journal_custody.os.chmod',
+                            side_effect=AssertionError('Must not rely on later chmod')):
+                self.store.custody(self.binding).restore(restored)
+            self.assertEqual(stat.S_IMODE(restored.stat().st_mode), 0o600)
+        finally:
+            os.umask(previous_umask)
+
+    def test_nonfinite_envelope_is_rejected_during_json_parsing(self):
+        self.run_host(initialize=True)
+        head = self.store.pointer
+        original = json.loads(self.store.objects[head['reference']])
+        for constant in (float('nan'), float('inf'), float('-inf')):
+            with self.subTest(constant=constant):
+                obj = dict(original, journal_b64=constant)
+                content = json.dumps(obj).encode()
+                self.store.objects[head['reference']] = content
+                self.store.pointer = dict(head, sha256=hashlib.sha256(content).hexdigest())
+                with self.assertRaisesRegex(ValueError, 'Nonfinite custody JSON'):
+                    self.store.custody(self.binding).load(self.store.pointer)
 
     def test_retained_verified_identity_cannot_be_downgraded(self):
         self.run_host(initialize=True)
