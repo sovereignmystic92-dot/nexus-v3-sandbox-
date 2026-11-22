@@ -7,8 +7,7 @@ on:
         required: true
         type: boolean
         default: false
-permissions:
-  contents: read
+permissions: {}
 concurrency:
   group: csf-private-haiti-replay
   cancel-in-progress: false
