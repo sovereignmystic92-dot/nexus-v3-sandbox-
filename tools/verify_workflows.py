@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'csf-private-haiti-replay.yml': ('notion-sandbox', {'NOTION_SANDBOX_TOKEN', 'CSF_HAITI_BATCH_B64'}),
     'nexus-isaac-arthur-notion-revision-probe.yml': ('nexus-transcript-pilot', {'NEXUS_NOTION_READ_TOKEN'}),
     'module-evolution-live-verification.yml': (None, {'NEXUS_GITHUB_READ_TOKEN'}),
     'module-evolution-continuity-rehearsal.yml': (None, {'NEXUS_GITHUB_READ_TOKEN'}),
