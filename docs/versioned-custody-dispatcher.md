@@ -128,3 +128,14 @@ provider's mutation boundary. No CP09 closure, live activation or deployment.
 Rollback removes the two opt-in modules, tests and this contract. Preserve
 actual private objects, head mappings, journals, receipts and uncertain intents.
 Existing host entrypoints, schemas and workflows are unchanged.
+
+## Independent static review follow-up
+
+The owner relayed Gemini's APPROVE_OFFLINE_CODE verdict for
+`d1fb4d777f2483ce8f1b54322b87eca1329918e0`, with zero reviewer-executed tests and
+the live-operation exclusions above. Its sole Low coverage finding is addressed
+by tests for an unexpected store_replace status, create content over 512 KiB,
+and oversized/malformed retained_receipt IPC replies. These boundary cases pass
+without runtime changes. The two implementation modules remain byte-for-byte
+identical to the reviewed revision. The extra tests/documentation do not certify
+the authenticated host, concurrent CAS or a live provider operation.

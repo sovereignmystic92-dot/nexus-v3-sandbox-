@@ -75,6 +75,26 @@ class DispatcherTests(unittest.TestCase):
         self.assertEqual(self.adapter.head('synthetic-key'), self.new)
         self.assertEqual(sum(op == 'store_replace' for op, _ in self.service.calls), 1)
 
+    def test_unexpected_replacement_status_is_rejected_without_retry(self):
+        original = self.service.request
+        replacements = []
+        def unknown(op, data):
+            if op == 'store_replace':
+                replacements.append(copy.deepcopy(data))
+                return dict(status='UNKNOWN')
+            return original(op, data)
+        adapter = VersionedCustodyDispatcher('synthetic-key', 'synthetic-head', unknown)
+        with self.assertRaisesRegex(ValueError, 'Uncertain storage replacement'):
+            adapter.cas('synthetic-key', None, self.new)
+        self.assertEqual(len(replacements), 1)
+        self.assertIsNone(self.adapter.head('synthetic-key'))
+
+    def test_oversized_create_is_rejected_before_host_request(self):
+        from nexus_sandbox.versioned_custody_dispatcher import MAX_CONTENT
+        with self.assertRaises(ValueError):
+            self.adapter.retain(b'x' * (MAX_CONTENT + 1))
+        self.assertEqual(self.service.calls, [])
+
     def test_retained_objects_have_no_replacement_path(self):
         reference = self.adapter.retain(b'synthetic immutable bytes')
         self.assertEqual(self.adapter.read(reference), b'synthetic immutable bytes')
@@ -217,6 +237,20 @@ class ConnectedCustodyCliTests(unittest.TestCase):
 
     def test_version_conflict_stops_before_any_create(self):
         self.service.race = True
+        result = self.serve(self.start(('--initialize', '--allow-create')))
+        self.assertEqual(result['type'], 'blocked')
+        self.assertEqual(self.creates, 0)
+
+    def test_oversized_retained_receipt_response_blocks_before_provider_create(self):
+        from nexus_sandbox.versioned_custody_dispatcher import MAX_CONTENT
+        self.receipt = dict(reference='synthetic-receipt',
+            content_b64=base64.b64encode(b'x' * (MAX_CONTENT + 1)).decode())
+        result = self.serve(self.start(('--initialize', '--allow-create')))
+        self.assertEqual(result['type'], 'blocked')
+        self.assertEqual(self.creates, 0)
+
+    def test_malformed_retained_receipt_response_blocks_before_provider_create(self):
+        self.receipt = dict(reference='synthetic-receipt')
         result = self.serve(self.start(('--initialize', '--allow-create')))
         self.assertEqual(result['type'], 'blocked')
         self.assertEqual(self.creates, 0)
