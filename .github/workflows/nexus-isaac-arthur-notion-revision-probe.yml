@@ -1,0 +1,97 @@
+name: Isaac Arthur Notion revision probe
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  observe:
+    if: github.repository == 'sovereignmystic92-dot/nexus-v3-sandbox-' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: nexus-transcript-pilot
+    timeout-minutes: 3
+    steps:
+      - name: Verify the exact Notion archive and report its REST revision
+        env:
+          NOTION_TOKEN: ${{ secrets.NEXUS_NOTION_READ_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from urllib.error import HTTPError, URLError
+          from urllib.request import Request, urlopen
+
+          page_id = "4178c067-daa4-81fc-bef3-e9f310a0b65a"
+          expected_digest = "54b14c492fffa2a046292132a84b486f28719f87777c2a1f8a93ec0239d095c0"
+          token = os.environ.get("NOTION_TOKEN")
+          if not token:
+              raise SystemExit("NOTION_READ_CREDENTIAL_UNAVAILABLE")
+
+          def read(stage, path):
+              request = Request("https://api.notion.com/v1/" + path, headers={
+                  "Authorization": "Bearer " + token,
+                  "Notion-Version": "2022-06-28",
+              })
+              try:
+                  with urlopen(request, timeout=20) as response:
+                      return json.load(response)
+              except HTTPError as exc:
+                  raise SystemExit(f"NOTION_SOURCE_BLOCKED: {stage} HTTP_{exc.code}") from None
+              except (URLError, TimeoutError, ValueError):
+                  raise SystemExit(f"NOTION_SOURCE_BLOCKED: {stage} INVALID_RESPONSE") from None
+
+          def revision(page):
+              value = page.get("last_edited_time")
+              if page.get("id") != page_id or not isinstance(value, str) or not re.fullmatch(
+                  r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z", value
+              ):
+                  raise SystemExit("SOURCE_METADATA_MISMATCH")
+              return value
+
+          def plain_text(block):
+              return "".join(item["plain_text"] for item in block[block["type"]]["rich_text"])
+
+          page_path = "pages/" + page_id
+          observed = revision(read("page_metadata", page_path))
+          children = read("child_blocks", "blocks/" + page_id + "/children?page_size=100")
+          if children.get("has_more") is not False:
+              raise SystemExit("SOURCE_COVERAGE_MISMATCH")
+
+          chunks = []
+          pending = False
+          awaiting_code = False
+          for block in children["results"]:
+              kind = block["type"]
+              if block.get("has_children") or kind not in {"code", "heading_2", "paragraph"}:
+                  raise SystemExit("UNEXPECTED_SOURCE_BLOCK")
+              value = plain_text(block)
+              if awaiting_code:
+                  if kind != "code":
+                      raise SystemExit("MISSING_RAW_CHUNK")
+                  chunks.append(value.encode("utf-8"))
+                  awaiting_code = False
+              elif kind == "heading_2" and value.startswith("Raw chunk "):
+                  if value != f"Raw chunk {len(chunks)}":
+                      raise SystemExit("RAW_CHUNK_ORDER_MISMATCH")
+                  awaiting_code = True
+              elif kind == "paragraph" and value == "Transfer status: Pending Cortex Processing.":
+                  pending = True
+
+          raw = b"".join(chunks)
+          if awaiting_code or not pending or len(chunks) != 4 or len(raw) != 42075:
+              raise SystemExit("SOURCE_FIDELITY_OR_STATUS_MISMATCH")
+          if hashlib.sha256(raw).hexdigest() != expected_digest:
+              raise SystemExit("SOURCE_DIGEST_MISMATCH")
+          if revision(read("page_metadata_readback", page_path)) != observed:
+              raise SystemExit("SOURCE_REVISION_CHANGED")
+
+          print(json.dumps({
+              "status": "REST_REVISION_OBSERVED",
+              "source_id": page_id,
+              "source_revision": observed,
+              "source_sha256": expected_digest,
+              "source_bytes": len(raw),
+          }))
+          PY
