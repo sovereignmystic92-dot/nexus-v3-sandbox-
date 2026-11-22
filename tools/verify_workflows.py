@@ -9,6 +9,7 @@ import hashlib
 import re
 
 PROVIDER_SECRETS = {
+    'nexus-isaac-arthur-notion-revision-probe.yml': ('nexus-transcript-pilot', {'NEXUS_NOTION_READ_TOKEN'}),
     'module-evolution-live-verification.yml': (None, {'NEXUS_GITHUB_READ_TOKEN'}),
     'module-evolution-continuity-rehearsal.yml': (None, {'NEXUS_GITHUB_READ_TOKEN'}),
     'module-evolution-daily-observation.yml': (None, {'NEXUS_GITHUB_READ_TOKEN'}),

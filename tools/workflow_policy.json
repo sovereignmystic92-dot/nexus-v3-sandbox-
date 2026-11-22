@@ -29,6 +29,7 @@
   "nexus-fresh-transcript-pilot.yml": "50289e61f159a4e29bf7a77794496ad7341aa56321bb15c6530a1f3cf12f677c",
   "nexus-gateway-ci.yml": "bce4bc845a08b4ba38ae9ec6ce5ea798ceb2cc4430fe7cbb12ac4f20a991c0a1",
   "nexus-gemini-live-transcript-readonly.yml": "15467fcd89e01c87491a448ca0897f8598890df63d32ae81bd99deed365868cb",
+  "nexus-isaac-arthur-notion-revision-probe.yml": "80d614c6da6fe33b53e490430c9d309493746602bb812a58b9ce4d8d6c9ef286",
   "nexus-manual-processing-preflight.yml": "3a53216cf4fd70600caab7e6a9844ae050913e2b395d3abfae52b35226be01e4",
   "nexus-process-cli-ci.yml": "4b84936a22c79c70a346186f30cec1f409dae4682758a5700ed7a3879afadb5b",
   "nexus-runtime-ci.yml": "07d5e3cb2dffba1933f67dd36067ac59d2a53cd6b80043eae86f306afc2a6d95",
