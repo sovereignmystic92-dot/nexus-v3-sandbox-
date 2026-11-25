@@ -2,7 +2,7 @@
 
 request(operation, payload) must make a fresh authenticated connector call.
 The host owns account selection, effective grants and durable journal storage.
-Only a create of the pinned destination is exposed; source writes do not exist.
+Create mode and opt-in append-only update mode are separate. No source writer.
 """
 from dataclasses import asdict
 import fcntl
@@ -17,7 +17,8 @@ from .transcript_live_handoff import Observed
 
 def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                        output_name, analysis, expected_owner, request,
-                       allow_create=False, analysis_gate=None):
+                       allow_create=False, analysis_gate=None,
+                       update_plan=None, allow_update=False):
     """Standard source-processing entrypoint: structural gate is mandatory.
 
     Missing/malformed evidence fails before journal or provider access. Old
@@ -25,6 +26,18 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     """
     if analysis_gate is None:
         raise ValueError('Structural analysis gate required')
+    if update_plan is not None:
+        from .transcript_supervised_update import _execute_update
+        if allow_create is not False:
+            raise ValueError('Create and update modes cannot be combined')
+        return _execute_update(journal_path=journal_path, prepared=prepared,
+            source_page=source_page, source_sha256=source_sha256,
+            output_name=output_name, appendix=analysis,
+            expected_owner=expected_owner, request=request,
+            analysis_gate=analysis_gate, update_plan=update_plan,
+            allow_update=allow_update)
+    if allow_update is not False:
+        raise ValueError('An exact update plan is required')
     return _execute_supervised(journal_path=journal_path, prepared=prepared,
         source_page=source_page, source_sha256=source_sha256,
         output_name=output_name, analysis=analysis, expected_owner=expected_owner,

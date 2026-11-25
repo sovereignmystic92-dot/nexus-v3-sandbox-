@@ -221,6 +221,8 @@ def execute_custodied_connected(*, custody, plan, consumer, supervised_kwargs,
 
 
 def _execute(custody, initialize, arguments, runner):
+    if 'update_plan' in arguments or 'allow_update' in arguments:
+        raise ValueError('Custodied execution does not support update arguments')
     if type(initialize) is not bool or custody.binding != expected_binding(arguments):
         raise ValueError('Exact custody/native binding required')
     path = Path(arguments['journal_path'])

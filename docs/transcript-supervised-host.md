@@ -5,6 +5,11 @@ PR #284's `run_archived_handoff`. It installs no service, schedule, GitHub
 workflow, credentials or provider endpoint. Review PR #284 first. The host must
 supply authenticated calls; this module cannot authenticate itself.
 
+The Python API also has an opt-in append-only existing-output mode. See
+[supervised update](transcript-supervised-update.md) for its distinct baseline,
+gate, custody, callback and recovery contract. The private CLI below remains
+create/read-only; it does not expose updates.
+
 Provide a private, owned, durable journal path, the independently pinned source
 receipt/chunks, exact Notion page, Cortex name, expected owner, analysis and an
 explicit create grant, plus the complete `analysis_gate` sidecar described in
