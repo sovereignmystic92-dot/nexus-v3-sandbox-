@@ -103,6 +103,12 @@ class CustodyTests(unittest.TestCase):
         return execute_custodied_supervised(custody=self.store.custody(self.binding),
                                             initialize=initialize, **args)
 
+    def test_custodied_host_rejects_update_arguments_before_access(self):
+        for arguments in ({'update_plan': None}, {'allow_update': False}):
+            with self.subTest(arguments=arguments):
+                with self.assertRaisesRegex(ValueError, 'does not support update arguments'):
+                    execute_custodied_supervised(custody=None, **arguments)
+
     def test_intent_is_readback_verified_before_one_create_and_replay(self):
         result = self.run_host(initialize=True)
         self.assertEqual(result['execution']['handoff']['status'], 'READBACK_MATCHED')
