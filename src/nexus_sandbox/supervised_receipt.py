@@ -2,7 +2,7 @@
 import math
 import re
 
-def validate(receipt):
+def _validate(receipt):
     errors = []
     def require(ok, label):
         if not ok:
@@ -28,3 +28,13 @@ def validate(receipt):
     require(output.get("source_sha256") == digest and output.get("readback_source_sha256") == digest, "output source binding")
     require(bool(output.get("dependencies")) and output.get("dependencies") == output.get("readback_dependencies"), "dependencies")
     return {"status": "RECEIPT_CONSISTENT" if not errors else "FUNCTIONALLY_INCOMPLETE", "errors": errors, "provider_attestation": False, "automation_ready": False, "audit_promotion": False}
+
+def validate(receipt):
+    """Reject malformed evidence without propagating input-shape exceptions."""
+    try:
+        return _validate(receipt)
+    except (TypeError, ValueError, AttributeError, KeyError, OverflowError):
+        return {"status": "FUNCTIONALLY_INCOMPLETE",
+                "errors": ["malformed receipt"],
+                "provider_attestation": False, "automation_ready": False,
+                "audit_promotion": False}
