@@ -69,6 +69,28 @@ restoration or journal reconstruction is installed. Do not use a different path,
 ID or checkpoint mapping to bypass the hold. An uncertain remote intent cannot
 be cleared merely because the output is absent.
 
+## Single-host assignment guard
+
+A trusted host can hold `hold_supervised_assignment` from
+`nexus_sandbox.supervised_assignment` around the entire
+`execute_checkpoint_supervised` call and pass the yielded verifier as
+`verify_assignment`. Use one private host-owned lock directory for every
+cooperating writer and the provider's exact owner ID and canonical output name.
+A second local writer for that destination fails immediately, even if it uses a
+different transaction ID or journal.
+
+The host's independent assignment reader must freshly return the exact
+`owner`, `output_name`, `mode`, `transaction_id`, `assignment_id` and
+`actor` fields from owner-controlled assignment state. The guard compares
+that state at each existing verification point while holding the lock. Reject
+missing, revoked or mismatched state. Keep the same lock directory and do not
+replace its lock files during use.
+
+Use this only when the host controls every eligible writer for the destination
+and they use the same directory and guard. A reservation in an hourly prompt
+does not establish that boundary. This is local exclusion; it does not fence
+external writers or install a live assignment reader or Chat dispatcher.
+
 ## Live Tengri next step
 
 This hourly implementation invocation is not an owner-invoked exclusive source
