@@ -8,7 +8,7 @@ import unittest
 
 import test_checkpoint_supervised_host as fixture
 from nexus_sandbox.pre_dispatch_recovery import digest, recover_checkpoint_supervised
-from nexus_sandbox.transcript_supervised_host import execute_supervised
+from nexus_sandbox.transcript_supervised_host import _execute_supervised, execute_supervised
 
 
 class PreDispatchRecoveryTests(unittest.TestCase):
@@ -126,7 +126,7 @@ class PreDispatchRecoveryTests(unittest.TestCase):
         self.assertFalse(self.recover(True)['transaction_complete'])
         with self.assertRaises(PermissionError): self.recover(permit=dict(self.permit,permit_id='different'))
         # Exercise the native API too: changing the permit cannot consume twice.
-        result=execute_supervised(**self.f.args,recovery_authorization=dict(self.permit,permit_id='different'),
+        result=_execute_supervised(**self.f.args,recovery_authorization=dict(self.permit,permit_id='different'),
             verify_recovery=lambda p:p)
         self.assertEqual(result['handoff']['status'],'BLOCKED')
         self.assertEqual(self.f.base.calls.count('cortex_create'),1)
@@ -153,11 +153,19 @@ class PreDispatchRecoveryTests(unittest.TestCase):
     def test_append_and_unbound_native_recovery_rejected(self):
         with self.assertRaises(ValueError): self.recover(update_plan={})
         with self.assertRaises(ValueError):
-            execute_supervised(**self.f.args,update_plan={},recovery_authorization=self.permit,
-                               verify_recovery=lambda p:p)
-        with self.assertRaises(ValueError):
-            execute_supervised(**self.f.args,recovery_authorization=self.permit)
+            _execute_supervised(**self.f.args, recovery_authorization=self.permit)
         self.assertEqual(self.f.path.read_bytes(),self.original_bytes)
+
+    def test_public_host_cannot_resume_intent_with_a_recovery_callback(self):
+        self.f.base.calls.clear()
+        with self.assertRaises(TypeError):
+            execute_supervised(**self.f.args, recovery_authorization=self.permit,
+                               verify_recovery=lambda p: p)
+        self.assertEqual(self.f.base.calls, [])
+        result = execute_supervised(**self.f.args)
+        self.assertEqual(result['handoff']['status'], 'BLOCKED')
+        self.assertEqual(self.f.path.read_bytes(), self.original_bytes)
+        self.assertNotIn('cortex_create', self.f.base.calls)
 
     def test_source_change_after_dispatch_marker_consumes_without_provider_create(self):
         original=self.append
@@ -182,7 +190,7 @@ class PreDispatchRecoveryTests(unittest.TestCase):
 
 
     def test_native_denied_authority_leaves_journal_bytes_unchanged(self):
-        result=execute_supervised(**self.f.args,recovery_authorization=self.permit,
+        result=_execute_supervised(**self.f.args,recovery_authorization=self.permit,
                                   verify_recovery=lambda p:None)
         self.assertEqual(result['handoff']['status'],'BLOCKED')
         self.assertEqual(self.f.path.read_bytes(),self.original_bytes)
