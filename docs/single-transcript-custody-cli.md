@@ -59,3 +59,10 @@ No repository rule is relaxed by this candidate. In particular AGENTS rules 9–
 analysis evidence, source fidelity, journal recovery and truthful completion remain.
 Rollback removes this optional CLI, tests and document while preserving any real
 journals, private storage objects and receipts.
+
+## Pending ordinary-processing simplification
+
+[Non-governing custody proposal](supervised-custody-simplification-proposal.md)
+records the observed storage capability limits and a single-writer checkpoint
+intent alternative for explicit review. It grants no exception to current rules
+and does not enable a live source transaction.
