@@ -18,7 +18,8 @@ from .transcript_live_handoff import Observed
 def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                        output_name, analysis, expected_owner, request,
                        allow_create=False, analysis_gate=None,
-                       update_plan=None, allow_update=False):
+                       update_plan=None, allow_update=False,
+                       recovery_authorization=None, verify_recovery=None):
     """Standard source-processing entrypoint: structural gate is mandatory.
 
     Missing/malformed evidence fails before journal or provider access. Old
@@ -27,6 +28,8 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     if analysis_gate is None:
         raise ValueError('Structural analysis gate required')
     if update_plan is not None:
+        if recovery_authorization is not None or verify_recovery is not None:
+            raise ValueError('Recovery cannot authorize append/update')
         from .transcript_supervised_update import _execute_update
         if allow_create is not False:
             raise ValueError('Create and update modes cannot be combined')
@@ -41,7 +44,8 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     return _execute_supervised(journal_path=journal_path, prepared=prepared,
         source_page=source_page, source_sha256=source_sha256,
         output_name=output_name, analysis=analysis, expected_owner=expected_owner,
-        request=request, allow_create=allow_create, analysis_gate=analysis_gate)
+        request=request, allow_create=allow_create, analysis_gate=analysis_gate,
+        recovery_authorization=recovery_authorization, verify_recovery=verify_recovery)
 
 
 def reconcile_legacy_supervised(*, journal_path, prepared, source_page,
@@ -66,7 +70,8 @@ def reconcile_legacy_supervised(*, journal_path, prepared, source_page,
 def _execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                         output_name, analysis, expected_owner, request,
                         allow_create=False, analysis_gate=None,
-                        legacy_reconciliation=None):
+                        legacy_reconciliation=None, recovery_authorization=None,
+                        verify_recovery=None):
     """One locally serialized attempt; unknown create outcomes never retry.
 
     Ports: archive_read -> indexed observation; cortex_get -> module or None;
@@ -110,12 +115,23 @@ def _execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     if gate_fingerprint is not None:
         binding_data['analysis_evidence_sha256'] = gate_fingerprint
     binding = json.dumps(binding_data, sort_keys=True)
+    recovery = None
+    if recovery_authorization is not None:
+        from .pre_dispatch_recovery import validate_permit
+        if (legacy_reconciliation is not None or allow_create is not True
+                or not callable(verify_recovery) or Path(journal_path).is_symlink()
+                or not Path(journal_path).is_file()):
+            raise ValueError('Existing gated journal and verified recovery authority required')
+        recovery = validate_permit(recovery_authorization, binding_data, binding,
+                                   gate_binding['run_id'])
+    elif verify_recovery is not None:
+        raise ValueError('Recovery callback requires exact permit')
     with open(str(journal_path) + '.lock', 'a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         # mode=rw refuses missing journals. It must never silently create a
         # replacement for lost legacy intent, even under the exception route.
         db = (sqlite3.connect(Path(journal_path).resolve().as_uri() + '?mode=rw',
-                              uri=True) if legacy_reconciliation is not None
+                              uri=True) if legacy_reconciliation is not None or recovery is not None
               else sqlite3.connect(journal_path))
         try:
             db.execute('PRAGMA synchronous=FULL')
@@ -133,6 +149,8 @@ def _execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                 raise ValueError('Invalid journal state; reconcile custody')
             if prior and prior[0] != binding:
                 raise ValueError('journal binding changed')
+            if recovery is not None and (not prior or prior[1] != 'INTENT'):
+                raise ValueError('Recovery requires preserved native INTENT')
             if not prior:
                 db.execute('INSERT INTO execution VALUES (1,?,?,NULL)',
                            (binding, 'PREPARED'))
@@ -173,12 +191,26 @@ def _execute_supervised(*, journal_path, prepared, source_page, source_sha256,
 
             def cortex_write(key, content):
                 nonlocal writes, state
-                if (allow_create is not True or state != 'PREPARED' or writes
+                if (allow_create is not True
+                        or (state != 'PREPARED' and not (state == 'INTENT' and recovery is not None)) or writes
                         or key != output_name or content != desired):
                     raise PermissionError('create blocked; reconcile prior intent')
                 # Commit intent before crossing the provider boundary. A timeout
                 # or process death leaves INTENT; absence cannot release it.
-                db.execute("UPDATE execution SET state='INTENT'")
+                if recovery is not None:
+                    # One row per native transaction, not per permit ID. Never
+                    # reset INTENT or let a different permit release another try.
+                    if verify_recovery(json.loads(json.dumps(recovery))) != recovery:
+                        raise PermissionError('Confirmed pre-dispatch authority required')
+                    db.execute('CREATE TABLE IF NOT EXISTS recovery_attempt '
+                               '(singleton INTEGER PRIMARY KEY CHECK(singleton=1), '
+                               'permit TEXT NOT NULL)')
+                    if db.execute('SELECT 1 FROM recovery_attempt').fetchone():
+                        raise PermissionError('Recovery permit already consumed; reconcile read-only')
+                    db.execute('INSERT INTO recovery_attempt VALUES (1,?)',
+                               (json.dumps(recovery, sort_keys=True),))
+                else:
+                    db.execute("UPDATE execution SET state='INTENT'")
                 db.commit()
                 state = 'INTENT'
                 writes += 1

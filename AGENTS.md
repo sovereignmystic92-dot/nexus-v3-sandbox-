@@ -23,6 +23,8 @@ These instructions apply to Codex and other coding agents working in this reposi
 
 11. Ordinary owner-invoked single-writer transcript creates may use `execute_checkpoint_supervised` under `docs/checkpoint-supervised-host.md` after an operation-specific host-verified exclusive assignment. Retain/read exact pre-effect intent and post-effect receipt in the authorized Cortex checkpoint while preserving the native journal and complete analysis gate. Missing local journals HOLD; never reconstruct or reset intent. Scheduled invocations do not qualify, and this exception does not relax rule 10 or authorize append updates, parallel workers, remote takeover or unattended acceptance.
 
+12. A confirmed pre-dispatch INTENT may continue once through `recover_checkpoint_supervised` under `docs/pre-dispatch-recovery.md`, only after exact owner/code/evidence review and host-verified exclusive supervised assignment. Preserve the original transaction, binding, native INTENT and retained intent; consume one recovery permit in the same journal and retain separate recovery events. Destination absence alone, an uncertain provider outcome or a lost journal cannot qualify. A consumed/started recovery is read-only reconciliation only. No append exception or unattended authorization is granted.
+
 ## Standard engineering handoff
 For each Codex task, report:
 - Goal and owner authorization
