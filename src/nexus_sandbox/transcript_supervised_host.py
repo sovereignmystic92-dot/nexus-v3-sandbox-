@@ -18,8 +18,7 @@ from .transcript_live_handoff import Observed
 def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
                        output_name, analysis, expected_owner, request,
                        allow_create=False, analysis_gate=None,
-                       update_plan=None, allow_update=False,
-                       recovery_authorization=None, verify_recovery=None):
+                       update_plan=None, allow_update=False):
     """Standard source-processing entrypoint: structural gate is mandatory.
 
     Missing/malformed evidence fails before journal or provider access. Old
@@ -28,8 +27,6 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     if analysis_gate is None:
         raise ValueError('Structural analysis gate required')
     if update_plan is not None:
-        if recovery_authorization is not None or verify_recovery is not None:
-            raise ValueError('Recovery cannot authorize append/update')
         from .transcript_supervised_update import _execute_update
         if allow_create is not False:
             raise ValueError('Create and update modes cannot be combined')
@@ -44,8 +41,7 @@ def execute_supervised(*, journal_path, prepared, source_page, source_sha256,
     return _execute_supervised(journal_path=journal_path, prepared=prepared,
         source_page=source_page, source_sha256=source_sha256,
         output_name=output_name, analysis=analysis, expected_owner=expected_owner,
-        request=request, allow_create=allow_create, analysis_gate=analysis_gate,
-        recovery_authorization=recovery_authorization, verify_recovery=verify_recovery)
+        request=request, allow_create=allow_create, analysis_gate=analysis_gate)
 
 
 def reconcile_legacy_supervised(*, journal_path, prepared, source_page,
