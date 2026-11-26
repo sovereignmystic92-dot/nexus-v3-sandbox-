@@ -4,12 +4,11 @@ Candidate implementation/policy for exact review. Preparation authorization does
 not authorize using it on the real Tengri journal before approval. No runner,
 service, schedule, credential, source writer or new store is installed.
 
-The native host normally permits creates only from PREPARED. The opt-in recovery
-arguments allow a single INTENT continuation after a trusted authority callback
-verifies an exact permit. Existing calls and gates retain their behavior; updates
-and legacy ungated journals cannot use this exception. AGENTS rule12 is the
-explicit proposed policy amendment. Prefer recover_checkpoint_supervised, which
-composes native enforcement with retained checkpoint evidence and receipt checks.
+The public native host permits creates only from PREPARED. All recovery callers
+use recover_checkpoint_supervised, which combines retained checkpoint evidence
+and receipt checks with a private native helper that consumes the exact permit.
+Updates and legacy ungated journals cannot use this exception. AGENTS rule12 is
+the explicit proposed policy amendment.
 
 ## Authority is positive evidence, not absence
 
