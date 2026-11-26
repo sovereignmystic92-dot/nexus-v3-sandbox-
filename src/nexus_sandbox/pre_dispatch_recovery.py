@@ -48,7 +48,7 @@ def recover_checkpoint_supervised(*, context, supervised_kwargs, original_intent
     for comparison/digest; native analysis gate still requires the exact tuple.
     """
     from .supervised_journal_custody import expected_binding, _inspect, _snapshot
-    from .transcript_supervised_host import execute_supervised
+    from .transcript_supervised_host import _execute_supervised, execute_supervised
     ctx, args, intent = copy.deepcopy(context), dict(supervised_kwargs), copy.deepcopy(original_intent)
     if set(args) != {'journal_path', 'prepared', 'source_page', 'source_sha256',
                     'output_name', 'analysis', 'expected_owner', 'request',
@@ -151,9 +151,16 @@ def recover_checkpoint_supervised(*, context, supervised_kwargs, original_intent
             value = request(operation, payload)
             if operation == 'archive_read': last_source = copy.deepcopy(value)
             return value
-        recovery_args = {} if reconcile_only else dict(recovery_authorization=pinned,
-            verify_recovery=lambda p: (authorize() or copy.deepcopy(pinned)) if p == pinned else None)
-        execution = execute_supervised(**dict(args, request=dispatch), **recovery_args)
+        if reconcile_only:
+            execution = execute_supervised(**args)
+        else:
+            def verify_recovery(candidate):
+                if candidate == pinned:
+                    authorize()
+                    return copy.deepcopy(pinned)
+
+            execution = _execute_supervised(**dict(args, request=dispatch),
+                recovery_authorization=pinned, verify_recovery=verify_recovery)
         if (execution['handoff']['status'] != 'READBACK_MATCHED'
                 or execution.get('analysis_evidence_status') != 'STRUCTURAL_READBACK_MATCHED'):
             return dict(status='HOLD', transaction_complete=False, execution=execution)
