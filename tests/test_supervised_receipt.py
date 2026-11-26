@@ -34,3 +34,12 @@ class SupervisedReceiptTests(unittest.TestCase):
         r = copy.deepcopy(RECEIPT)
         r["source"]["chunks"].reverse()
         self.assertEqual(validate(r)["status"], "FUNCTIONALLY_INCOMPLETE")
+
+    def test_malformed_inputs(self):
+        for value in (None, [], "receipt", {"source": None},
+                      {"source": {"chunks": [None]}},
+                      {"claims": [None]}, {"output": []}):
+            with self.subTest(value=value):
+                result = validate(value)
+                self.assertEqual(result["status"], "FUNCTIONALLY_INCOMPLETE")
+                self.assertFalse(result["audit_promotion"])
