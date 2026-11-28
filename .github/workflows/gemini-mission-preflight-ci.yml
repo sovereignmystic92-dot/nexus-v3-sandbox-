@@ -1,0 +1,23 @@
+name: Gemini mission preflight (offline)
+on:
+  pull_request:
+    paths:
+      - 'tools/gemini_mission_preflight.py'
+      - 'tests/test_gemini_mission_preflight.py'
+      - 'evidence/knowledge-mastery/mass-relays-20261109-candidates.json'
+      - '.github/workflows/gemini-mission-preflight-ci.yml'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  mission-preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate offline mission preflight
+        run: |
+          PYTHONPATH=.:src python3 -m unittest discover -s tests -p 'test_gemini_mission_preflight.py' -v
+          PYTHONPATH=.:src python3 -m tools.gemini_mission_preflight --issue 291 --manifest evidence/knowledge-mastery/mass-relays-20261109-candidates.json
+# No secrets, Gemini API calls, provider writes, or mission dispatch.
