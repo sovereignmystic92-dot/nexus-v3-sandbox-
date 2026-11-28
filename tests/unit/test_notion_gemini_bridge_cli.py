@@ -68,6 +68,25 @@ class RealSourceCLITests(unittest.TestCase):
         self.assertEqual(receipt["workflow_run_id"],"123")
         self.assertEqual(receipt["source_sha256"],hashlib.sha256(self.raw.encode()).hexdigest())
         self.assertFalse(receipt["durable_receipt_verified"])
+    def test_http_failure_reports_stage_without_sensitive_message(self):
+        import urllib.error
+        def denied(*args):
+            raise urllib.error.HTTPError("mock-notion-secret",403,"mock-gemini-secret",{},None)
+        self.module.notion.read_json=denied
+        status,out,err=self.invoke()
+        self.assertEqual((status,self.calls),(2,0))
+        self.assertEqual(json.loads(err)["stage"],"source_page_read")
+        self.assertEqual(json.loads(err)["http_status"],403)
+        self.assertEqual(out,"")
+    def test_model_failure_reports_stage_without_sensitive_message(self):
+        def failed(**kwargs):
+            raise RuntimeError("mock-gemini-secret")
+        self.module.run=failed
+        status,out,err=self.invoke()
+        self.assertEqual(status,2)
+        self.assertEqual(json.loads(err)["stage"],"gemini_review")
+        self.assertIsNone(json.loads(err)["http_status"])
+        self.assertEqual(out,"")
     def test_approval_denial_precedes_source_and_model(self):
         status,out,err=self.invoke(approved="false")
         self.assertEqual((status,self.reads,self.calls),(2,0,0))
