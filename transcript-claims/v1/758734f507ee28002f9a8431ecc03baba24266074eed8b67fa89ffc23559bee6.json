@@ -1,0 +1,14 @@
+{
+  "worker": "Nexus Transcript Processing",
+  "authority": "Rule 16 direct owner intake: Halo transcript submission and Continue archiving; verified readiness reconciliation",
+  "account": "01a0b33e-deda-d7a5-dcf5-faeae65b486f",
+  "page": "4268c067daa481508dcdf6ff4de46c45",
+  "video": "I2nebz3r4Ls",
+  "revision": "2026-11-28T15:31:46.133Z",
+  "source_sha256": "0a8c05a55bc10aed37bd06a3332c1ab07a18bc2d831d1d728c4b863fbd68d213",
+  "analysis_sha256": "25dfe6046017fb20f9f84a3a1417122fc52168c70de189393d9eaa9a9a9a93ab",
+  "destination": "Nexus Output — Civilian Halo and Interstellar Institutions — I2nebz3r4Ls",
+  "parent": "Nexus Runtime — Cortex Output Promotion",
+  "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+  "dependencies": []
+}
