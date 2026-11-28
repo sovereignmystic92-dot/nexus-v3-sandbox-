@@ -1,0 +1,31 @@
+{
+  "pilot_identity": "superluminal-pQZH0xWXa_w-bg-1",
+  "invocation_identity": "Automation_f4d6af2d3ac881919445940447952c79@2026-11-28T04:00:15.444Z",
+  "source": {
+    "notion_page_id": "4258c067-daa4-8162-aba9-c2784181fb6d",
+    "revision": "2026-11-27T22:31:41.913Z",
+    "readback_edit_time": "2026-11-27T22:31:41.894Z",
+    "bytes_utf8": 14898,
+    "sha256": "347be9f5eabcf14874014b1fd2ee1335a53eb59c491099cd1e71803c896b3a7e",
+    "video_id": "pQZH0xWXa_w"
+  },
+  "reviewed_draft": {
+    "notion_page_id": "4258c067-daa4-8134-8fa6-eb0ef4957529",
+    "bytes_utf8": 4952,
+    "sha256": "b392cadf35661611eba1ef7b7ca58e7f97bc5b34664f138cbc161305f7a63c31"
+  },
+  "final_content": {
+    "formulation": "exact reviewed draft subsection, trailing whitespace trimmed",
+    "bytes_utf8": 4952,
+    "sha256": "b392cadf35661611eba1ef7b7ca58e7f97bc5b34664f138cbc161305f7a63c31"
+  },
+  "cortex_destination": {
+    "name": "Nexus Output — Superluminal: Relativity, Causal Limits, and Signal Delay",
+    "parent": "Nexus Runtime — Cortex Output Promotion",
+    "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+    "dependencies": [
+      "Nexus 2.0 — Processing Integrity & Quality Gate",
+      "Nexus Output — Life As A Planetary Governor: Communication Delay and Local Authority — RfD1fOoRl3s"
+    ]
+  }
+}
