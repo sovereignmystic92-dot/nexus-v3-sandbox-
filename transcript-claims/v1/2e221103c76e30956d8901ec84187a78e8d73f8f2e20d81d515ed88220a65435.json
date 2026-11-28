@@ -1,0 +1,16 @@
+{
+  "rule": 16,
+  "worker": "Nexus Transcript Processing",
+  "authorization": "Owner directly submitted vPAF-bKOF6g with full transcript in this intake conversation; exact binding verified in Notion readiness queue",
+  "queue": "4258c067daa481348fa6eb0ef4957529",
+  "page": "4268c067daa481d382d6ea49a6fb1413",
+  "video": "vPAF-bKOF6g",
+  "revision": "2026-11-28T08:33:25.971Z",
+  "source_sha256": "026d0aee4f5ffcb42a602173e3c74ebde01a3c7d9e504a90f63cdf3cb97b99a8",
+  "analysis_sha256": "86ae457bbd99e99f36dbd2027e96e44055bce5bd2d59feb5772306cdaa40797c",
+  "account_owner": "01a0b33e-deda-d7a5-dcf5-faeae65b486f",
+  "destination": "Nexus Output — MSC, BlackRock and Port Governance — vPAF-bKOF6g",
+  "parent": "Nexus Runtime — Cortex Output Promotion",
+  "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+  "dependencies": []
+}
