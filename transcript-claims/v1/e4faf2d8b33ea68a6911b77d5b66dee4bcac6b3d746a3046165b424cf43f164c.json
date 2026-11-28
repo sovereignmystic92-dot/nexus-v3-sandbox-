@@ -1,0 +1,16 @@
+{
+  "rule": 16,
+  "worker": "Nexus Transcript Processing",
+  "authorization": "Direct owner submission of 2EchbPy5JHA and complete supplied transcript in this intake conversation",
+  "queue": "4258c067daa481348fa6eb0ef4957529",
+  "page": "4268c067daa4816a9749e5e96a34c744",
+  "video": "2EchbPy5JHA",
+  "revision": "2026-11-28T08:36:44.529Z",
+  "source_sha256": "a1820bf33ab51974cadb11b389ecf39baa04dab010f192bb62ef4a2b3e43e425",
+  "analysis_sha256": "37910ff361fa557d3333ce788b5bcb72df52b70967f57e2ca51f956517f5dbf2",
+  "account_owner": "01a0b33e-deda-d7a5-dcf5-faeae65b486f",
+  "destination": "Nexus Output — Amaranth, Gas Market Concentration and Liquidity — 2EchbPy5JHA",
+  "parent": "Nexus Runtime — Cortex Output Promotion",
+  "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+  "dependencies": []
+}
