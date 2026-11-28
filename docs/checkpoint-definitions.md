@@ -1,5 +1,20 @@
 # Nexus checkpoint definition and update procedure
 
+## Current owner-authorized CP05 non-Cortex scope — 2026-11-08
+
+Definition: `owner-cp05-non-cortex-2026-11-08`. Decision: `CP05-NON-CORTEX-20261108`.
+
+The owner accepted CP05 within the already tested single-worker non-Cortex synthetic fixture and destination-binding scope. This synchronizes the existing [canonical audit decision](https://app.notion.com/p/4018c067daa48122b82ec2ae8067d021) and Cortex bridge pilot `module_01m6xhjkeb2tfwrbq3avh7h382`. It is a prospective scope amendment, not a new execution or satisfaction of excluded requirements.
+
+The original broader requirement and PARTIALLY_VERIFIED disposition remain in the register's CP05 requirement_history and evidence/history. Direct GitHub-to-Cortex authentication, installation/effective grants and unattended transport remain deferred and unverified. General host-routing assurance and unrestricted creation/enrollment are not certified. The retained [Notion synthetic pause/resume/replay run](https://github.com/sovereignmystic92-dot/nexus-v3-sandbox-/actions/runs/42552820181), offline checks and supervised Chat–Cortex evidence remain separate evidence classes.
+
+Authorized supervised Chat transcript processing may continue: Notion preserves originals; Cortex holds derived outputs; source/destination binding, durable intent, idempotency and independent readback still apply. Chat access is not runner authorization. No authentication safeguard or credential restriction changes.
+
+Reopen excluded requirements before direct GitHub-to-Cortex calls, changed actor/account/destination, unattended provider writes or expanded creation/enrollment/host routing; reopen relevant acceptance on binding/readback failure. CP02/CP03/CP04/CP09 are unchanged. Five consecutive scheduled/event ingestion runs, audio accuracy and independent Gemini review are not established here.
+
+Derived register count upon adoption: **14/19 PASSED, 3 PARTIALLY_VERIFIED, 2 BLOCKED**, explicitly mixed-scope under owner-revised CP05/CP08/CP10 definitions. Full foundation acceptance remains BLOCKED; production readiness and unattended authorization are unchanged. Older counts and paused-scope wording below remain historical for their dated scope; this section supersedes only CP05's disposition and aggregate arithmetic.
+
+
 Definition version: proposal-1 (identifier retained for evidence continuity). Owner accepted this 19-item definition set on 2026-10-24 after reviewing PR #23. This is a newly adopted mapping, not a recovered original checklist. The historical report of 8/19 remains an UNRECONCILED aggregate; no checkpoint is retroactively marked passed. The accepted count under this proposal is NOT ESTABLISHED, rather than zero or nine. Existing evidence is preserved.
 
 The machine-readable record is [checkpoint-register.json](checkpoint-register.json). Source basis: `docs/foundation-audit-status.md`, `docs/test-plan.md`, `docs/current-acceptance-review.md`, and `docs/audit-network-recovery-readback-cleanup.md` at main `709a4d39d1c0058d3f4dc8c8832025ad324d55b5`. C1-C9 control labels and test-case C01/C02 are different namespaces. The grouping below explicitly combines related scenarios and adds independent human review; owner acceptance of this mapping is recorded; reconciliation of the historical eight and individual PASS adjudication remain open.
