@@ -1,3 +1,5 @@
+> Historical October 22 assessment. Its exact tests, constraints and verdict remain attached to the reviewed revision; do not use its old integration/hosting statements as a current whole-system inventory. Read the [November 8 operating baseline](nexus-operating-baseline-20261108.md) and current authoritative audit/mission receipts before acting. This annotation changes no authority, gate criterion or accepted score.
+
 # Authority resolution and acceptance follow-through — 2026-10-22
 
 ## Implemented local authority contract

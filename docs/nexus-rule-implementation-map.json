@@ -1,0 +1,754 @@
+{
+  "schema": "nexus.operating-rule-map.v1",
+  "mission_id": "NXS-OPERATING-REFRESH-20261108",
+  "review_date_local": "2026-11-08",
+  "timezone": "America/New_York",
+  "baseline_commit": "9522de955517537abfc61382a4fdbab7d2b12bfc",
+  "status": "DOCUMENTATION_RECONCILIATION_FOR_REVIEW",
+  "authority": "Subordinate index of existing rules; not runtime policy, constitutional amendment, v4 promotion or audit closure.",
+  "scope_limit": "Twenty control records retrieved; code references inspected where available. Linked domain/lens/subsystem descendants and every historical record are not exhaustively reviewed. No new runtime compliance or live test claim.",
+  "sources": [
+    {
+      "id": "core",
+      "title": "⚙️ Nexus Core — Executable Constitution",
+      "url": "https://app.notion.com/p/3d28c067daa4814e8e68d229d27598fc",
+      "tool_reported_as_of": "2026-10-22T04:16:34.266Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "54c7020df6d552005b8f42af1edb8fdafe6b7a15c895bc1b0a489c46a2ba892f",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "arch",
+      "title": "Nexus 2.0",
+      "url": "https://app.notion.com/p/3d28c067daa48031b8afcbff44874fe7",
+      "tool_reported_as_of": "2026-10-31T15:02:44.972Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "4aa548c46e7c38b2e2622b8ac655a281df97b3a6151e5c29dc6df50a745d6eff",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "principles",
+      "title": "Core Principles",
+      "url": "https://app.notion.com/p/3a58c067daa48028b27efc97e1397e96",
+      "tool_reported_as_of": "2026-08-20T22:12:30.025Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "1dffcf5d3655b3c8dbe663f09a8481d490ad6a4f3d9e103e06fa5df5d78f9051",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "init",
+      "title": "⚙️ Nexus Initialization Protocol",
+      "url": "https://app.notion.com/p/3c28c067daa4813d845df7e4682f453f",
+      "tool_reported_as_of": "2026-10-28T04:47:03.538Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "a09cc96997c1d10311f34b4df93fbeaa253310960c4ff495a5fdb9ddcd3df438",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "data",
+      "title": "Nexus Data Model — Architecture & Governance",
+      "url": "https://app.notion.com/p/3d28c067daa4818483fdc91199148c8b",
+      "tool_reported_as_of": "2026-10-04T09:22:43.693Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "d8fe1719c861899a9a41552b3cf0c8b166fe763096c3f29fcc6c3dcb44d9d6de",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "domains",
+      "title": "Canonical Domains",
+      "url": "https://app.notion.com/p/3d28c067daa4817584d5ca61c8e5fa19",
+      "tool_reported_as_of": "2026-10-21T12:08:01.770Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "c31977b8ee28a099a310b2fd0714897098e9bbde0c1d2ba7e6bffc8993125042",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "lens",
+      "title": "Lens",
+      "url": "https://app.notion.com/p/39d8c067daa4802e85e8fff085bd308c",
+      "tool_reported_as_of": "2026-10-26T00:40:26.894Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "0bc5bb1919c8d184acf7da00020976bd5bad5475b28eeeeed3d43f850181b96d",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "lensProtocol",
+      "title": "Lens Execution Protocol",
+      "url": "https://app.notion.com/p/3c28c067daa48123a4fce372a05f8578",
+      "tool_reported_as_of": "2026-10-26T00:40:26.894Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "6cf396089fefb082073d8aea2ea4f52d33477ee88ff8d2187dace89c84e548f5",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "triggers",
+      "title": "Nexus Trigger Registry",
+      "url": "https://app.notion.com/p/3c78c067daa48143a361d492f3e281ba",
+      "tool_reported_as_of": "2026-10-26T00:18:21.524Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "8d2bdeadf491f94973cf67c5e0914fc46d5d54b0f75efdd0cbfb5a63a264576b",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "quality",
+      "title": "Nexus Processing Integrity & Quality Gate",
+      "url": "https://app.notion.com/p/3ca8c067daa48178a38dc64348036953",
+      "tool_reported_as_of": "2026-09-18T12:39:20.465Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "c33ccf1bbc3a0f68ad8b00f6578046c033ac4b317b356b56819fc0e55c9f3229",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "promotion",
+      "title": "🧠 Knowledge Promotion Evaluation Contract",
+      "url": "https://app.notion.com/p/3d38c067daa48129b144f773e3e38345",
+      "tool_reported_as_of": "2026-09-06T13:00:48.452Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "bf33dd255ccdbf345d85d74733a6a441e109e0bf97a33847ebc22b26a762977c",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "transcript",
+      "title": "Archive ↔ Nexus Transcript Routing Rule",
+      "url": "https://app.notion.com/p/3c58c067daa4817d826ec215c4fab599",
+      "tool_reported_as_of": "2026-10-28T23:50:01.062Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "832c27cfac587ac21853ddff5c50f6658332ec7357a957a90c41b559a2418a9e",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "maintenance",
+      "title": "🔄 Nexus Reconciliation & Quality Cycle",
+      "url": "https://app.notion.com/p/3df8c067daa481f4b43cf7c6e06265d0",
+      "tool_reported_as_of": "2026-10-31T15:00:24.212Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "04bf46e6ff7373ff9e082e3d9a346b00b317acfc453e2a8cf3392bd1bc79685d",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "archive",
+      "title": "Nexus 2.0 — Archive Maintenance Standard",
+      "url": "https://app.notion.com/p/3e18c067daa48132a22ef7adae3137b8",
+      "tool_reported_as_of": "2026-10-04T09:30:34.684Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "49357bdc7fa977b16e55bfceb9ac5acb24acd9400590ad0343b0295fdbc0c510",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "state",
+      "title": "📍 Nexus 2.0 — Current State",
+      "url": "https://app.notion.com/p/3d58c067daa4810bae28c9bb9b73c562",
+      "tool_reported_as_of": "2026-10-14T19:33:21.902Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "e19cdc35a8267e8e149472ecfd8f83131a0e571b96d322117cbaed76bff75bfd",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "queue",
+      "title": "📥 Nexus 2.0 — Update Queue",
+      "url": "https://app.notion.com/p/3d58c067daa4810c9787d13071dcde73",
+      "tool_reported_as_of": "2026-10-31T15:01:59.007Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "e39cd5a33cc848e977b822be1a2d94f7921e04f3ec1200f7d1df41fb70b96482",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "audit",
+      "title": "🔎 Nexus 2.0 → 3.0 — Foundation Audit",
+      "url": "https://app.notion.com/p/4018c067daa48122b82ec2ae8067d021",
+      "tool_reported_as_of": "2026-11-09T03:37:33.776Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "564b8e1d6ecf9e5a3c461209c74ab5ff19ce1d01d2b4e73fd11357a391a311cb",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "v4",
+      "title": "Nexus Continuous Verification & Reconciliation Protocol — v4 Revision Candidate",
+      "url": "https://app.notion.com/p/3fb8c067daa481b99bc6e0ecb85738b3",
+      "tool_reported_as_of": "2026-10-17T05:30:29.489Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "cd8f86a80c2600107abfda8580669f8a14e204ed14fbd64b5e894fa53f2fddac",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "anchors",
+      "title": "Anchor Rules",
+      "url": "https://app.notion.com/p/3c58c067daa48164ab06d3d6e4dc52c1",
+      "tool_reported_as_of": "2026-08-25T12:47:16.463Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "8540b62d7389a57ebd26fa91156d23b3a76054f6e54e940075c55f7f3b38aca2",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    },
+    {
+      "id": "execution",
+      "title": "Chat ↔ Nexus Execution Contract",
+      "url": "https://app.notion.com/p/3c58c067daa48170bf97fd4a68de1e6c",
+      "tool_reported_as_of": "2026-10-28T04:46:50.289Z",
+      "review_scope": "retrieved control record; linked descendants not exhaustively reviewed",
+      "retrieved_text_sha256": "2e5eba0a6aa3f57a9d9b74cea2085f32fe1b87b03bf9efb63f584c1cf8069170",
+      "snapshot_hash_scope": "tool-returned text representation, not original provider bytes or audio"
+    }
+  ],
+  "rules": [
+    {
+      "id": "NXS-R01",
+      "topic": "Identity, prime directive, human authority",
+      "source_ids": [
+        "core",
+        "principles"
+      ],
+      "source_sections": [
+        "Core §§1–3,13,22–25"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "No program proves coherence, truth or human-intent interpretation; retain explicit review.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R02",
+      "topic": "Authority and untrusted source isolation",
+      "source_ids": [
+        "core",
+        "anchors",
+        "arch"
+      ],
+      "source_sections": [
+        "Core §§3,11,17; Architecture contract consolidation"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/authority.py",
+        "src/nexus_sandbox/coordinator.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Resolver accepts structured synthetic metadata only; does not authenticate or interpret the Constitution. Older Anchor/layer vocabulary remains historical under the current hierarchy.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R03",
+      "topic": "Truth, interpretation, hypothesis and uncertainty",
+      "source_ids": [
+        "core",
+        "principles",
+        "data"
+      ],
+      "source_sections": [
+        "Core §§4,8; epistemic promotion ladder"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/research_loop.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Structured classifications do not validate factual claims or independent corroboration.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R04",
+      "topic": "PASSIVE/ACTIVE, triggers and finite missions",
+      "source_ids": [
+        "core",
+        "triggers"
+      ],
+      "source_sections": [
+        "Core §§5–7,20–21"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/event_router.py",
+        "src/nexus_sandbox/processing_pipeline.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Observer plans do not execute a live worker. Caller must authenticate trigger and enforce scope.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R05",
+      "topic": "Source provenance and temporal identity",
+      "source_ids": [
+        "core",
+        "arch"
+      ],
+      "source_sections": [
+        "Core §§8,18; temporal integrity"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/transcript_fidelity.py",
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Digest checks bind supplied bytes; video/audio accuracy and external facts are separate.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R06",
+      "topic": "Connection meaning and contradiction preservation",
+      "source_ids": [
+        "core",
+        "data"
+      ],
+      "source_sections": [
+        "Core §9; Connection object"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/research_loop.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Connection structure can be validated; semantic meaning and endpoint registration need actual content/destination checks.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R07",
+      "topic": "Knowledge promotion separate from persistence",
+      "source_ids": [
+        "core",
+        "promotion",
+        "data"
+      ],
+      "source_sections": [
+        "Core §10; Promotion §§2–6,11"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "A saved Cortex analysis is not automatically validated Knowledge. No universal promotion evaluator demonstrated.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R08",
+      "topic": "Agent/manager boundaries and unavailable specialists",
+      "source_ids": [
+        "core"
+      ],
+      "source_sections": [
+        "Core §§11–12"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/processing_pipeline.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Host supplies executors; code cannot manufacture independent Gemini or Gauntlet participation.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R09",
+      "topic": "Escalation, graceful failure and last confirmed state",
+      "source_ids": [
+        "core",
+        "execution"
+      ],
+      "source_sections": [
+        "Core §§14,16,21"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/processing_pipeline.py",
+        "src/nexus_sandbox/research_loop.py",
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Typed stop states do not prove host failure recovery or all provider failure paths.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R10",
+      "topic": "Quality, usefulness and proportional depth",
+      "source_ids": [
+        "core",
+        "quality"
+      ],
+      "source_sections": [
+        "Core §15; Domain Quality Lock"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Content quality and all seven domain determinations remain human/assistant review obligations, not a hash test.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R11",
+      "topic": "Change classification and no silent constitutional edits",
+      "source_ids": [
+        "core",
+        "maintenance"
+      ],
+      "source_sections": [
+        "Core §17; Reconciliation lifecycle"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "This review changes documentation only; constitutional and architectural proposals require their existing governed approval.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R12",
+      "topic": "Execution provenance and attributable receipts",
+      "source_ids": [
+        "core",
+        "execution"
+      ],
+      "source_sections": [
+        "Core §18; active-processing evidence watch"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/coordinator.py",
+        "src/nexus_sandbox/processing_pipeline.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Synthetic actor labels and callback receipt claims are not independent installation identity or effective grants.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R13",
+      "topic": "Anti-recursion and bounded expansion",
+      "source_ids": [
+        "core",
+        "arch"
+      ],
+      "source_sections": [
+        "Core §§6,19–21; Coherence Review"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/event_router.py",
+        "src/nexus_sandbox/research_loop.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Observer recursion suppression and research max_steps are scoped; not a global cross-provider recursion guard.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R14",
+      "topic": "Domains and lenses as mission-dependent roles",
+      "source_ids": [
+        "core",
+        "domains",
+        "lens",
+        "lensProtocol"
+      ],
+      "source_sections": [
+        "Core §26; Domain Storage Gate; Lens selection"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Preserve 12 named primary domains. Active lenses are Investigation/Psychology/Strategy/Cryptographic; Spiritual inactive; Wonderland environment only. Linked additions need separate status verification.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R15",
+      "topic": "Gauntlet invocation, challenge and validation",
+      "source_ids": [
+        "core",
+        "maintenance"
+      ],
+      "source_sections": [
+        "Core §27"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Gauntlet is a toolkit/protocol applied by the runtime; no independent persistent executor attested.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R16",
+      "topic": "Sensitive knowledge retention versus operational action",
+      "source_ids": [
+        "core",
+        "data"
+      ],
+      "source_sections": [
+        "Knowledge Governance — Sensitive and Harmful Subject Matter"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Retaining analytical knowledge does not authorize operationalization. No comprehensive semantic classifier demonstrated.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R17",
+      "topic": "Cortex-first startup and project resume pins",
+      "source_ids": [
+        "init",
+        "execution"
+      ],
+      "source_sections": [
+        "Boot §§2–6; project-resume pin check"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Instructions must actually be loaded; no universal startup interception in every client.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R18",
+      "topic": "Full pipeline beyond transcript storage",
+      "source_ids": [
+        "arch",
+        "data"
+      ],
+      "source_sections": [
+        "Architecture §8; canonical objects"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/processing_pipeline.py",
+        "src/nexus_sandbox/nexus_processing_gateway.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Host callbacks and separate runtime custody required; preservation/readback does not establish domain synthesis, research or promotion.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R19",
+      "topic": "Object-specific storage and exact destinations",
+      "source_ids": [
+        "arch",
+        "execution"
+      ],
+      "source_sections": [
+        "2026-10-31 storage compatibility addendum"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/output_authority.py",
+        "src/nexus_sandbox/nexus_processing_gateway.py",
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Notion originals/governance history; Cortex new analysis/reusable context; GitHub code/evidence. Host grants and parent/account binding remain necessary.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R20",
+      "topic": "Exact source manifest and independent archive readback",
+      "source_ids": [
+        "transcript",
+        "quality"
+      ],
+      "source_sections": [
+        "Transcript Source Integrity Lock; completion evidence"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/transcript_fidelity.py",
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Complete ordered bytes must be observed independently. Audio comparison is owner-deferred, never implied.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R21",
+      "topic": "Duplicate check, write intent and uncertain-write recovery",
+      "source_ids": [
+        "execution",
+        "core"
+      ],
+      "source_sections": [
+        "Pre-create idempotency; Core §16"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Single local journal and cooperating local locks only; total journal loss and distributed fencing unproven.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R22",
+      "topic": "Completion, routing, discoverability and independent readback",
+      "source_ids": [
+        "execution",
+        "quality",
+        "arch"
+      ],
+      "source_sections": [
+        "2026-10-26 completion-order clarification"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/processing_pipeline.py",
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "Current callbacks verify only declared scope. A storage success is not universal semantic-link/connection/promotion completion.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R23",
+      "topic": "Semantic hyperlinks and source-specific concept identity",
+      "source_ids": [
+        "init",
+        "quality",
+        "transcript"
+      ],
+      "source_sections": [
+        "Source Hyperlink Integration; semantic link propagation"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "No end-to-end rendered-link verifier demonstrated by the inspected source code; no blind lexical replacement.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R24",
+      "topic": "Domain interrogation and applicable destinations",
+      "source_ids": [
+        "quality",
+        "init",
+        "domains"
+      ],
+      "source_sections": [
+        "Domain Quality Lock; applicable destinations; retired nine channels"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Preserve relevance/contribution/knowledge impact/full potential/action/questions/verification. Do not resurrect superseded fixed output quotas.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R25",
+      "topic": "Research follow-through, questions and intentional stops",
+      "source_ids": [
+        "arch",
+        "data"
+      ],
+      "source_sections": [
+        "Knowledge Mastery; Research Follow-Through; Temporal Evidence-Gate"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/research_loop.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "State machine records assessments; source adequacy, semantics and actual external research require trusted execution.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R26",
+      "topic": "Timeline, event/report dates and temporal uncertainty",
+      "source_ids": [
+        "arch"
+      ],
+      "source_sections": [
+        "Temporal Knowledge Architecture"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "No general verified timeline registry synchronizer established in this review.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R27",
+      "topic": "Targeted retroactive review and evolution",
+      "source_ids": [
+        "init",
+        "maintenance",
+        "archive"
+      ],
+      "source_sections": [
+        "Initialization §5A; reconciliation lifecycle"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "Review materially affected knowledge after adoption; avoid archive-wide mutation and preserve old interpretations.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R28",
+      "topic": "Audit evidence matched to actual route and criterion",
+      "source_ids": [
+        "execution",
+        "audit"
+      ],
+      "source_sections": [
+        "CP02–CP04 evidence watch"
+      ],
+      "code_refs": [],
+      "implementation_status": "procedure_only",
+      "evidence_class": "source_inspection",
+      "limitation": "CP03 covers credential/mount exclusion; CP04 network/triggers. Scheduling alone closes neither. Use current accepted scope and exact evidence.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R29",
+      "topic": "v4 protocol candidate and promotion",
+      "source_ids": [
+        "v4",
+        "queue"
+      ],
+      "source_sections": [
+        "4.0-RC1 promotion gates; October 31 lineage finding"
+      ],
+      "code_refs": [],
+      "implementation_status": "candidate_not_active",
+      "evidence_class": "source_inspection",
+      "limitation": "Candidate is not platform V4. Active protocol internally VERSION 1.0, historically called v3. October 17 scores are historical.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R30",
+      "topic": "Provider review identity, permissions and budget",
+      "source_ids": [
+        "core",
+        "execution",
+        "audit"
+      ],
+      "source_sections": [
+        "Core §§11,13,17; November 8 owner pilot decisions"
+      ],
+      "code_refs": [],
+      "implementation_status": "planned_not_enforced",
+      "evidence_class": "source_inspection",
+      "limitation": "Five qualifying unattended successes precede Gemini integration draft. $5 total pilot requirement is not an installed spending cap.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    },
+    {
+      "id": "NXS-R31",
+      "topic": "Deferred subsystems and controlled concurrency",
+      "source_ids": [
+        "arch",
+        "audit",
+        "queue"
+      ],
+      "source_sections": [
+        "Legacy normalization; owner deferrals"
+      ],
+      "code_refs": [
+        "src/nexus_sandbox/transcript_supervised_host.py"
+      ],
+      "implementation_status": "partial",
+      "evidence_class": "source_inspection",
+      "limitation": "CrewAI suspended; remote fencing/runner Cortex OAuth deferred; one writer. Civilization Engine remains on hold.",
+      "next_action": "Validate or implement the missing behavior under a separate bounded work item; do not infer compliance from this index."
+    }
+  ],
+  "remaining_review_families": [
+    "12 primary domain definitions and individually linked supplemental domain status",
+    "active lens child definitions and inactive/retired child consistency",
+    "Field Journal and observation procedures",
+    "The Forge and Padawan capability/practice procedures",
+    "Adaptive Timeline event records and verification",
+    "market/trading-specific authorization and risk procedures",
+    "deferred pins and trigger register; no automatic activation",
+    "semantic hyperlink rendering and cross-output connection registration",
+    "full per-clause tests and independent content review"
+  ]
+}

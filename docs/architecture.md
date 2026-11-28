@@ -1,3 +1,5 @@
+> Historical component design: the scope below describes the initial synthetic SQLite coordinator, not every implementation now in this repository. For current supervised host/provider boundaries and rule coverage, read the [November 8 operating baseline](nexus-operating-baseline-20261108.md). The original component contract and limitations below are retained unchanged.
+
 # Proposed architecture
 
 Scope: one worker, explicit synthetic fixture catalog, SQLite, no integrations. A local coordinator now exists; no hosted runtime is provisioned.
