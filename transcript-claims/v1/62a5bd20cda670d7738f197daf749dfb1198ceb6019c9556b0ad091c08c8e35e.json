@@ -1,0 +1,14 @@
+{
+  "worker": "Nexus Transcript Processing",
+  "authority": "Rule 16; direct owner submission of TC1erDRJTEs in Nexus intake; verified Notion readiness preparation",
+  "account": "01a0b33e-deda-d7a5-dcf5-faeae65b486f",
+  "page": "4268c067daa481a4a886f0730ebf5369",
+  "video": "TC1erDRJTEs",
+  "revision": "2026-11-28T14:02:51.259Z",
+  "source_sha256": "6c6f03950e73c7d2b15ae0ff1a0e050550975e041bd3b2094a0df244f243f5e5",
+  "analysis_sha256": "5c4287af87ad432b4e78079a974af9be5e13a6933518335bd8b1af2f96404948",
+  "destination": "Nexus Output — Rice–Crab Co-Culture and Farm System Tradeoffs — TC1erDRJTEs",
+  "parent": "Nexus Runtime — Cortex Output Promotion",
+  "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+  "dependencies": []
+}
