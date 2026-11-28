@@ -1,0 +1,14 @@
+{
+  "worker": "Nexus Transcript Processing",
+  "authority": "Rule 16 direct owner submission; completed capture and verified readiness entry",
+  "account": "01a0b33e-deda-d7a5-dcf5-faeae65b486f",
+  "page": "4268c067daa4813491faeb99d7a05aa3",
+  "video": "6yeU0hwN6Co",
+  "revision": "2026-11-28T19:13:41.263Z",
+  "source_sha256": "ff3cfe280abdf18b16abfcf449df139ffaf633f9d2eb23bde6a7529cab440670",
+  "analysis_sha256": "34a0faaa14869490c1645b3b4d93fbb58edc47468f95f189dcb923388ec4402e",
+  "destination": "Nexus Output — Night Corp and Civic Autonomy — 6yeU0hwN6Co",
+  "parent": "Nexus Runtime — Cortex Output Promotion",
+  "parent_id": "module_01m3aqax434y0j3dwyhs66mac7",
+  "dependencies": []
+}
