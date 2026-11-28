@@ -20,3 +20,9 @@ Proposed addition to the existing hourly Nexus Automation Readiness task. Review
 - Independent Cortex readback confirms the addendum and source binding and the issue closes with a reopening condition.
 - A subsequent check recognizes the completed issue or existing addendum and creates no duplicate.
 - Missing connector access, grants, or execution evidence remains visible as a blocker.
+
+## Daytime intake and downtime execution
+
+Interactive Chat should record a follow-up in the existing Cortex issue queue and return to the conversation. A trusted host should dispatch due items during the owner's downtime window, using the existing schedule when authorized. An event can queue an item at any hour. The host should apply the same downtime check before dispatching from an event. A manual run can exercise the same controller on demand.
+
+The research controller is on main. The proposed dispatch entry point keeps interactive intake out of the execution path and reuses the controller's saved checkpoints for manual and scheduled execution. Host queue selection, the local-time window, verified Cortex writes and unattended execution still require operational verification. For the repeated-exposure case, retain sharing and longer-term belief as open questions with next actions. Verify any change to linked findings or questions and confirm a replay creates no duplicate.
