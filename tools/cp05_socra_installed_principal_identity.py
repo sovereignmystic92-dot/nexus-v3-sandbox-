@@ -7,6 +7,10 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+class ProbeBlocked(ValueError):
+    """A fixed diagnostic code safe to publish in a job log."""
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -25,33 +29,51 @@ def post(url, data, headers):
             raise ValueError("invalid JSON object")
         return result
 
+def checked_post(stage, url, data, headers):
+    try:
+        return post(url, data, headers)
+    except (ValueError, urllib.error.URLError, TimeoutError, OSError):
+        raise ProbeBlocked(stage) from None
+
+
 def main():
     client = os.environ.get("SOCRA_CLIENT_ID", "")
     secret = os.environ.get("SOCRA_CLIENT_SECRET", "")
     principal = os.environ.get("SOCRA_PRINCIPAL_ID", "")
-    if not client or not secret or not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", principal):
-        raise ValueError("missing credentials or invalid raw installation principal UUID")
+    expected_id = os.environ.get("SOCRA_EXPECTED_DIRECTORY_ID", "")
+    if not client or not secret:
+        raise ProbeBlocked("CLIENT_CREDENTIALS_MISSING")
+    if not re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", principal):
+        raise ProbeBlocked("PRINCIPAL_UUID_MISSING_OR_INVALID")
+    if not re.fullmatch(r"user_[A-Za-z0-9_-]+", expected_id):
+        raise ProbeBlocked("EXPECTED_DIRECTORY_ID_MISSING_OR_INVALID")
     payload = urllib.parse.urlencode({"grant_type":"client_credentials", "client_id":client, "client_secret":secret, "principal_id":principal}).encode()
-    token = post("https://oauth.socra.cloud/oauth/token", payload, {"Content-Type":"application/x-www-form-urlencoded"})
+    token = checked_post("TOKEN_EXCHANGE_FAILED", "https://oauth.socra.cloud/oauth/token", payload, {"Content-Type":"application/x-www-form-urlencoded"})
     access = token.get("access_token")
     if not isinstance(access, str) or not access or str(token.get("token_type","")).lower() != "bearer":
-        raise ValueError("token exchange did not yield bearer token")
-    identity = post("https://account.socra.cloud/directory/v1/users/me", b"{}", {"Authorization":"Bearer "+access,"Content-Type":"application/json"})
+        raise ProbeBlocked("BEARER_TOKEN_INVALID")
+    identity = checked_post("DIRECTORY_LOOKUP_FAILED", "https://account.socra.cloud/directory/v1/users/me", b"{}", {"Authorization":"Bearer "+access,"Content-Type":"application/json"})
     # The documented directory response may wrap member details; fail closed unless explicit fields are present.
     member = identity.get("data", identity)
     if not isinstance(member, dict) or member.get("type") != "app" or member.get("role") != "member":
-        raise ValueError("directory identity not verified as installed app member")
-    expected_id = os.environ.get("SOCRA_EXPECTED_DIRECTORY_ID", "")
-    if not re.fullmatch(r"user_[A-Za-z0-9_-]+", expected_id) or member.get("id") != expected_id:
-        raise ValueError("directory identity mismatch")
+        raise ProbeBlocked("DIRECTORY_APP_MEMBER_UNVERIFIED")
+    if member.get("id") != expected_id:
+        raise ProbeBlocked("DIRECTORY_ID_MISMATCH")
     print("PASS: installed Socra app identity verified; Cortex resource access NOT TESTED")
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
         f.write("PASS: Socra installed-app identity verified. Cortex access and writes NOT TESTED.\n")
 
-if __name__ == "__main__":
+def cli():
     try:
         main()
-    except (ValueError, KeyError, urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError):
-        # Never emit raw exception: HTTP error strings or URLs can expose details.
-        print("BLOCKED: Socra installed-principal identity check did not verify")
-        sys.exit(1)
+    except ProbeBlocked as exc:
+        print(f"BLOCKED: Socra installed-principal identity check did not verify [{exc}]")
+        return 1
+    except (ValueError, KeyError, OSError):
+        print("BLOCKED: Socra installed-principal identity check did not verify [LOCAL_PROBE_ERROR]")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(cli())
